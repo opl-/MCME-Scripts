@@ -1,0 +1,3 @@
+triggerCheckerPeriod: 10
+scriptCheckerPeriod: 100
+startUpDelay: 600

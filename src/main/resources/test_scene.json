@@ -1,0 +1,125 @@
+{
+  "name": "test_scene",
+  "events": [
+    {
+      "type": "RealTimed",
+      "time": "2019-07-26T00:00:00",
+      "unregisterAfterCall": true,
+      "actions": [
+        {
+          "type": "teleport",
+          "select": "@a",
+          "location": "1001,101,-1001"
+        },{
+          "type": "spawn",
+          "file": "smaug_flyover",
+          "name": "smaug"
+        },{
+          "type": "registerEvent",
+          "event": {
+            "unregisterAfterCall": true,
+            "type": "GoalFinishedEvent",
+            "target": "smaug",
+            "actions": [
+              {
+                "type": "despawn",
+                "target": "smaug"
+              }
+            ]
+          }
+        }
+      ],
+      "conditions": [],
+      "then": [],
+      "else": []
+    },{
+      "type": "PlayerJoinEvent",
+      "condition": {
+        "type": "playerJoin",
+        "firstJoin": true
+      },
+      "file": "bilbo_intro"
+    }
+  ],
+  "entities": [
+    {
+      "file": "hobbiton_inhabitant_1",
+      "spawnRange": 100,
+      "events": [
+        {
+          "type": "ServerTimePeriodicEvent",
+          "target": "hobbiton_inhabitant_1",
+          "condition": {
+            "type": "playerDistance",
+            "center": "hobbiton_inhabitant_1",
+            "target": "@a",
+            "distance": 10,
+            "trigger": "enter"
+          },
+          "actions": [
+            {
+              "type": "talk",
+              "message": "Hullo!",
+              "speaker": "hobbiton_inhabitant_1",
+              "skipIfAlreadyTalking": true,
+              "duration": 200
+            },{
+              "type": "setGoal",
+              "goal": {
+                "type": "watchEntity",
+                "target": "@p"
+              }
+            }
+          ]
+        },{
+          "type": "TimedEvent",
+          "target": "hobbiton_inhabitant_1",
+          "conditions": [
+            {
+              "type": "stopTalk"
+            },{
+              "type": "playerDistance",
+              "distance": 15,
+              "trigger": "none"
+            }
+          ],
+          "action": {
+            "type": "setGoal",
+            "goal": "original"
+          }
+        }
+      ]
+    },{
+      "file": "hobbiton_inhabitant_1",
+      "template": "hobbit_inhabitant",
+      "spawn": "1002,101,1022",
+      "waypoints": [
+        "1001,101,1020",
+        "1010,101,1019"
+      ]
+    }
+  ],
+  "quests": [
+    {
+      "name": "intro",
+      "stages": [
+        {
+          "name": "welcome",
+          "entities": [
+
+          ],
+          "events": [
+
+          ]
+        },
+        {
+          "name": "hall",
+          "prerequisites": ["intro"],
+          "events": [
+
+          ]
+        }
+      ]
+    }
+  ]
+}
