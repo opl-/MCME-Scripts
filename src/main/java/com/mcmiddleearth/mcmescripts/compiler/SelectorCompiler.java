@@ -3,6 +3,7 @@ package com.mcmiddleearth.mcmescripts.compiler;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
+import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 
 public class SelectorCompiler {
@@ -23,5 +24,20 @@ public class SelectorCompiler {
         JsonElement selectorJson = jsonObject.get(KEY_SELECTOR);
         if(selectorJson == null) return "@s";
         return selectorJson.getAsString();
+    }
+
+    public static Selector compileEntitySelector(JsonObject jsonObject) {
+        String selectorData = getSelectorData(jsonObject);
+        switch(selectorData.charAt(1)) {
+            case 'p':
+            case 'a':
+            case 'r':
+                return compilePlayerSelector(jsonObject);
+            case 'e':
+            case 's':
+            case 'v':
+                return compileVirtualEntitySelector(jsonObject);
+        }
+        return null;
     }
 }

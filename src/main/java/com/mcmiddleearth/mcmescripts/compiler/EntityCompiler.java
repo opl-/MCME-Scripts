@@ -9,7 +9,7 @@ import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
-import com.mcmiddleearth.mcmescripts.condition.VirtualEntityProximityCondition;
+import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
@@ -59,50 +59,46 @@ public class EntityCompiler {
     }
 
     private static Trigger compileEntity(JsonObject jsonObject) {
-        JsonElement spawnData = jsonObject.get(KEY_SPAWN_DATA);
-        VirtualEntityFactory factory = null;
-        Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
-        if(spawnData.isJsonObject()) {
-            File file = new File(EntitiesPlugin.getEntitiesFolder(),spawnData.getAsString()+".json");
-            try (JsonReader reader = gson.newJsonReader(new FileReader(file))) {
-                factory = gson.fromJson(reader, VirtualEntityFactory.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-                factory = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityFactory.class);
-        }
+        VirtualEntityFactory factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
         if(factory==null)  return null;
+        if(factory.getName()==null) {
+            factory.withName(""+random.nextInt(100000000));
+        } else {
+            factory.withName(factory.getName()+random.nextInt(10000));
+        }
         JsonElement nameData = jsonObject.get(KEY_NAME);
         if(nameData != null) {
             factory.withName(nameData.getAsString());
         }
-        if(factory.getName()==null) {
-            factory.withName(""+random.nextInt(10000000));
-        }
+
         JsonElement spawnDistanceData = jsonObject.get(KEY_SPAWN_DISTANCE);
         int spawnDistance = DEFAULT_SPAWN_DISTANCE;
         if(spawnDistanceData != null) {
             spawnDistance = spawnDistanceData.getAsInt();
         }
         factory.withViewDistance((int)(spawnDistance*0.9));
-        Set<Action> spawnActions = new HashSet<>();
 
         Set<Trigger> triggers = TriggerCompiler.compile(jsonObject);
-        triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
 
+        DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger((Action) null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
         DecisionTreeTrigger despawnTrigger = new PeriodicServerTimeTrigger((Action)null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
 
-        spawnActions.add(new TriggerRegisterAction(despawnTrigger));
+        Set<Action> spawnActions = new HashSet<>();
         spawnActions.add(new SpawnAction(factory));
-        DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger(spawnActions, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
-        spawnTrigger.addCondition(new VirtualEntityProximityCondition(factory.getName(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
-                                                                      count -> count > 0));
+        triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
+        spawnActions.add(new TriggerRegisterAction(despawnTrigger));
+        spawnActions.add(new TriggerUnregisterAction(spawnTrigger));
+        DecisionTreeTrigger.DecisionNode spawnNode = new DecisionTreeTrigger.DecisionNode(spawnActions);
+        spawnNode.addCondition(new VirtualEntityProximityCondition(factory.getName(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
+                count -> count > 0));
+        despawnTrigger.setDecisionNode(spawnNode);
+
 
         Set<Action> despawnActions = new HashSet<>();
         despawnActions.add(new DespawnAction(new VirtualEntitySelector("@e[name="+factory.getName()+"]")));
-        despawnActions.add(new TriggerRegisterAction(spawnTrigger));
         triggers.forEach(trigger -> despawnActions.add(new TriggerUnregisterAction(trigger)));
+        despawnActions.add(new TriggerRegisterAction(spawnTrigger));
+        despawnActions.add(new TriggerUnregisterAction(despawnTrigger));
         DecisionTreeTrigger.DecisionNode despawnNode = new DecisionTreeTrigger.DecisionNode(despawnActions);
         despawnNode.addCondition(new VirtualEntityProximityCondition(factory.getName(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
                                                                      count -> count == 0));

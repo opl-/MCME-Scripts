@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 import com.mcmiddleearth.mcmescripts.action.*;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
@@ -19,18 +20,20 @@ public class ActionCompiler {
     private static final String KEY_ACTION          = "action",
                                 KEY_ACTION_ARRAY    = "actions",
                                 KEY_ACTION_TYPE     = "type",
+                                KEY_TARGET          = "target",
+                                KEY_GOAL            = "goal",
+                                KEY_SPAWN_DATA      = "spawnData",
 
                                 VALUE_REGISTER_TRIGGER      = "registerTrigger",
                                 VALUE_UNREGISTER_TRIGGER    = "unregisterTrigger",
 
-                                KEY_SET_GOAL        = "setGoal",
-                                KEY_SPAWN           = "spawn",
-                                KEY_STOP_TALK       = "stopTalk",
-                                KEY_TALK            = "talk",
-                                KEY_TELEPORT        = "teleport",
+                                VALUE_SET_GOAL              = "setGoal",
+                                VALUE_SPAWN                 = "spawn",
+                                VALUE_STOP_TALK             = "stopTalk",
+                                VALUE_TALK                  = "talk",
+                                VALUE_TELEPORT              = "teleport",
 
-                                KEY_TELEPORT_SPREAD = "spread",
-                                KEY_MESSAGE         = "message";
+                                KEY_TELEPORT_SPREAD         = "spread";
 
     public static Collection<Action> compile(JsonObject jsonData) {
         JsonElement actionData = jsonData.get(KEY_ACTION);
@@ -66,21 +69,22 @@ public class ActionCompiler {
                 triggers = TriggerCompiler.compile(jsonObject);
                 if(triggers.isEmpty()) return null;
                 return new TriggerUnregisterAction(triggers);
-            case KEY_SET_GOAL:
-            case KEY_SPAWN:
-            case KEY_STOP_TALK:
+            case VALUE_SET_GOAL:
+                VirtualEntityFactory factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_GOAL));
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                return new SetGoalAction(factory.getGoalFactory(),selector);
+            case VALUE_SPAWN:
+                factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
+                return new SpawnAction(factory);
+            case VALUE_STOP_TALK:
+                selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 return new StopTalkAction(selector);
-            case KEY_TALK:
+            case VALUE_TALK:
                 SpeechBalloonLayout layout = SpeechBalloonLayoutCompiler.compile(jsonObject);
-                JsonElement message = jsonObject.get(KEY_MESSAGE);
-                if(message!=null) {
-                    layout.withMessage(message.getAsString());
-                }
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 return new TalkAction(layout,selector);
-            case KEY_TELEPORT:
-                Location target = LocationCompiler.compile(jsonObject);
+            case VALUE_TELEPORT:
+                Location target = LocationCompiler.compile(jsonObject.get(KEY_TARGET));
                 PlayerSelector playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 double spread = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_TELEPORT_SPREAD),0);
                 return new TeleportAction(target,spread,playerSelector);

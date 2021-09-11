@@ -7,14 +7,26 @@ import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 
 public class SpeechBalloonLayoutCompiler {
 
-    public static final String KEY_LAYOUT = "layout";
+    public static final String KEY_LAYOUT       = "layout",
+                               KEY_MESSAGE      = "message",
+                               KEY_DURATION     = "duration";
 
     public static SpeechBalloonLayout compile(JsonObject jsonObject) {
         JsonElement element = jsonObject.get(KEY_LAYOUT);
+        SpeechBalloonLayout layout;
         if(element == null) {
-            return new SpeechBalloonLayout();
+            layout = new SpeechBalloonLayout();
         } else {
-            return EntitiesPlugin.getEntitiesGsonBuilder().create().fromJson(element.toString(),SpeechBalloonLayout.class);
+            layout = EntitiesPlugin.getEntitiesGsonBuilder().create().fromJson(element.toString(),SpeechBalloonLayout.class);
         }
+        JsonElement message = jsonObject.get(KEY_MESSAGE);
+        if(message!=null) {
+            layout.withMessage(message.getAsString());
+        }
+        JsonElement duration = jsonObject.get(KEY_DURATION);
+        if(message!=null) {
+            layout.withDuration(message.getAsInt());
+        }
+        return layout;
     }
 }

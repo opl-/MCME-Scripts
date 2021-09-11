@@ -8,10 +8,10 @@ import org.bukkit.World;
 
 public class LocationCompiler {
 
-    private static final String KEY_LOCATION  = "location";
+    //private static final String KEY_LOCATION  = "location";
 
-    public static Location compile(JsonObject jsonObject) {
-        JsonElement element = jsonObject.get(KEY_LOCATION);
+    public static Location compile(JsonElement element) {
+        //JsonElement element = jsonObject.get(KEY_LOCATION);
         if(element == null) return null;
         String[] split = element.getAsString().replace(" ","").split(",");
         if(split.length<4) return null;

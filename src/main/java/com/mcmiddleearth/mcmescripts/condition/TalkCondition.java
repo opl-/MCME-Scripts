@@ -5,7 +5,7 @@ import com.mcmiddleearth.mcmescripts.selector.EntitySelector;
 
 public class TalkCondition extends SelectingCondition<VirtualEntity> {
 
-    public TalkCondition(EntitySelector<VirtualEntity> talkerSelector) {
-        super(talkerSelector, VirtualEntity::isTalking);
+    public TalkCondition(EntitySelector<VirtualEntity> talkerSelector, boolean noTalk) {
+        super(talkerSelector, (noTalk ? entity -> !entity.isTalking() : VirtualEntity::isTalking));
     }
 }

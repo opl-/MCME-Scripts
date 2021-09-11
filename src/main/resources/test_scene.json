@@ -4,7 +4,7 @@
     {
       "type": "RealTimed",
       "time": "2019-07-26T00:00:00",
-      "unregisterAfterCall": true,
+      "callOnce": true,
       "actions": [
         {
           "type": "teleport",
@@ -17,7 +17,7 @@
         },{
           "type": "registerEvent",
           "event": {
-            "unregisterAfterCall": true,
+            "callOnce": true,
             "type": "GoalFinishedEvent",
             "target": "smaug",
             "actions": [
@@ -43,25 +43,30 @@
   ],
   "entities": [
     {
-      "file": "hobbiton_inhabitant_1",
+      "spawnData": "hobbiton_inhabitant_1",
       "spawnRange": 100,
       "events": [
         {
           "type": "ServerTimePeriodicEvent",
           "target": "hobbiton_inhabitant_1",
-          "condition": {
-            "type": "playerDistance",
-            "center": "hobbiton_inhabitant_1",
-            "target": "@a",
-            "distance": 10,
-            "trigger": "enter"
-          },
+          "metAllConditions": true,
+          "conditions": [
+            {
+              "type": "entityProximity",
+              "center": "hobbiton_inhabitant_1",
+              "select": "@a[distance=0..15]",
+              "constrain": ">0"
+            },
+            {
+              "type": "noTalk",
+              "select": "@e[name=hobbiton_inhabitant_1]"
+            }
+          ],
           "actions": [
             {
               "type": "talk",
               "message": "Hullo!",
-              "speaker": "hobbiton_inhabitant_1",
-              "skipIfAlreadyTalking": true,
+              "select": "@e[name=hobbiton_inhabitant_1]",
               "duration": 200
             },{
               "type": "setGoal",
@@ -72,20 +77,23 @@
             }
           ]
         },{
-          "type": "TimedEvent",
+          "type": "ServerTimePeriodicEvent",
           "target": "hobbiton_inhabitant_1",
+          "metAllConditions": true,
           "conditions": [
             {
-              "type": "stopTalk"
+              "type": "noTalk",
+              "select": "@e[name=hobbiton_inhabitant_1]"
             },{
-              "type": "playerDistance",
-              "distance": 15,
-              "trigger": "none"
+              "type": "playerProximity",
+              "select": "@a[distance=0..15]",
+              "constrain": "=0"
             }
           ],
           "action": {
             "type": "setGoal",
-            "goal": "original"
+            "select": "@e[name=hobbiton_inhabitant_1]",
+            "goal": "hobbiton_inhabitant_1"
           }
         }
       ]
@@ -99,6 +107,11 @@
       ]
     }
   ],
+  "templates": {
+    "hobbit_inhabitant": {
+
+    }
+  },
   "quests": [
     {
       "name": "intro",

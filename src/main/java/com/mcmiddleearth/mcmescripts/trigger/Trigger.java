@@ -10,6 +10,8 @@ public abstract class Trigger {
 
     private Script script;
 
+    private boolean callOnce = false;
+
     private VirtualEntity entity;
     private Player player;
     private Location location;
@@ -51,5 +53,21 @@ public abstract class Trigger {
         this.location = location;
     }
 
-    public abstract void call(TriggerContext context);
+    public void setScript(Script script) {
+        this.script = script;
+    }
+
+    public boolean isCallOnce() {
+        return callOnce;
+    }
+
+    public void setCallOnce(boolean callOnce) {
+        this.callOnce = callOnce;
+    }
+
+    public void call(TriggerContext context) {
+        if(callOnce) {
+            unregister();
+        }
+    }
 }
