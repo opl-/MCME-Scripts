@@ -2,13 +2,15 @@ package com.mcmiddleearth.mcmescripts;
 
 import com.mcmiddleearth.mcmescripts.script.ScriptManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 public final class MCMEScripts extends JavaPlugin {
 
-    private static TimedTriggerChecker timedTriggerChecker;
-    private static BukkitTask timedTriggerTask;
+    private static TimedTriggerManager timedTriggerManager;
     private static ScriptManager scriptManager;
     private static MCMEScripts instance;
 
@@ -16,20 +18,27 @@ public final class MCMEScripts extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         scriptManager = new ScriptManager();
-        scriptManager.startChecker();
-        timedTriggerChecker = new TimedTriggerChecker();
-        timedTriggerTask = timedTriggerChecker.runTaskTimer(this, getConfigInt(ConfigKeys.START_UP_DELAY,600),
-                                                                        getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
+        timedTriggerManager = new TimedTriggerManager();
+        enableScripts();
         BukkitAudiences.create(this);
         instance = this;
     }
 
     @Override
     public void onDisable() {
-        if(timedTriggerTask!=null && !timedTriggerTask.isCancelled()) {
-            timedTriggerTask.cancel();
-        }
+        disableScripts();
+    }
+
+    public void enableScripts() {
+        scriptManager.readScripts();
+        scriptManager.startChecker();
+        timedTriggerManager.startChecker();
+    }
+
+    public void disableScripts() {
+        timedTriggerManager.stopChecker();
         scriptManager.stopChecker();
+        scriptManager.removeScripts();
     }
 
     public static ScriptManager getScriptManager() {
@@ -40,8 +49,8 @@ public final class MCMEScripts extends JavaPlugin {
         return instance;
     }
 
-    public static TimedTriggerChecker getTimedTriggerChecker() {
-        return timedTriggerChecker;
+    public static TimedTriggerManager getTimedTriggerChecker() {
+        return timedTriggerManager;
     }
 
     public static int getConfigInt(ConfigKeys key, int defaultValue) {
@@ -55,5 +64,17 @@ public final class MCMEScripts extends JavaPlugin {
     public static double getConfigValueDouble(ConfigKeys key, double defaultValue) {
         return instance.getConfig().getDouble(key.getKey(),defaultValue);
     }
+
+    private void setExecutor(String command, CommandExecutor executor) {
+        PluginCommand pluginCommand = Bukkit.getServer().getPluginCommand(command);
+        if(pluginCommand!=null) {
+            pluginCommand.setExecutor(executor);
+            if (executor instanceof TabCompleter)
+                pluginCommand.setTabCompleter((TabCompleter) executor);
+        }
+
+    }
+
+
 
 }

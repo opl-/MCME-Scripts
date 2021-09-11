@@ -89,6 +89,7 @@ public class Script {
 
     public void addEntity(Entity entity) {
         entities.add(entity);
+        !! use it!!!
     }
 
     public void removeEntity(Entity entity) {

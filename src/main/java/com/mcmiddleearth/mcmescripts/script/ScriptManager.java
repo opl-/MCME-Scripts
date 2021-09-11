@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ScriptManager {
 
@@ -18,7 +19,7 @@ public class ScriptManager {
 
     private static final File scripFolder = new File(MCMEScripts.getInstance().getDataFolder(),"scripts");
 
-    public ScriptManager() {
+    public void readScripts() {
         for(File file : scripFolder.listFiles(((dir, name) -> name.endsWith(".json")))) {
             try {
                 addScript(file);
@@ -40,6 +41,11 @@ public class ScriptManager {
             script.unload();
             scripts.remove(name);
         }
+    }
+
+    public void removeScripts() {
+        Set<String> names = scripts.keySet();
+        names.forEach(this::removeScript);
     }
 
     public void startChecker() {
@@ -67,5 +73,9 @@ public class ScriptManager {
         if(checker!=null && !checker.isCancelled()) {
             checker.cancel();
         }
+    }
+
+    public  Map<String, Script> getScripts() {
+        return scripts;
     }
 }

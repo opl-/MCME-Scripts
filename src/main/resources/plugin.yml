@@ -4,3 +4,14 @@ main: com.mcmiddleearth.mcmequests.MCMEScripts
 api-version: 1.16
 authors: [ Eriol_Eandur ]
 depends: [ MCME-Entities ]
+
+commands:
+  scripts:
+    description: Manages scripts.
+    permission: mcmescripts.admin
+    usage: /scripts debug | reload
+
+permissions:
+  mcmescripts.admin:
+    default: op
+    description: Allows to manage scripts.
