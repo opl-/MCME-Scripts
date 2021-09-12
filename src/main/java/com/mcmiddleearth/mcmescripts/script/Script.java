@@ -7,6 +7,7 @@ import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.Entity;
 import com.mcmiddleearth.mcmescripts.compiler.ConditionCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.ScriptCompiler;
+import com.mcmiddleearth.mcmescripts.compiler.TriggerCompiler;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -38,7 +39,7 @@ public class Script {
         name = ScriptCompiler.getName(jsonData);
         if(name==null) name = System.currentTimeMillis()+"_"+Math.random();
         conditions = ConditionCompiler.compile(jsonData);
-        if(!conditions.isEmpty()) metAllConditions = ConditionCompiler.getMetAllConditions(jsonData);
+        if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
     }
 
     private JsonObject loadJsonData(File dataFile) throws IOException {
@@ -106,5 +107,13 @@ public class Script {
 
     public String getName() {
         return name;
+    }
+
+    public Set<Trigger> getTriggers() {
+        return triggers;
+    }
+
+    public Set<Entity> getEntities() {
+        return entities;
     }
 }

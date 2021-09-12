@@ -138,7 +138,7 @@ public class TriggerCompiler {
         return node;
     }
 
-    private static boolean getMetAllConditions(JsonObject jsonData) {
+    public static boolean getMetAllConditions(JsonObject jsonData) {
         JsonElement data = jsonData.get(KEY_MET_ALL_CONDITIONS);
         if(data!=null) {
             return data.getAsBoolean();
