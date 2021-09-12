@@ -6,13 +6,7 @@ import com.mcmiddleearth.mcmescripts.script.Script;
 import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public abstract class TimedTrigger extends DecisionTreeTrigger {
-
-    public TimedTrigger(Collection<Action> actions) {
-        super(actions);
-    }
 
     public TimedTrigger(Action action) {
         super(action);

@@ -11,10 +11,6 @@ import java.util.Collection;
 
 public abstract class BukkitEventTrigger extends EventTrigger implements Listener {
 
-    public BukkitEventTrigger(Collection<Action> actions) {
-        super(actions);
-    }
-
     public BukkitEventTrigger(Action action) {
         super(action);
     }

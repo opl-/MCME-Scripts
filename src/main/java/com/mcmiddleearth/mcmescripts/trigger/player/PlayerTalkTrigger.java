@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.trigger.player;
 
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.Action;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.BukkitEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -17,12 +19,10 @@ import java.util.Collection;
 
 public class PlayerTalkTrigger extends BukkitEventTrigger {
 
-    public PlayerTalkTrigger(Collection<Action> actions) {
-        super(actions);
-    }
-
     public PlayerTalkTrigger(Action action) {
         super(action);
+        DebugManager.log(Modules.Trigger.create(this.getClass()),
+                "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @EventHandler
@@ -34,12 +34,18 @@ public class PlayerTalkTrigger extends BukkitEventTrigger {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    call(context);
+                    callInternal(context);
                 }
             }.runTask(MCMEScripts.getInstance());
         } else {
-            call(context);
+            callInternal(context);
         }
+    }
+
+    private void callInternal(TriggerContext context) {
+        call(context);
+        DebugManager.log(Modules.Trigger.call(this.getClass()),
+                "Player: " + context.getPlayer().getName() + " Message: " + context.getMessage());
     }
 
 }

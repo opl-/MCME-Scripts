@@ -1,6 +1,8 @@
 package com.mcmiddleearth.mcmescripts.trigger.player;
 
 import com.mcmiddleearth.mcmescripts.action.Action;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.BukkitEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.event.EventHandler;
@@ -10,18 +12,18 @@ import java.util.Collection;
 
 public class PlayerJoinTrigger extends BukkitEventTrigger {
 
-    public PlayerJoinTrigger(Collection<Action> actions) {
-        super(actions);
-    }
-
     public PlayerJoinTrigger(Action action) {
         super(action);
+        DebugManager.log(Modules.Trigger.create(this.getClass()),
+                "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         TriggerContext context = new TriggerContext(this).withPlayer(event.getPlayer())
-                                                     .withFirstJoin(event.getPlayer().getLastLogin()==0);
+                .withFirstJoin(event.getPlayer().getLastLogin() == 0);
         call(context);
+        DebugManager.log(Modules.Trigger.call(this.getClass()),
+                "Player: " + event.getPlayer().getName() + " First join: " + context.isFirstJoin());
     }
 }

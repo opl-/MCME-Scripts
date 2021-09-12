@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class ScriptCompiler {
@@ -20,12 +21,12 @@ public class ScriptCompiler {
         triggers.forEach(trigger -> trigger.register(script));
     }
 
-    public static String getName(JsonObject jsonData) {
+    public static Optional<String> getName(JsonObject jsonData) {
         JsonElement element = jsonData.get(KEY_NAME);
-        if(element==null) {
-            return null;
+        if(element!=null && element.isJsonPrimitive()) {
+            return Optional.of(element.getAsString());
         } else {
-            return element.getAsString();
+            return Optional.empty();
         }
     }
 }

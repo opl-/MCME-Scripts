@@ -1,5 +1,8 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
+import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
@@ -20,14 +23,19 @@ public class SelectingCondition<T> implements Condition {
 
     @Override
     public boolean test(TriggerContext context) {
+        boolean result = matchAllSelected;
         for(T element :selector.select(context)) {
             if(matchAllSelected && !test.apply(element)) {
-                return false;
+                result = false;
+                break;
             } else if(!matchAllSelected && test.apply(element)) {
-                return true;
+                result = true;
+                break;
             }
         }
-        return matchAllSelected;
+        DebugManager.log(Modules.Condition.test(this.getClass()),
+                "Selector: "+selector.getSelector()+" Result: "+result);
+        return result;
     }
 
     public boolean isMatchAllSelected() {

@@ -9,6 +9,8 @@ import com.mcmiddleearth.mcmescripts.compiler.ConditionCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.ScriptCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.TriggerCompiler;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
@@ -36,10 +38,11 @@ public class Script {
     public Script(File file) throws IOException {
         dataFile = file;
         JsonObject jsonData = loadJsonData(dataFile);
-        name = ScriptCompiler.getName(jsonData);
-        if(name==null) name = System.currentTimeMillis()+"_"+Math.random();
+        name = ScriptCompiler.getName(jsonData).orElse(System.currentTimeMillis()+"_"+Math.random());
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
+        DebugManager.log(Modules.Script.create(this.getClass()),
+                "Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
     }
 
     private JsonObject loadJsonData(File dataFile) throws IOException {
@@ -53,6 +56,8 @@ public class Script {
             JsonObject jsonData = loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
             active = true;
+            DebugManager.log(Modules.Script.load(this.getClass()),
+                    "Name: "+name);
         }
     }
 
@@ -61,6 +66,8 @@ public class Script {
         entities.forEach(entity -> EntitiesPlugin.getEntityServer().removeEntity(entity));
         entities.clear();
         active = false;
+        DebugManager.log(Modules.Script.unload(this.getClass()),
+                "Name: "+name);
     }
 
     public boolean isActive() {
@@ -90,7 +97,6 @@ public class Script {
 
     public void addEntity(Entity entity) {
         entities.add(entity);
-        !! use it!!!
     }
 
     public void removeEntity(Entity entity) {

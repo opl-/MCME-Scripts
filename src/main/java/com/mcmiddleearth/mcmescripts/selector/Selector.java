@@ -9,4 +9,6 @@ public interface Selector<T> {
 
     List<T> select(TriggerContext context);
 
+    String getSelector();
+
 }

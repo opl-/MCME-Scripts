@@ -6,6 +6,8 @@ import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 
+import java.util.Optional;
+
 public class SelectorCompiler {
 
     private static final String KEY_SELECTOR = "select";
@@ -26,18 +28,18 @@ public class SelectorCompiler {
         return selectorJson.getAsString();
     }
 
-    public static Selector compileEntitySelector(JsonObject jsonObject) {
+    public static Optional<Selector> compileEntitySelector(JsonObject jsonObject) {
         String selectorData = getSelectorData(jsonObject);
         switch(selectorData.charAt(1)) {
             case 'p':
             case 'a':
             case 'r':
-                return compilePlayerSelector(jsonObject);
+                return Optional.of(compilePlayerSelector(jsonObject));
             case 'e':
             case 's':
             case 'v':
-                return compileVirtualEntitySelector(jsonObject);
+                return Optional.of(compileVirtualEntitySelector(jsonObject));
         }
-        return null;
+        return Optional.empty();
     }
 }

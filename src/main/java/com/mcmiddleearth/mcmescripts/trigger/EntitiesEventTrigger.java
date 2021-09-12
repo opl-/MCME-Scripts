@@ -10,10 +10,6 @@ import java.util.Collection;
 
 public abstract class EntitiesEventTrigger extends EventTrigger implements McmeEventListener {
 
-    public EntitiesEventTrigger(Collection<Action> actions) {
-        super(actions);
-    }
-
     public EntitiesEventTrigger(Action action) {
         super(action);
     }

@@ -1,10 +1,7 @@
 package com.mcmiddleearth.mcmescripts.compiler;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
@@ -16,11 +13,8 @@ import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicServerTimeTrigger;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -48,19 +42,17 @@ public class EntityCompiler {
         Set<Trigger> triggers = new HashSet<>();
         if(entities.isJsonArray()) {
             for(int i = 0; i< entities.getAsJsonArray().size(); i++) {
-                Trigger trigger = compileEntity(entities.getAsJsonArray().get(i).getAsJsonObject());
-                if(trigger!=null) triggers.add(trigger);
+                compileEntity(entities.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);
             }
         } else {
-            Trigger trigger = compileEntity(entities.getAsJsonObject());
-            if(trigger!=null) triggers.add(trigger);
+            compileEntity(entities.getAsJsonObject()).ifPresent(triggers::add);
         }
         return triggers;
     }
 
-    private static Trigger compileEntity(JsonObject jsonObject) {
+    private static Optional<Trigger> compileEntity(JsonObject jsonObject) {
         VirtualEntityFactory factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
-        if(factory==null)  return null;
+        if(factory==null)  return Optional.empty();
         if(factory.getName()==null) {
             factory.withName(""+random.nextInt(100000000));
         } else {
@@ -104,6 +96,6 @@ public class EntityCompiler {
                                                                      count -> count == 0));
         despawnTrigger.setDecisionNode(despawnNode);
 
-        return spawnTrigger;
+        return Optional.of(spawnTrigger);
     }
 }

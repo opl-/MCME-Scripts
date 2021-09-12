@@ -1,11 +1,11 @@
 package com.mcmiddleearth.mcmescripts.selector;
 
 import com.mcmiddleearth.entities.api.McmeEntityType;
-import com.mcmiddleearth.entities.entities.VirtualEntity;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
 
 public abstract class EntitySelector<T> implements Selector<T> {
+
+    private final String selector;
 
     protected VirtualEntitySelector.SelectorType selectorType;
     protected int limit = Integer.MAX_VALUE;
@@ -23,6 +23,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
     protected float minYaw = -180, maxYaw = 180;
 
     public EntitySelector(String selector) throws IndexOutOfBoundsException {
+        this.selector = selector;
         selector = selector.replace(" ","");
         switch(selector.charAt(1)) {
             case 'a':
@@ -156,13 +157,17 @@ public abstract class EntitySelector<T> implements Selector<T> {
         }
     }
 
-    public static enum SelectorType {
+    public String getSelector() {
+        return selector;
+    }
+
+    public enum SelectorType {
         NEAREST_PLAYER,
         RANDOM_PLAYER,
         ALL_PLAYERS,
         VIRTUAL_ENTITIES,
         ALL_ENTITIES,
-        TRIGGER_ENTITY;
+        TRIGGER_ENTITY
     }
 
     public static enum Order {

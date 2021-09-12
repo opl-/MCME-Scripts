@@ -1,5 +1,7 @@
 package com.mcmiddleearth.mcmescripts.selector;
 
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,6 +17,8 @@ public class PlayerSelector extends EntitySelector<Player>{
 
     public PlayerSelector(String selector) throws IndexOutOfBoundsException {
         super(selector);
+        DebugManager.log(Modules.Selector.create(this.getClass()),
+                "Selector: "+selector);
     }
 
     @Override
@@ -26,6 +30,8 @@ public class PlayerSelector extends EntitySelector<Player>{
             case TRIGGER_ENTITY:
                 if(context.getPlayer()!=null)
                     players.add(context.getPlayer());
+                DebugManager.log(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()+" Selected: "+(context.getPlayer()!=null?context.getPlayer().getName():null));
                 return players;
             case ALL_PLAYERS:
             case ALL_ENTITIES:
@@ -77,20 +83,33 @@ public class PlayerSelector extends EntitySelector<Player>{
                                         && element.getValue() <= maxDistanceSquared;
                             }).collect(Collectors.toList());
                 }
+                List<Player> result = Collections.emptyList();
                 switch (selectorType) {
                     case NEAREST_PLAYER:
-                        return sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(1)
+                        result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(1)
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
+                        DebugManager.log(Modules.Selector.select(this.getClass()),
+                                "Selector: "+getSelector()
+                                      +" Selected: "+(result.size()>0?result.get(0).getName():null));
+                        return result;
                     case RANDOM_PLAYER:
-                        return Collections.singletonList(sort.get(new Random().nextInt(sort.size())).getContent());
+                        result = Collections.singletonList(sort.get(new Random().nextInt(sort.size())).getContent());
+                        break;
                     case ALL_PLAYERS:
                     case ALL_ENTITIES:
-                        return sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
+                        result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
+                        break;
                 }
+                DebugManager.log(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()
+                              +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
+                return result;
         }
+        DebugManager.log(Modules.Selector.select(this.getClass()),
+                "Selector: "+getSelector()
+                       +" Selected: none");
         return Collections.emptyList();
     }
-
 
 }

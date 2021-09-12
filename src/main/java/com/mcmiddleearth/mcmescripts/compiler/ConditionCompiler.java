@@ -7,11 +7,13 @@ import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
+import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import org.bukkit.Location;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -41,19 +43,18 @@ public class ConditionCompiler {
         Set<Condition> result = new HashSet<>();
         if(conditionData.isJsonArray()) {
             for(int i = 0; i< conditionData.getAsJsonArray().size(); i++) {
-                Condition condition = compileCondition(conditionData.getAsJsonArray().get(i).getAsJsonObject());
-                if(condition!=null) result.add(condition);
+                compileCondition(conditionData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(result::add);
             }
         } else {
-            Condition condition = compileCondition(conditionData.getAsJsonObject());
-            if(condition!=null) result.add(condition);
+            compileCondition(conditionData.getAsJsonObject()).ifPresent(result::add);
+            //if(condition!=null) result.add(condition);
         }
         return result;
     }
 
-    private static Condition compileCondition(JsonObject jsonObject) {
+    private static Optional<Condition> compileCondition(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_CONDITION_TYPE);
-        if(type==null)  return null;
+        if(type==null)  return Optional.empty();
         @SuppressWarnings("rawtypes")
         Selector selector;
         boolean noTalk = false;
@@ -63,22 +64,22 @@ public class ConditionCompiler {
                     noTalk = true;
                 case VALUE_TALK:
                     selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                    return new TalkCondition((VirtualEntitySelector) selector,noTalk);
+                    return Optional.of(new TalkCondition((VirtualEntitySelector) selector,noTalk));
                 case VALUE_PROXIMITY_LOCATION:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject);
-                    Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER));
-                    return new LocationProximityCondition(location, selector, compileFunction(jsonObject));
+                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
+                    Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
+                    return Optional.of(new LocationProximityCondition(location, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_ENTITY:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject);
+                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
                     String entityName = jsonObject.get(KEY_CENTER).getAsString();
-                    return new VirtualEntityProximityCondition(entityName, selector, compileFunction(jsonObject));
+                    return Optional.of(new VirtualEntityProximityCondition(entityName, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_PLAYER:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject);
+                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
                     String playerName = jsonObject.get(KEY_CENTER).getAsString();
-                    return new PlayerProximityCondition(playerName, selector, compileFunction(jsonObject));
+                    return Optional.of(new PlayerProximityCondition(playerName, selector, compileFunction(jsonObject)));
             }
         } catch(NullPointerException ignore) {}
-        return null;
+        return Optional.empty();
     }
 
     private static Function<Integer,Boolean> compileFunction(JsonObject jsonObject) {

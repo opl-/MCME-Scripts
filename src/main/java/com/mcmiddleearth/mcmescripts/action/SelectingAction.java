@@ -4,7 +4,6 @@ import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class SelectingAction<T> implements Action {
 

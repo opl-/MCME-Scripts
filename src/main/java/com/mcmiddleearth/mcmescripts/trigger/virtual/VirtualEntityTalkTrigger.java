@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.mcmiddleearth.entities.events.events.virtual.VirtualEntityTalkEvent;
 import com.mcmiddleearth.entities.events.handler.EntityEventHandler;
 import com.mcmiddleearth.mcmescripts.action.Action;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
@@ -11,12 +13,10 @@ import java.util.Collection;
 
 public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
 
-    public VirtualEntityTalkTrigger(Collection<Action> actions) {
-        super(actions);
-    }
-
     public VirtualEntityTalkTrigger(Action action) {
         super(action);
+        DebugManager.log(Modules.Trigger.create(this.getClass()),
+                "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @EntityEventHandler
@@ -25,5 +25,7 @@ public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
                 .withEntity(event.getVirtualEntity())
                 .withMessage(Joiner.on("\n").join(event.getLayout().getLines()));
         call(context);
+        DebugManager.log(Modules.Trigger.call(this.getClass()),
+                "Entity: "+context.getEntity());
     }
 }

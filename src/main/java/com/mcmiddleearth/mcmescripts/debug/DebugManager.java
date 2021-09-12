@@ -1,20 +1,12 @@
 package com.mcmiddleearth.mcmescripts.debug;
 
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
-import com.mcmiddleearth.mcmescripts.script.ScriptManager;
-import com.mcmiddleearth.mcmescripts.trigger.Trigger;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -86,7 +78,7 @@ public class DebugManager {
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
         if(debugModules.contains(module) || debugModules.contains(module.split("\\.")[0])) {
-            log(message);
+            log(module + " -> " + message);
         }
     }
 

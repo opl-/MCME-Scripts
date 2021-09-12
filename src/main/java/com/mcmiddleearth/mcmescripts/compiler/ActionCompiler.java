@@ -12,6 +12,7 @@ import org.bukkit.Location;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -47,48 +48,46 @@ public class ActionCompiler {
         Set<Action> result = new HashSet<>();
         if(actionData.isJsonArray()) {
             for(int i = 0; i< actionData.getAsJsonArray().size(); i++) {
-                Action action = compileAction(actionData.getAsJsonArray().get(i).getAsJsonObject());
-                if(action!=null) result.add(action);
+                compileAction(actionData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(result::add);
             }
         } else {
-            Action action = compileAction(actionData.getAsJsonObject());
-            if(action!=null) result.add(action);
+            compileAction(actionData.getAsJsonObject()).ifPresent(result::add);
         }
         return result;
     }
 
-    private static Action compileAction(JsonObject jsonObject) {
+    private static Optional<Action> compileAction(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_ACTION_TYPE);
-        if (type == null) return null;
+        if (type == null) return Optional.empty();
         switch(type.getAsString()) {
             case VALUE_REGISTER_TRIGGER:
                 Set<Trigger> triggers = TriggerCompiler.compile(jsonObject);
-                if(triggers.isEmpty()) return null;
-                return new TriggerRegisterAction(triggers);
+                if(triggers.isEmpty()) return Optional.empty();
+                return Optional.of(new TriggerRegisterAction(triggers));
             case VALUE_UNREGISTER_TRIGGER:
                 triggers = TriggerCompiler.compile(jsonObject);
-                if(triggers.isEmpty()) return null;
-                return new TriggerUnregisterAction(triggers);
+                if(triggers.isEmpty()) return Optional.empty();
+                return Optional.of(new TriggerUnregisterAction(triggers));
             case VALUE_SET_GOAL:
                 VirtualEntityFactory factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_GOAL));
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return new SetGoalAction(factory.getGoalFactory(),selector);
+                return Optional.of(new SetGoalAction(factory.getGoalFactory(),selector));
             case VALUE_SPAWN:
                 factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
-                return new SpawnAction(factory);
+                return Optional.of(new SpawnAction(factory));
             case VALUE_STOP_TALK:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return new StopTalkAction(selector);
+                return Optional.of(new StopTalkAction(selector));
             case VALUE_TALK:
                 SpeechBalloonLayout layout = SpeechBalloonLayoutCompiler.compile(jsonObject);
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return new TalkAction(layout,selector);
+                return Optional.of(new TalkAction(layout,selector));
             case VALUE_TELEPORT:
-                Location target = LocationCompiler.compile(jsonObject.get(KEY_TARGET));
+                Location target = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
                 PlayerSelector playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 double spread = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_TELEPORT_SPREAD),0);
-                return new TeleportAction(target,spread,playerSelector);
+                return Optional.of(new TeleportAction(target,spread,playerSelector));
         }
-        return null;
+        return Optional.empty();
     }
 }

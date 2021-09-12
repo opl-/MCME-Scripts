@@ -11,12 +11,14 @@ import com.mcmiddleearth.mcmescripts.trigger.player.PlayerTalkTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.VirtualPlayerAttackTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.OnceRealTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.OnceServerTimeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.virtual.GoalFinishedTrigger;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class TriggerCompiler {
@@ -51,19 +53,17 @@ public class TriggerCompiler {
         Set<Trigger> triggers = new HashSet<>();
         if(triggerData.isJsonArray()) {
             for(int i = 0; i< triggerData.getAsJsonArray().size(); i++) {
-                Trigger trigger = compileTrigger(triggerData.getAsJsonArray().get(i).getAsJsonObject());
-                if(trigger!=null) triggers.add(trigger);
+                compileTrigger(triggerData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);
             }
         } else {
-            Trigger trigger = compileTrigger(triggerData.getAsJsonObject());
-            if(trigger!=null) triggers.add(trigger);
+            compileTrigger(triggerData.getAsJsonObject()).ifPresent(triggers::add);
         }
         return triggers;
     }
 
-    private static Trigger compileTrigger(JsonObject jsonObject) {
+    private static Optional<Trigger> compileTrigger(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_TYPE);
-        if(type==null)  return null;
+        if(type==null)  return Optional.empty();
 
         DecisionTreeTrigger trigger = null;
         switch(type.getAsString()) {
@@ -103,10 +103,10 @@ public class TriggerCompiler {
                 trigger = new GoalFinishedTrigger((Action)null);
                 break;
         }
-        if(trigger == null) return null;
+        if(trigger == null) return Optional.empty();
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);
         trigger.setDecisionNode(decisionNode);
-        trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)));
+        trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null));
 
         boolean callOnce = false;
         JsonElement callOnceJson = jsonObject.get(KEY_CALL_ONCE);
@@ -116,7 +116,7 @@ public class TriggerCompiler {
         trigger.setCallOnce(callOnce);
 
 
-        return trigger;
+        return Optional.of(trigger);
     }
 
     private static DecisionTreeTrigger.DecisionNode compileDecisionNode(JsonObject jsonObject) {

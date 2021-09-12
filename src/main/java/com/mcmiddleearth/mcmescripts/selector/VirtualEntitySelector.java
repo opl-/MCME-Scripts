@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.selector;
 
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
 
@@ -14,6 +16,8 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
 
     public VirtualEntitySelector(String selector) throws IndexOutOfBoundsException {
         super(selector);
+        DebugManager.log(Modules.Selector.create(this.getClass()),
+                "Selector: "+selector);
     }
 
     @Override
@@ -25,6 +29,8 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
             case TRIGGER_ENTITY:
                 if(context.getEntity()!=null)
                     entities.add(context.getEntity());
+                DebugManager.log(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
                 return entities;
             case VIRTUAL_ENTITIES:
             case ALL_ENTITIES:
@@ -69,9 +75,16 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                                            && element.getValue() <= maxDistanceSquared;
                                    }).collect(Collectors.toList());
                 }
-                return sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
+                List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                            .map(EntitySelectorElement::getContent).collect(Collectors.toList());
+                DebugManager.log(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()
+                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
+                return result;
         }
+        DebugManager.log(Modules.Selector.select(this.getClass()),
+                "Selector: "+getSelector()
+                        +" Selected: none");
         return Collections.emptyList();
     }
 

@@ -1,5 +1,7 @@
 package com.mcmiddleearth.mcmescripts.action;
 
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -24,7 +26,9 @@ public class TeleportAction extends SelectingAction<Player> {
             } else {
                 player.teleport(randomClose(loc, spread));
             }
+            DebugManager.log(Modules.Action.execute(TeleportAction.class),"Teleport player: "+player.getName());
         });
+        DebugManager.log(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }
 
     private static Location randomClose(Location location, double spread) {

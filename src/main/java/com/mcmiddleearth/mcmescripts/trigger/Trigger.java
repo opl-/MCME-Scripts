@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.trigger;
 
 
 import com.mcmiddleearth.entities.entities.VirtualEntity;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -19,10 +21,14 @@ public abstract class Trigger {
     public void register(Script script) {
         script.addTrigger(this);
         this.script = script;
+        DebugManager.log(Modules.Trigger.register(this.getClass()),
+                "Scrip: "+script.getName()+" Call once: "+callOnce);
     }
 
     public void unregister() {
         script.removeTrigger(this);
+        DebugManager.log(Modules.Trigger.unregister(this.getClass()),
+                "Scrip: "+script.getName());
     }
 
     public Script getScript() {
