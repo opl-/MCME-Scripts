@@ -101,7 +101,7 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
         public void addConditions(Collection<Condition> conditions) {
             if(this.conditions==null) {
-                this.conditions = new HashSet<Condition>(conditions);
+                this.conditions = new HashSet<>(conditions);
             } else {
                 this.conditions.addAll(conditions);
             }

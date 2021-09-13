@@ -11,7 +11,11 @@ import com.mcmiddleearth.mcmescripts.trigger.player.PlayerTalkTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.VirtualPlayerAttackTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.OnceRealTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.OnceServerTimeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicRealTimeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicServerTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.GoalFinishedTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.virtual.VirtualEntityStopTalkTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.virtual.VirtualEntityTalkTrigger;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,6 +31,7 @@ public class TriggerCompiler {
                                 KEY_TRIGGER_ARRAY   = "events",
                                 KEY_TYPE            = "type",
                                 KEY_TIME            = "time",
+                                KEY_PERIOD          = "period",
                                 KEY_THEN            = "then",
                                 KEY_ELSE            = "else",
                                 KEY_CALL_ONCE       = "callOnce",
@@ -34,11 +39,15 @@ public class TriggerCompiler {
                                 KEY_MET_ALL_CONDITIONS  = "metAllConditions",
 
                                 VALUE_REAL_TIMED_TRIGGER    = "realTimed",
+                                VALUE_REAL_PERIODIC_TRIGGER   = "realPeriodic",
                                 VALUE_SERVER_TIMED_TRIGGER  = "serverTimed",
+                                VALUE_SERVER_PERIODIC_TRIGGER   = "serverPeriodic",
                                 VALUE_PLAYER_TALK_TRIGGER   = "playerTalk",
                                 VALUE_PLAYER_JOIN_TRIGGER   = "playerJoin",
                                 VALUE_PLAYER_QUIT_TRIGGER   = "playerQuit",
                                 VALUE_VIRTUAL_PLAYER_ATTACK_TRIGGER     = "virtualPlayerAttack",
+                                VALUE_VIRTUAL_TALK_TRIGGER              = "virtualTalk",
+                                VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtualStopTalk",
                                 VALUE_GOAL_FINISHED_TRIGGER             = "goalFinished";
 
     public static Set<Trigger> compile(JsonObject jsonData) {
@@ -74,25 +83,31 @@ public class TriggerCompiler {
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
                     long millis = zdt.toInstant().toEpochMilli();
                     trigger = new OnceRealTimeTrigger(null, millis);
+                    trigger.setCallOnce(true);
                 }
-                add periodic real time trigger
+                break;
+            case VALUE_REAL_PERIODIC_TRIGGER:
+                time = jsonObject.get(KEY_PERIOD);
+                if(time != null && time.isJsonPrimitive()) {
+                    trigger = new PeriodicRealTimeTrigger(null,time.getAsInt());
+                }
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
                 if(time!=null) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 }
-                add periodic server time trigger
+                break;
+            case VALUE_SERVER_PERIODIC_TRIGGER:
+                time = jsonObject.get(KEY_PERIOD);
+                if(time != null && time.isJsonPrimitive()) {
+                    trigger = new PeriodicServerTimeTrigger(null,time.getAsInt());
+                }
                 break;
             case VALUE_PLAYER_TALK_TRIGGER:
                 trigger = new PlayerTalkTrigger(null);
                 break;
             case VALUE_PLAYER_JOIN_TRIGGER:
-                /*JsonElement firstData = jsonObject.get(KEY_FIRST_JOIN);
-                boolean firstJoin=false;
-                if(first!=null) {
-                    firstJoin = firstData.getAsBoolean();
-                }*/
                 trigger = new PlayerJoinTrigger(null);
                 break;
             case VALUE_PLAYER_QUIT_TRIGGER:
@@ -104,7 +119,12 @@ public class TriggerCompiler {
             case VALUE_GOAL_FINISHED_TRIGGER:
                 trigger = new GoalFinishedTrigger(null);
                 break;
-                add virtual entity talk and stop talk trigger
+            case VALUE_VIRTUAL_TALK_TRIGGER:
+                trigger = new VirtualEntityTalkTrigger(null);
+                break;
+            case VALUE_VIRTUAL_STOP_TALK_TRIGGER:
+                trigger = new VirtualEntityStopTalkTrigger(null);
+                break;
         }
         if(trigger == null) return Optional.empty();
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);
