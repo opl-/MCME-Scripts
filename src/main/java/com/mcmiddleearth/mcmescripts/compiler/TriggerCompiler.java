@@ -73,17 +73,19 @@ public class TriggerCompiler {
                     LocalDateTime localDateTime = LocalDateTime.parse(time.getAsString());
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
                     long millis = zdt.toInstant().toEpochMilli();
-                    trigger = new OnceRealTimeTrigger((Action) null, millis);
+                    trigger = new OnceRealTimeTrigger(null, millis);
                 }
+                add periodic real time trigger
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
                 if(time!=null) {
-                    trigger = new OnceServerTimeTrigger((Action) null, time.getAsInt());
+                    trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 }
+                add periodic server time trigger
                 break;
             case VALUE_PLAYER_TALK_TRIGGER:
-                trigger = new PlayerTalkTrigger((Action) null);
+                trigger = new PlayerTalkTrigger(null);
                 break;
             case VALUE_PLAYER_JOIN_TRIGGER:
                 /*JsonElement firstData = jsonObject.get(KEY_FIRST_JOIN);
@@ -91,17 +93,18 @@ public class TriggerCompiler {
                 if(first!=null) {
                     firstJoin = firstData.getAsBoolean();
                 }*/
-                trigger = new PlayerJoinTrigger((Action) null);
+                trigger = new PlayerJoinTrigger(null);
                 break;
             case VALUE_PLAYER_QUIT_TRIGGER:
-                trigger = new PlayerQuitTrigger((Action) null);
+                trigger = new PlayerQuitTrigger(null);
                 break;
             case VALUE_VIRTUAL_PLAYER_ATTACK_TRIGGER:
-                trigger = new VirtualPlayerAttackTrigger((Action) null);
+                trigger = new VirtualPlayerAttackTrigger(null);
                 break;
             case VALUE_GOAL_FINISHED_TRIGGER:
-                trigger = new GoalFinishedTrigger((Action)null);
+                trigger = new GoalFinishedTrigger(null);
                 break;
+                add virtual entity talk and stop talk trigger
         }
         if(trigger == null) return Optional.empty();
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);

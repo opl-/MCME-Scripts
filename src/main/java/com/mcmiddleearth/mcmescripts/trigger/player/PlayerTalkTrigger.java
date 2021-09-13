@@ -7,15 +7,10 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.BukkitEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Collection;
 
 public class PlayerTalkTrigger extends BukkitEventTrigger {
 

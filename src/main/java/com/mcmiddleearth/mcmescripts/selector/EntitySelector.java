@@ -173,6 +173,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
     public static enum Order {
         NEAREST, FURTHEST, RANDOM, ARBITRARY;
     }
+
     public static class EntitySelectorElement<T> {
         private final T content;
         private double value;

@@ -24,6 +24,7 @@ public class ConditionCompiler {
                                 KEY_CONDITION_TYPE      = "type",
                                 KEY_CONSTRAIN           = "constrain",
                                 KEY_CENTER              = "center",
+                                KEY_MATCH_ALL_SELECTED = "matchAll",
 
                                 VALUE_TALK                  = "talk",
                                 VALUE_NO_TALK               = "noTalk",
@@ -64,7 +65,9 @@ public class ConditionCompiler {
                     noTalk = true;
                 case VALUE_TALK:
                     selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                    return Optional.of(new TalkCondition((VirtualEntitySelector) selector,noTalk));
+                    TalkCondition condition = new TalkCondition((VirtualEntitySelector) selector,noTalk);
+                    getMatchAll(jsonObject).ifPresent(condition::setMatchAllSelected);
+                    return Optional.of(condition);
                 case VALUE_PROXIMITY_LOCATION:
                     selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
                     Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
@@ -80,6 +83,12 @@ public class ConditionCompiler {
             }
         } catch(NullPointerException ignore) {}
         return Optional.empty();
+    }
+
+    private static Optional<Boolean> getMatchAll(JsonObject jsonObject) {
+        JsonElement selectorJson = jsonObject.get(KEY_MATCH_ALL_SELECTED);
+        if(selectorJson == null || selectorJson.isJsonPrimitive()) return Optional.empty();
+        return Optional.of(selectorJson.getAsBoolean());
     }
 
     private static Function<Integer,Boolean> compileFunction(JsonObject jsonObject) {

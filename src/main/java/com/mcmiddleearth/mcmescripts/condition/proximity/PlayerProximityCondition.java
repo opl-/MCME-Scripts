@@ -1,6 +1,5 @@
 package com.mcmiddleearth.mcmescripts.condition.proximity;
 
-import com.mcmiddleearth.mcmescripts.action.TriggerUnregisterAction;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
@@ -9,7 +8,6 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 @SuppressWarnings("rawtypes")

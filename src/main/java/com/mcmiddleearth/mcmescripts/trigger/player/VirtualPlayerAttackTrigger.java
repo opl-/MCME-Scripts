@@ -8,8 +8,6 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public class VirtualPlayerAttackTrigger extends EntitiesEventTrigger {
 
     public VirtualPlayerAttackTrigger(Action action) {
@@ -18,6 +16,7 @@ public class VirtualPlayerAttackTrigger extends EntitiesEventTrigger {
                 "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
+    @SuppressWarnings("unused")
     @EntityEventHandler
     public void playerJoin(VirtualPlayerAttackEvent event) {
         TriggerContext context = new TriggerContext(this)

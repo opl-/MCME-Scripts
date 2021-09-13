@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class ScriptManager {
 
@@ -20,6 +21,11 @@ public class ScriptManager {
     private static final File scripFolder = new File(MCMEScripts.getInstance().getDataFolder(),"scripts");
 
     public void readScripts() {
+        if(!scripFolder.exists()) {
+            if(scripFolder.mkdir()) {
+                Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Scripts folder created.");
+            }
+        }
         for(File file : scripFolder.listFiles(((dir, name) -> name.endsWith(".json")))) {
             try {
                 addScript(file);

@@ -72,8 +72,8 @@ public class EntityCompiler {
 
         Set<Trigger> triggers = TriggerCompiler.compile(jsonObject);
 
-        DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger((Action) null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
-        DecisionTreeTrigger despawnTrigger = new PeriodicServerTimeTrigger((Action)null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
+        DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
+        DecisionTreeTrigger despawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
 
         Set<Action> spawnActions = new HashSet<>();
         spawnActions.add(new SpawnAction(factory));

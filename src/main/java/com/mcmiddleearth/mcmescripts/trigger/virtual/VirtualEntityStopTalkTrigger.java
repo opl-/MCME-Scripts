@@ -8,8 +8,6 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public class
 VirtualEntityStopTalkTrigger extends EntitiesEventTrigger {
 
@@ -19,6 +17,7 @@ VirtualEntityStopTalkTrigger extends EntitiesEventTrigger {
                  "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
+    @SuppressWarnings("unused")
     @EntityEventHandler
     public void onEntityStopTalk(VirtualEntityStopTalkEvent event) {
         TriggerContext context = new TriggerContext(this)

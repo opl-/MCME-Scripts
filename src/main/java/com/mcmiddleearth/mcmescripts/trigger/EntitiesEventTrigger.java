@@ -6,8 +6,6 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.script.Script;
 
-import java.util.Collection;
-
 public abstract class EntitiesEventTrigger extends EventTrigger implements McmeEventListener {
 
     public EntitiesEventTrigger(Action action) {

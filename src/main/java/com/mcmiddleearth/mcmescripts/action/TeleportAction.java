@@ -6,7 +6,6 @@ import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.Random;
 

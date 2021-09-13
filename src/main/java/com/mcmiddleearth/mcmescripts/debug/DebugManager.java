@@ -18,15 +18,24 @@ public class DebugManager {
 
     private static PrintWriter writer;
 
-    static {
-        if(!logFile.exists()) {
-            try {
-                logFile.createNewFile();
-                writer = new PrintWriter(new FileWriter(logFile),true);
-            } catch (IOException e) {
-                e.printStackTrace();
+    public static void open() {
+        if(logFile.exists()) {
+            if(!logFile.delete()) {
+                Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Can't delete old log file!");
             }
         }
+        try {
+            if(logFile.createNewFile()) {
+                Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Creating log file!");
+            }
+            writer = new PrintWriter(new FileWriter(logFile),true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void close() {
+        writer.close();
     }
 
     public static void toggleDebug(String module) {
@@ -57,12 +66,10 @@ public class DebugManager {
         } else if(split[0].equalsIgnoreCase("trigger")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length<2 || entry.getKey().startsWith(split[1])))
-                       .forEach(entry -> {
-                           entry.getValue().getTriggers().stream()
-                                .filter(trigger -> split.length < 3
-                                        || trigger.getClass().getSimpleName().toLowerCase().startsWith(split[2].toLowerCase()))
-                                .forEach(trigger -> log(trigger.toString()));
-                       });
+                       .forEach(entry -> entry.getValue().getTriggers().stream()
+                            .filter(trigger -> split.length < 3
+                                    || trigger.getClass().getSimpleName().toLowerCase().startsWith(split[2].toLowerCase()))
+                            .forEach(trigger -> log(trigger.toString())));
         }
     }
 

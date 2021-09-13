@@ -9,8 +9,6 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public class GoalFinishedTrigger extends EntitiesEventTrigger {
 
     public GoalFinishedTrigger(Action action) {
@@ -19,6 +17,7 @@ public class GoalFinishedTrigger extends EntitiesEventTrigger {
                 "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
+    @SuppressWarnings("unused")
     @EntityEventHandler
     public void onGoalFinished(GoalFinishedEvent event) {
         TriggerContext context = new TriggerContext(this);

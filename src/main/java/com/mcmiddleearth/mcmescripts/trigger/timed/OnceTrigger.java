@@ -5,8 +5,6 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public abstract class OnceTrigger extends TimedTrigger {
 
     private final long timeMillis;

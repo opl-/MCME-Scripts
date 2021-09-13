@@ -1,6 +1,5 @@
 package com.mcmiddleearth.mcmescripts.action;
 
-import com.mcmiddleearth.entities.ai.goal.Goal;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.exception.InvalidDataException;
@@ -22,10 +21,4 @@ public class SetGoalAction extends SelectingAction<VirtualEntity> {
         });
         DebugManager.log(Modules.Action.create(this.getClass()),"Goal type: "+goalFactory.getGoalType().name());
     }
-
-    /*@Override
-    public void execute(TriggerContext context) {
-        if(context.getEntity()!=null)
-            context.getEntity().setGoal(goal);
-    }*/
 }

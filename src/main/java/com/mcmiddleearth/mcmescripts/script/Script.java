@@ -22,7 +22,7 @@ import java.util.Set;
 
 public class Script {
 
-    private String name;
+    private final String name;
 
     private final Set<Trigger> triggers = new HashSet<>();
     private final Set<Entity> entities = new HashSet<>();
@@ -33,7 +33,6 @@ public class Script {
     private boolean active = false;
 
     private final File dataFile;
-    //private final JsonObject jsonData;
 
     public Script(File file) throws IOException {
         dataFile = file;

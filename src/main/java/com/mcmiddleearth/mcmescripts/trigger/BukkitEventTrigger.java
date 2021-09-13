@@ -7,8 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import java.util.Collection;
-
 public abstract class BukkitEventTrigger extends EventTrigger implements Listener {
 
     public BukkitEventTrigger(Action action) {

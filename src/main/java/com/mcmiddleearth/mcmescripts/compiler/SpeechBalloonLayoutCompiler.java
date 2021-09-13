@@ -25,7 +25,7 @@ public class SpeechBalloonLayoutCompiler {
         }
         JsonElement duration = jsonObject.get(KEY_DURATION);
         if(message!=null) {
-            layout.withDuration(message.getAsInt());
+            layout.withDuration(duration.getAsInt());
         }
         return layout;
     }

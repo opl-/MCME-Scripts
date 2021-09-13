@@ -4,8 +4,6 @@ import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 
-import java.util.Collection;
-
 public class PeriodicRealTimeTrigger extends PeriodicTrigger {
 
     public PeriodicRealTimeTrigger(Action action, long timeMillis) {

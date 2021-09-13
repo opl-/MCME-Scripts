@@ -1,9 +1,5 @@
 package com.mcmiddleearth.mcmescripts.condition.proximity;
 
-import com.mcmiddleearth.entities.EntitiesPlugin;
-import com.mcmiddleearth.entities.entities.McmeEntity;
-import com.mcmiddleearth.entities.entities.VirtualEntity;
-import com.mcmiddleearth.mcmescripts.action.TriggerUnregisterAction;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;

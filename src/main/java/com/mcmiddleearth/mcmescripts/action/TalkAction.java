@@ -6,7 +6,6 @@ import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
-import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 public class TalkAction extends SelectingAction<VirtualEntity> {
 
@@ -17,10 +16,4 @@ public class TalkAction extends SelectingAction<VirtualEntity> {
         });
         DebugManager.log(Modules.Action.execute(this.getClass()),"Message: "+ Joiner.on("/").join(layout.getLines()));
     }
-
-    /*@Override
-    public void execute(TriggerContext context) {
-        if(context.getEntity()!=null)
-            context.getEntity().say(layout);
-    }*/
 }

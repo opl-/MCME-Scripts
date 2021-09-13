@@ -12,7 +12,7 @@ public class DialogueNode {
 
     private Component prompt;
 
-    private Map<String,DialogueNode> answers = new HashMap<>();
+    private final Map<String,DialogueNode> answers = new HashMap<>();
 
-    private Set<Action> actions = new HashSet<>();
+    private final Set<Action> actions = new HashSet<>();
 }

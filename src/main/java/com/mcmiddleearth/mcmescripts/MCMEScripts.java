@@ -1,5 +1,7 @@
 package com.mcmiddleearth.mcmescripts;
 
+import com.mcmiddleearth.mcmescripts.command.ScriptsCommandHandler;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.script.ScriptManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -17,16 +19,19 @@ public final class MCMEScripts extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        DebugManager.open();
         scriptManager = new ScriptManager();
         timedTriggerManager = new TimedTriggerManager();
         enableScripts();
         BukkitAudiences.create(this);
+        setExecutor("scripts", new ScriptsCommandHandler("scripts"));
         instance = this;
     }
 
     @Override
     public void onDisable() {
         disableScripts();
+        DebugManager.close();
     }
 
     public void enableScripts() {

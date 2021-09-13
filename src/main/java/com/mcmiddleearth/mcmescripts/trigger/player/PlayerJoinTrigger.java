@@ -8,8 +8,6 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.Collection;
-
 public class PlayerJoinTrigger extends BukkitEventTrigger {
 
     public PlayerJoinTrigger(Action action) {

@@ -9,8 +9,6 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.Collection;
-
 public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
 
     public VirtualEntityTalkTrigger(Action action) {
@@ -19,6 +17,7 @@ public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
                 "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
+    @SuppressWarnings("unused")
     @EntityEventHandler
     public void onEntityTalk(VirtualEntityTalkEvent event) {
         TriggerContext context = new TriggerContext(this)

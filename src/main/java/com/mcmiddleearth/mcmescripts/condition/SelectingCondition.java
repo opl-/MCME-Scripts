@@ -1,6 +1,5 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
-import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
@@ -36,10 +35,6 @@ public class SelectingCondition<T> implements Condition {
         DebugManager.log(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Result: "+result);
         return result;
-    }
-
-    public boolean isMatchAllSelected() {
-        return matchAllSelected;
     }
 
     public void setMatchAllSelected(boolean matchAllSelected) {

@@ -5,8 +5,6 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import org.bukkit.Bukkit;
 
-import java.util.Collection;
-
 public class PeriodicServerTimeTrigger extends PeriodicTrigger {
 
     public PeriodicServerTimeTrigger(Action action, long timeMillis) {

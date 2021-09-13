@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class SelectorCompiler {
 
-    private static final String KEY_SELECTOR = "select";
+    private static final String KEY_SELECTOR           = "select";
 
     public static PlayerSelector compilePlayerSelector(JsonObject jsonObject) {
         String selectorData = getSelectorData(jsonObject);
@@ -28,6 +28,7 @@ public class SelectorCompiler {
         return selectorJson.getAsString();
     }
 
+    @SuppressWarnings("rawtypes")
     public static Optional<Selector> compileEntitySelector(JsonObject jsonObject) {
         String selectorData = getSelectorData(jsonObject);
         switch(selectorData.charAt(1)) {
