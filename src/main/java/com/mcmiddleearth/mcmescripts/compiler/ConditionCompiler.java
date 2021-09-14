@@ -42,6 +42,7 @@ public class ConditionCompiler {
 
     private static Set<Condition> compileConditions(JsonElement conditionData) {
         Set<Condition> result = new HashSet<>();
+        if(conditionData==null) return result;
         if(conditionData.isJsonArray()) {
             for(int i = 0; i< conditionData.getAsJsonArray().size(); i++) {
                 compileCondition(conditionData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(result::add);

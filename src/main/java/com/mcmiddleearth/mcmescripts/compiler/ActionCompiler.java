@@ -46,6 +46,7 @@ public class ActionCompiler {
 
     private static Set<Action> compileActions(JsonElement actionData) {
         Set<Action> result = new HashSet<>();
+        if(actionData == null) return result;
         if(actionData.isJsonArray()) {
             for(int i = 0; i< actionData.getAsJsonArray().size(); i++) {
                 compileAction(actionData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(result::add);

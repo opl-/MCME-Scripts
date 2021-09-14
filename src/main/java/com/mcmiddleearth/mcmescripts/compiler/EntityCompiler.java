@@ -40,6 +40,7 @@ public class EntityCompiler {
 
     private static Set<Trigger> compileEntities(JsonElement entities) {
         Set<Trigger> triggers = new HashSet<>();
+        if(entities == null) return triggers;
         if(entities.isJsonArray()) {
             for(int i = 0; i< entities.getAsJsonArray().size(); i++) {
                 compileEntity(entities.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);

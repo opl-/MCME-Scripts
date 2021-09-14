@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -50,7 +51,7 @@ public class ScriptManager {
     }
 
     public void removeScripts() {
-        Set<String> names = scripts.keySet();
+        Set<String> names = new HashSet<>(scripts.keySet());
         names.forEach(this::removeScript);
     }
 

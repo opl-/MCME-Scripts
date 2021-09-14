@@ -60,6 +60,7 @@ public class TriggerCompiler {
 
     private static Set<Trigger> compileTriggers(JsonElement triggerData) {
         Set<Trigger> triggers = new HashSet<>();
+        if(triggerData == null) return triggers;
         if(triggerData.isJsonArray()) {
             for(int i = 0; i< triggerData.getAsJsonArray().size(); i++) {
                 compileTrigger(triggerData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);

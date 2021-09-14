@@ -21,7 +21,7 @@ public class ScriptsCommandSender implements McmeCommandSender {
 
     @Override
     public void sendMessage(BaseComponent[] baseComponents) {
-        String legacy = Arrays.stream(baseComponents).map(BaseComponent::toLegacyText).collect(Collectors.joining());
+        String legacy = Arrays.stream(baseComponents).map(comp -> comp.toLegacyText()).collect(Collectors.joining());
         sender.sendMessage(Identity.nil(), Component.text("[Scripts] ").color(NamedTextColor.AQUA)
                                           .append(Component.text(legacy)),
                            MessageType.SYSTEM);

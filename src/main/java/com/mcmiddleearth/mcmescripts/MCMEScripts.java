@@ -19,13 +19,13 @@ public final class MCMEScripts extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        instance = this;
         DebugManager.open();
         scriptManager = new ScriptManager();
         timedTriggerManager = new TimedTriggerManager();
         enableScripts();
-        BukkitAudiences.create(this);
+        //BukkitAudiences.create(this);
         setExecutor("scripts", new ScriptsCommandHandler("scripts"));
-        instance = this;
     }
 
     @Override
