@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -44,13 +45,19 @@ public class DebugManager {
 
     public static void debug(String module, String enable) {
         debug(module, enable.equalsIgnoreCase("true"));
+        log("Active Debug Modules: ");
+        debugModules.forEach(DebugManager::log);
     }
 
-    private static void debug(String module, boolean enable) {
-        if(enable) {
-            debugModules.add(module);
+    public static void debug(String module, boolean enable) {
+        if(module.equalsIgnoreCase("all")) {
+            Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(),enable));
         } else {
-            debugModules.remove(module);
+            if (enable) {
+                debugModules.add(module);
+            } else {
+                debugModules.remove(module);
+            }
         }
     }
 
@@ -74,18 +81,22 @@ public class DebugManager {
     }
 
     public static void log(String module, String message) {
+        String initialModule = ""+module;
         module = module + ".";
         int lastDot = module.lastIndexOf('.');
         do {
             module = module.substring(0,lastDot);
+            //log(module);
             if(debugModules.contains(module)) {
-                log(message);
+                //log("Found: "+module);
                 break;
             }
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
+        //log("Final module: "+module);
         if(debugModules.contains(module) || debugModules.contains(module.split("\\.")[0])) {
-            log(module + " -> " + message);
+            //log("found final module.");
+            log(initialModule + " -> " + message);
         }
     }
 

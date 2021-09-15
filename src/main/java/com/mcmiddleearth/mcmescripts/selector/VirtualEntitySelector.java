@@ -22,7 +22,7 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
 
     @Override
     public List<VirtualEntity> select(TriggerContext context) {
-        Location loc = context.getLocation().clone();
+        Location loc = context.getLocation();
         List<VirtualEntity> entities = new ArrayList<>();
         List<EntitySelectorElement<VirtualEntity>> sort = new ArrayList<>();
         switch(selectorType) {
@@ -34,6 +34,7 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                 return entities;
             case VIRTUAL_ENTITIES:
             case ALL_ENTITIES:
+                if(loc == null) return Collections.emptyList();
                 loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
                                                   getAbsolute(loc.getY(),yRelative,y),
                                                   getAbsolute(loc.getZ(),zRelative,z));

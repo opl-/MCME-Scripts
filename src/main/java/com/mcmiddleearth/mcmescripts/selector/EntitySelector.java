@@ -90,7 +90,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         dz = Double.parseDouble(split[1]);
                         break;
                     case "distance":
-                        String[] minMax = split[1].split("..");
+                        String[] minMax = split[1].split("\\.\\.");
                         minDistance = Double.parseDouble(minMax[0]);
                         if(minMax.length > 1) {
                             maxDistance = Double.parseDouble(minMax[1]);
@@ -123,7 +123,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         }
                         break;
                     case "x_rotation":
-                        minMax = split[1].split("..");
+                        minMax = split[1].split("\\.\\.");
                         minPitch = Float.parseFloat(minMax[0]);
                         if(minMax.length > 1) {
                             maxPitch = Float.parseFloat(minMax[1]);
@@ -132,7 +132,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         }
                         break;
                     case "y_rotation":
-                        minMax = split[1].split("..");
+                        minMax = split[1].split("\\.\\.");
                         minYaw = Float.parseFloat(minMax[0]);
                         if(minMax.length > 1) {
                             maxYaw = Float.parseFloat(minMax[1]);

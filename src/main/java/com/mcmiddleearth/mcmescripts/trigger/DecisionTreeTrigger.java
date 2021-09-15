@@ -59,7 +59,9 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         public DecisionNode(Action action) {
-            actions = new HashSet<>(Collections.singleton(action));
+            this();
+            if(action != null)
+                actions.add(action);
         }
 
         public DecisionNode(Collection<Action> actions) {
@@ -68,7 +70,9 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
         public void call(TriggerContext context) {
             if(checkConditions(context)) {
-                actions.forEach(action-> action.execute(context));
+                if(actions!=null) {
+                    actions.forEach(action -> action.execute(context));
+                }
                 if(conditionSuccessTrigger!=null) {
                     conditionSuccessTrigger.call(context);
                 }
@@ -80,7 +84,7 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         private boolean checkConditions(TriggerContext context) {
-            if(conditions.isEmpty()) return true;
+            if(conditions == null || conditions.isEmpty()) return true;
             for(Condition condition: conditions) {
                 if(metAllConditions && !condition.test(context)) {
                     return false;
@@ -126,5 +130,14 @@ public abstract class DecisionTreeTrigger extends Trigger {
         public void setConditionFailTrigger(DecisionNode conditionFailTrigger) {
             this.conditionFailTrigger = conditionFailTrigger;
         }
+
+        public String toString() {
+            return "Actions: "+(actions==null?"null":actions.size())
+                 +" Conditions: "+(conditions==null?"null":conditions.size())+" metAll: "+metAllConditions;
+        }
+    }
+
+    public String toString() {
+        return " CallOnce: "+isCallOnce()+"\nDecision node: \n"+decisionNode.toString();
     }
 }

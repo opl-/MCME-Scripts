@@ -10,10 +10,7 @@ import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import org.bukkit.Location;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 public class ActionCompiler {
@@ -70,9 +67,12 @@ public class ActionCompiler {
                 if(triggers.isEmpty()) return Optional.empty();
                 return Optional.of(new TriggerUnregisterAction(triggers));
             case VALUE_SET_GOAL:
-                VirtualEntityFactory factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_GOAL));
+                List<VirtualEntityFactory> factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_GOAL));
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return Optional.of(new SetGoalAction(factory.getGoalFactory(),selector));
+                if(!factory.isEmpty()) {
+                    return Optional.of(new SetGoalAction(factory.get(0).getGoalFactory(), selector));
+                }
+                return Optional.empty();
             case VALUE_SPAWN:
                 factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
                 return Optional.of(new SpawnAction(factory));
@@ -88,7 +88,8 @@ public class ActionCompiler {
                 PlayerSelector playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 double spread = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_TELEPORT_SPREAD),0);
                 return Optional.of(new TeleportAction(target,spread,playerSelector));
+            default:
+                return Optional.empty();
         }
-        return Optional.empty();
     }
 }

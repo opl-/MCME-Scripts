@@ -15,6 +15,7 @@ public class TriggerUnregisterAction implements Action {
     public TriggerUnregisterAction(Trigger trigger) {
         triggers = new HashSet<>();
         triggers.add(trigger);
+        DebugManager.log(Modules.Action.create(this.getClass()),"Trigger: "+trigger.getClass().getSimpleName());
     }
 
     public TriggerUnregisterAction(Set<Trigger> triggers) {

@@ -36,6 +36,7 @@ public class PlayerSelector extends EntitySelector<Player>{
             case ALL_PLAYERS:
             case ALL_ENTITIES:
             case RANDOM_PLAYER:
+                if(loc == null) return Collections.emptyList();
                 loc = new Location(loc.getWorld(), getAbsolute(loc.getX(), xRelative, x),
                         getAbsolute(loc.getY(), yRelative, y),
                         getAbsolute(loc.getZ(), zRelative, z));
@@ -55,10 +56,16 @@ public class PlayerSelector extends EntitySelector<Player>{
                             .collect(Collectors.toList());
                 }
                 if (name != null) {
-                    players = players.stream().filter(player -> player.getName().equals(name) != excludeName)
-                            .collect(Collectors.toList());
+                    if(name.endsWith("*")) {
+                        players = players.stream().filter(player -> player.getName()
+                                                          .startsWith(name.substring(0,name.length()-1)) != excludeName)
+                                .collect(Collectors.toList());
+                    } else {
+                        players = players.stream().filter(player -> player.getName().equals(name) != excludeName)
+                                .collect(Collectors.toList());
+                    }
                 }
-                if (name != null) {
+                if (gameMode != null) {
                     players = players.stream().filter(player -> player.getGameMode().equals(gameMode) != excludeGameMode)
                             .collect(Collectors.toList());
                 }

@@ -21,14 +21,14 @@ public class LocationProximityCondition implements Condition {
         this.location = center;
         this.test = test;
         DebugManager.log(Modules.Condition.create(this.getClass()),
-                "Selector: "+selector.getSelector()+" Location: "+location.toString());
+                "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
     }
 
     @Override
     public boolean test(TriggerContext context) {
         context = new TriggerContext(context).withLocation(location);
         DebugManager.log(Modules.Condition.test(this.getClass()),
-                "Selector: "+selector.getSelector()+" Location: "+location.toString());
+                "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
         return test.apply(selector.select(context).size());
     }
 }

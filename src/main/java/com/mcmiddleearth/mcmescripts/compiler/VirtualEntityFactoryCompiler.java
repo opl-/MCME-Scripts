@@ -19,22 +19,35 @@ public class VirtualEntityFactoryCompiler {
     public static List<VirtualEntityFactory> compile(JsonElement element) {
         List<VirtualEntityFactory> result = new ArrayList<>();
         if (element == null) return result;
-        if (element.isJsonArray()) {
+
+        Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
+        if(element.isJsonPrimitive()) {
+            File file = new File(EntitiesPlugin.getEntitiesFolder(),element.getAsString()+".json");
+            try (JsonReader reader = gson.newJsonReader(new FileReader(file))) {
+                reader.beginArray();
+                while(reader.hasNext()) {
+                    result.add(gson.fromJson(reader, VirtualEntityFactory.class));
+                }
+                reader.endArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (element.isJsonArray()) {
             JsonArray jsonArray = element.getAsJsonArray();
             for(int i = 0; i< jsonArray.size();i++) {
-                compileObject(jsonArray.get(i).getAsJsonObject()).ifPresent(result::add);
+                compileObject(gson, jsonArray.get(i).getAsJsonObject()).ifPresent(result::add);
             }
         } else if(element.isJsonObject()) {
-            compileObject(element.getAsJsonObject()).ifPresent(result::add);
-        } else {
-
+            compileObject(gson, element.getAsJsonObject()).ifPresent(result::add);
         }
         return result;
     }
 
-    private static Optional<VirtualEntityFactory> compileObject(JsonObject jsonObject) {
-
-        return VirtualEntityFactory.getDefaults();
+    private static Optional<VirtualEntityFactory> compileObject(Gson gson, JsonObject jsonObject) {
+        VirtualEntityFactory factory
+            = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityFactory.class);
+        return Optional.of(factory);
+        /*return VirtualEntityFactory.getDefaults();
         VirtualEntityFactory factory = VirtualEntityFactory.getDefaults();
         Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
         if(element.isJsonPrimitive()) {
@@ -48,6 +61,6 @@ public class VirtualEntityFactoryCompiler {
         } else {
             factory = gson.fromJson(new JsonReader(new StringReader(element.toString())),VirtualEntityFactory.class);
         }
-        return factory;
+        return factory;*/
     }
 }

@@ -17,8 +17,8 @@ public class ScriptCompiler {
         triggers.forEach(trigger -> trigger.register(script));
         triggers = TriggerCompiler.compile(jsonData);
         triggers.forEach(trigger -> trigger.register(script));
-        triggers = QuestCompiler.compile(jsonData);
-        triggers.forEach(trigger -> trigger.register(script));
+        //triggers = QuestCompiler.compile(jsonData);
+        //triggers.forEach(trigger -> trigger.register(script));
     }
 
     public static Optional<String> getName(JsonObject jsonData) {
