@@ -1,7 +1,12 @@
 package com.mcmiddleearth.mcmescripts.selector;
 
+import com.google.common.base.Joiner;
 import com.mcmiddleearth.entities.api.McmeEntityType;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import org.bukkit.GameMode;
+
+import java.util.logging.Logger;
 
 public abstract class EntitySelector<T> implements Selector<T> {
 
@@ -10,9 +15,9 @@ public abstract class EntitySelector<T> implements Selector<T> {
     protected VirtualEntitySelector.SelectorType selectorType;
     protected int limit = Integer.MAX_VALUE;
     protected double x,y,z;
-    protected boolean xRelative, yRelative, zRelative;
+    protected boolean xRelative = true, yRelative = true, zRelative = true;
     protected double dx = -1, dy = -1, dz = -1;
-    protected double minDistance = -1, maxDistance = Double.MAX_VALUE;
+    protected double minDistanceSquared = -1, maxDistanceSquared = Double.MAX_VALUE;
     protected McmeEntityType entityType;
     protected boolean excludeType;
     protected String name;
@@ -23,6 +28,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
     protected float minYaw = -180, maxYaw = 180;
 
     public EntitySelector(String selector) throws IndexOutOfBoundsException {
+DebugManager.log(Modules.Selector.create(this.getClass()),"Selector: "+selector);
         this.selector = selector;
         selector = selector.replace(" ","");
         switch(selector.charAt(1)) {
@@ -46,9 +52,11 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 selectorType = EntitySelector.SelectorType.NEAREST_PLAYER;
         }
         if(selector.length()>2) {
-            String[] arguments = selector.substring(3,selector.length()-2).split(",");
+            if(selector.charAt(2) != '[' || selector.charAt(selector.length()-1)!=']') return;
+            String[] arguments = selector.substring(3,selector.length()-1).split(",");
             for(String argument : arguments) {
                 String[] split = argument.split("=");
+DebugManager.log(Modules.Selector.create(this.getClass()),"split: "+ Joiner.on("_").join(split));
                 switch(split[0]) {
                     case "limit":
                         limit = Integer.parseInt(split[1]);
@@ -56,7 +64,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     case "x":
                         if (split[1].startsWith("~")) {
                             split[1] = split[1].substring(1);
-                            xRelative = true;
+                        } else {
+                            xRelative = false;
                         }
                         if (split[1].length() > 0) {
                             x = Double.parseDouble(split[1]);
@@ -65,7 +74,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     case "y":
                         if (split[1].startsWith("~")) {
                             split[1] = split[1].substring(1);
-                            yRelative = true;
+                        } else {
+                            yRelative = false;
                         }
                         if (split[1].length() > 0) {
                             y = Double.parseDouble(split[1]);
@@ -74,7 +84,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     case "z":
                         if (split[1].startsWith("~")) {
                             split[1] = split[1].substring(1);
-                            zRelative = true;
+                        } else {
+                            zRelative = false;
                         }
                         if (split[1].length() > 0) {
                             z = Double.parseDouble(split[1]);
@@ -91,12 +102,16 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         break;
                     case "distance":
                         String[] minMax = split[1].split("\\.\\.");
-                        minDistance = Double.parseDouble(minMax[0]);
+DebugManager.log(Modules.Selector.create(this.getClass()),"minMax "+Joiner.on("_").join(minMax));
+                        double minDistance = Double.parseDouble(minMax[0]);
+                        minDistanceSquared = minDistance * minDistance;
                         if(minMax.length > 1) {
-                            maxDistance = Double.parseDouble(minMax[1]);
+                            double maxDistance = Double.parseDouble(minMax[1]);
+                            maxDistanceSquared = maxDistance * maxDistance;
                         } else {
-                            maxDistance = minDistance;
+                            maxDistanceSquared = minDistanceSquared;
                         }
+DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minDistanceSquared+" "+maxDistanceSquared);
                         break;
                     case "type":
                         if(split[1].startsWith("!")) {

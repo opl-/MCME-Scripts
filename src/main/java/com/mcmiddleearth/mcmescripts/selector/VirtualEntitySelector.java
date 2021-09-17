@@ -6,6 +6,7 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +25,6 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
     public List<VirtualEntity> select(TriggerContext context) {
         Location loc = context.getLocation();
         List<VirtualEntity> entities = new ArrayList<>();
-        List<EntitySelectorElement<VirtualEntity>> sort = new ArrayList<>();
         switch(selectorType) {
             case TRIGGER_ENTITY:
                 if(context.getEntity()!=null)
@@ -62,12 +62,14 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                                             .collect(Collectors.toList());
                 }
                 if(minYaw>-180 || maxYaw < 180) {
-                    sort = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
-                            .map(EntitySelectorElement<VirtualEntity>::new).collect(Collectors.toList());
+                    entities = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
+                                       .collect(Collectors.toList());
                 }
-                if(minDistance>0 || maxDistance < Double.MAX_VALUE) {
-                    double minDistanceSquared = minDistance*minDistance;
-                    double maxDistanceSquared = maxDistance*maxDistance;
+                List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
+                        .collect(Collectors.toList());
+                if(minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE) {
+                    //double minDistanceSquared = minDistance*minDistance;
+                    //double maxDistanceSquared = maxDistance*maxDistance;
                     Location finalLoc = loc;
                     sort = sort.stream()
                                    .filter(element -> {

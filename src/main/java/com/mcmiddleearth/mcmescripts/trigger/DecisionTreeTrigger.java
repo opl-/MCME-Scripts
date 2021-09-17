@@ -39,6 +39,7 @@ public abstract class DecisionTreeTrigger extends Trigger {
         this.decisionNode = decisionNode;
     }
 
+    @Override
     public void call(TriggerContext context) {
         decisionNode.call(context);
         super.call(context);

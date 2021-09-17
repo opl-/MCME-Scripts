@@ -21,7 +21,7 @@ TimedTriggerManager {
             public void run() {
                 triggers.forEach(TimedTrigger::call);
             }
-        }.runTaskTimer(MCMEScripts.getInstance(), MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,600),
+        }.runTaskTimer(MCMEScripts.getInstance(), MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,200),
                                                   MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
     }
 

@@ -72,7 +72,7 @@ public class ScriptManager {
                     }
                 });
             }
-        }.runTaskTimer(MCMEScripts.getInstance(),MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,595),
+        }.runTaskTimer(MCMEScripts.getInstance(),MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,195),
                                                  MCMEScripts.getConfigInt(ConfigKeys.SCRIPT_CHECKER_PERIOD,100));
     }
 

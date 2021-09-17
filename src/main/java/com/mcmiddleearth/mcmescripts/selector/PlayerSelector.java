@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class PlayerSelector extends EntitySelector<Player>{
@@ -24,7 +25,6 @@ public class PlayerSelector extends EntitySelector<Player>{
     @Override
     public List<Player> select(TriggerContext context) {
         Location loc = context.getLocation();
-        List<EntitySelectorElement<Player>> sort = new ArrayList<>();
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         switch(selectorType) {
             case TRIGGER_ENTITY:
@@ -37,9 +37,11 @@ public class PlayerSelector extends EntitySelector<Player>{
             case ALL_ENTITIES:
             case RANDOM_PLAYER:
                 if(loc == null) return Collections.emptyList();
+//Logger.getGlobal().info("Location: "+loc.toString() + " Players: "+players.size());
                 loc = new Location(loc.getWorld(), getAbsolute(loc.getX(), xRelative, x),
                         getAbsolute(loc.getY(), yRelative, y),
                         getAbsolute(loc.getZ(), zRelative, z));
+//Logger.getGlobal().info("Location rel: "+loc.toString());
                 if (hasAreaLimit()) {
                     double xMin = (dx < 0 ? Integer.MIN_VALUE : loc.getX() - dx);
                     double xMax = (dx < 0 ? Integer.MAX_VALUE : loc.getX() + dx);
@@ -55,6 +57,7 @@ public class PlayerSelector extends EntitySelector<Player>{
                             && player.getLocation().getZ() < zMax)
                             .collect(Collectors.toList());
                 }
+//Logger.getGlobal().info("Area selection: "+players.size());
                 if (name != null) {
                     if(name.endsWith("*")) {
                         players = players.stream().filter(player -> player.getName()
@@ -65,31 +68,38 @@ public class PlayerSelector extends EntitySelector<Player>{
                                 .collect(Collectors.toList());
                     }
                 }
+//Logger.getGlobal().info("Name selection: "+players.size());
                 if (gameMode != null) {
                     players = players.stream().filter(player -> player.getGameMode().equals(gameMode) != excludeGameMode)
                             .collect(Collectors.toList());
                 }
+//Logger.getGlobal().info("GM selection: "+players.size());
                 if (minPitch > -90 || maxPitch < 90) {
                     players = players.stream().filter(player -> minPitch <= player.getLocation().getPitch()
                             && player.getLocation().getPitch() < maxPitch)
                             .collect(Collectors.toList());
                 }
                 if (minYaw > -180 || maxYaw < 180) {
-                    sort = players.stream().filter(player -> minYaw <= player.getLocation().getPitch()
-                            && player.getLocation().getPitch() < maxYaw)
-                            .map(EntitySelectorElement<Player>::new).collect(Collectors.toList());
+                    players = players.stream().filter(player -> minYaw <= player.getLocation().getPitch()
+                            && player.getLocation().getPitch() < maxYaw).collect(Collectors.toList());
                 }
-                if (minDistance > 0 || maxDistance < Double.MAX_VALUE) {
-                    double minDistanceSquared = minDistance * minDistance;
-                    double maxDistanceSquared = maxDistance * maxDistance;
+                List<EntitySelectorElement<Player>> sort = players.stream().map(EntitySelectorElement<Player>::new)
+                                                                  .collect(Collectors.toList());
+DebugManager.log(Modules.Selector.select(this.getClass()),"Angular selection: "+sort.size());
+DebugManager.log(Modules.Selector.select(this.getClass()),"Distance: "+minDistanceSquared+" "+maxDistanceSquared);
+                if (minDistanceSquared > 0 || maxDistanceSquared < Double.MAX_VALUE) {
+                    //double minDistanceSquared = minDistance * minDistance;
+                    //double maxDistanceSquared = maxDistance * maxDistance;
                     Location finalLoc = loc;
                     sort = sort.stream()
                             .filter(element -> {
                                 element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
+DebugManager.log(Modules.Selector.select(this.getClass()),"Element distance: " + element.getValue());
                                 return minDistanceSquared <= element.getValue()
                                         && element.getValue() <= maxDistanceSquared;
                             }).collect(Collectors.toList());
                 }
+DebugManager.log(Modules.Selector.select(this.getClass()),"Distance selection: "+sort.size());
                 List<Player> result = Collections.emptyList();
                 switch (selectorType) {
                     case NEAREST_PLAYER:
@@ -108,6 +118,7 @@ public class PlayerSelector extends EntitySelector<Player>{
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
                         break;
                 }
+DebugManager.log(Modules.Selector.select(this.getClass()),"Result: "+result.size());
                 DebugManager.log(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()
                               +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
