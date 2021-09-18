@@ -36,4 +36,9 @@ public class VirtualEntityProximityCondition implements Condition {
                 "Selector: "+selector.getSelector()+" Entity: "+(entity!=null?entity.getName():"null"));
         return test.apply(selector.select(context).size());
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()+" Entity: "+entityName+" Selector: "+selector.getSelector();
+    }
 }

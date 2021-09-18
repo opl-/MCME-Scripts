@@ -51,7 +51,9 @@ public class DebugManager {
 
     public static void debug(String module, boolean enable) {
         if(module.equalsIgnoreCase("all")) {
-            Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(),enable));
+            Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(), true));
+        } else if(module.equalsIgnoreCase("none")) {
+                Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(),false));
         } else {
             if (enable) {
                 debugModules.add(module);
@@ -67,7 +69,7 @@ public class DebugManager {
         if(split[0].equalsIgnoreCase("script")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length < 2 || entry.getKey().toLowerCase().startsWith(split[1].toLowerCase())))
-                       .forEach(entry -> log(entry.getKey()+"("+(entry.getValue().isActive()?"active":"")+"): "
+                       .forEach(entry -> log(entry.getKey()+(entry.getValue().isActive()?"(active)":"")+": "
                                                                +entry.getValue().getTriggers().size()+" Triggers, "
                                                                +entry.getValue().getEntities().size()+" Entities."));
         } else if(split[0].equalsIgnoreCase("trigger")) {
@@ -76,7 +78,7 @@ public class DebugManager {
                        .forEach(entry -> entry.getValue().getTriggers().stream()
                             .filter(trigger -> split.length < 3
                                     || trigger.getClass().getSimpleName().toLowerCase().startsWith(split[2].toLowerCase()))
-                            .forEach(trigger -> log(trigger.toString())));
+                            .forEach(trigger -> log(trigger.getClass().getSimpleName()+" "+trigger.toString())));
         }
     }
 

@@ -31,4 +31,9 @@ public class LocationProximityCondition implements Condition {
                 "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
         return test.apply(selector.select(context).size());
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()+" Loc: "+location+" Selector: "+selector.getSelector();
+    }
 }

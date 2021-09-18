@@ -133,8 +133,15 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         public String toString() {
-            return "Actions: "+(actions==null?"null":actions.size())
-                 +" Conditions: "+(conditions==null?"null":conditions.size())+" metAll: "+metAllConditions;
+            return "Actions: "+(actions==null?"null":actions.size()+"\n"+collectionToString(actions))
+                 +" Conditions: "+(conditions==null?"null":conditions.size()+"\n"+collectionToString(conditions))+" metAll: "+metAllConditions;
+        }
+
+        @SuppressWarnings({"rawtypes","unchecked"})
+        private String collectionToString(Collection collection) {
+            StringBuilder builder = new StringBuilder();
+            collection.forEach(element -> builder.append(element.toString()).append("\n"));
+            return builder.toString();
         }
     }
 

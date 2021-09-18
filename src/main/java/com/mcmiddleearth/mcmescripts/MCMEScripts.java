@@ -21,7 +21,7 @@ public final class MCMEScripts extends JavaPlugin {
         saveDefaultConfig();
         instance = this;
         DebugManager.open();
-        DebugManager.debug("all",true);
+        //DebugManager.debug("all",true);
         scriptManager = new ScriptManager();
         timedTriggerManager = new TimedTriggerManager();
         enableScripts();

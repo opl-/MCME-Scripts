@@ -35,4 +35,10 @@ public class PlayerProximityCondition implements Condition {
                 "Selector: "+selector.getSelector()+" Player: "+ player);
         return test.apply(selector.select(context).size());
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()+" Player: "+playerName+" Selector: "+selector.getSelector();
+    }
+
 }
