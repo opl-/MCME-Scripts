@@ -15,18 +15,15 @@ import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicServerTimeTrigger;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class EntityCompiler {
 
     private static final String KEY_ENTITY            = "entity",
                                 KEY_ENTITY_ARRAY      = "entities",
-                                KEY_SPAWN_DATA        = "spawnData",
-                                KEY_NAME              = "name",
                                 KEY_SPAWN_DISTANCE    = "spawnDistance";
 
     private static final int DEFAULT_SPAWN_DISTANCE   = 64;
-
-    private static final Random random = new Random();
 
     public static Set<Trigger> compile(JsonObject jsonData) {
         JsonElement entities = jsonData.get(KEY_ENTITY);
@@ -50,7 +47,7 @@ public class EntityCompiler {
     }
 
     private static Optional<Trigger> compileEntity(JsonObject jsonObject) {
-        List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
+        List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);//.get(KEY_SPAWN_DATA));
         if(factories.isEmpty())  return Optional.empty();
 
         JsonElement spawnDistanceData = jsonObject.get(KEY_SPAWN_DISTANCE);
@@ -63,24 +60,14 @@ public class EntityCompiler {
         DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
         DecisionTreeTrigger despawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
 
-        JsonElement nameData = jsonObject.get(KEY_NAME);
-        String groupName;
-        if (nameData != null) {
-            groupName = nameData.getAsString();
-        } else if(factories.get(0).getName() != null) {
-            groupName = factories.get(0).getName();
-        } else {
-            groupName = ""+random.nextInt(100000000);
-        }
-        for(int i = 0; i< factories.size(); i++) {
-            VirtualEntityFactory factory = factories.get(i);
+        for (VirtualEntityFactory factory : factories) {
             factory.withViewDistance((int) (spawnDistance * 0.9));
-            factory.withName(groupName+"_"+i);
         }
 
         Set<Action> spawnActions = new HashSet<>();
         spawnActions.add(new SpawnAction(factories));
         triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
+Logger.getGlobal().info("trigggers: "+ triggers.size());
         spawnActions.add(new TriggerRegisterAction(despawnTrigger));
         spawnActions.add(new TriggerUnregisterAction(spawnTrigger));
         DecisionTreeTrigger.DecisionNode spawnNode = new DecisionTreeTrigger.DecisionNode(spawnActions);
@@ -90,7 +77,7 @@ public class EntityCompiler {
 
 
         Set<Action> despawnActions = new HashSet<>();
-        despawnActions.add(new DespawnAction(new VirtualEntitySelector("@e[name="+groupName+"*]")));
+        despawnActions.add(new DespawnAction(new VirtualEntitySelector("@e[name="+VirtualEntityFactoryCompiler.getGroupName(factories)+"*]")));
         triggers.forEach(trigger -> despawnActions.add(new TriggerUnregisterAction(trigger)));
         despawnActions.add(new TriggerRegisterAction(spawnTrigger));
         despawnActions.add(new TriggerUnregisterAction(despawnTrigger));
@@ -101,4 +88,5 @@ public class EntityCompiler {
 
         return Optional.of(spawnTrigger);
     }
+
 }

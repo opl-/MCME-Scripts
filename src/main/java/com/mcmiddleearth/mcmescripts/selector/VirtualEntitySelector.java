@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
@@ -23,6 +24,7 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
 
     @Override
     public List<VirtualEntity> select(TriggerContext context) {
+//Logger.getGlobal().info("Select: "+getSelector());
         Location loc = context.getLocation();
         List<VirtualEntity> entities = new ArrayList<>();
         switch(selectorType) {
@@ -34,11 +36,11 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                 return entities;
             case VIRTUAL_ENTITIES:
             case ALL_ENTITIES:
-                if(loc == null) return Collections.emptyList();
-                loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
-                                                  getAbsolute(loc.getY(),yRelative,y),
-                                                  getAbsolute(loc.getZ(),zRelative,z));
-                if(hasAreaLimit()) {
+//Logger.getGlobal().info("Location: "+loc);
+                if(hasAreaLimit() && loc != null) {
+                    loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
+                                                      getAbsolute(loc.getY(),yRelative,y),
+                                                      getAbsolute(loc.getZ(),zRelative,z));
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntitiesAt(loc,
                                                                         (dx<0?Integer.MAX_VALUE:(int)dx),
                                                                         (dy<0?Integer.MAX_VALUE:(int)dy),
@@ -53,9 +55,19 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                     entities = entities.stream().filter(entity -> entity.getType().equals(entityType) != excludeType)
                                             .collect(Collectors.toList());
                 }
+//Logger.getGlobal().info("Name: "+name);
                 if(name!=null) {
-                    entities = entities.stream().filter(entity -> entity.getName().equals(name) != excludeName)
-                                            .collect(Collectors.toList());
+                    if(name.endsWith("*")) {
+                        entities = entities.stream().filter(entity -> {
+//Logger.getGlobal().info("Name: "+entity.getName()+" search: "+name.substring(0,name.length()-1));
+                            return entity.getName()
+                                    .startsWith(name.substring(0,name.length()-1)) != excludeName;
+                        })
+                                .collect(Collectors.toList());
+                    } else {
+                        entities = entities.stream().filter(entity -> entity.getName().equals(name) != excludeName)
+                                                .collect(Collectors.toList());
+                    }
                 }
                 if(minPitch>-90 || maxPitch < 90) {
                     entities = entities.stream().filter(entity -> minPitch <= entity.getPitch() && entity.getPitch() < maxPitch)
@@ -67,9 +79,10 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
                 }
                 List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
                         .collect(Collectors.toList());
-                if(minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE) {
+                if(loc != null && (minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE)) {
                     //double minDistanceSquared = minDistance*minDistance;
                     //double maxDistanceSquared = maxDistance*maxDistance;
+                    //if(loc == null) return Collections.emptyList();
                     Location finalLoc = loc;
                     sort = sort.stream()
                                    .filter(element -> {

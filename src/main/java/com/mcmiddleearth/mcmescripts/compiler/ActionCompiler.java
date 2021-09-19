@@ -20,7 +20,6 @@ public class ActionCompiler {
                                 KEY_ACTION_TYPE     = "type",
                                 KEY_TARGET          = "target",
                                 KEY_GOAL            = "goal",
-                                KEY_SPAWN_DATA      = "spawnData",
 
                                 VALUE_REGISTER_TRIGGER      = "registerTrigger",
                                 VALUE_UNREGISTER_TRIGGER    = "unregisterTrigger",
@@ -67,14 +66,14 @@ public class ActionCompiler {
                 if(triggers.isEmpty()) return Optional.empty();
                 return Optional.of(new TriggerUnregisterAction(triggers));
             case VALUE_SET_GOAL:
-                List<VirtualEntityFactory> factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_GOAL));
+                List<VirtualEntityFactory> factory = VirtualEntityFactoryCompiler.compile(jsonObject, KEY_GOAL);
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 if(!factory.isEmpty()) {
                     return Optional.of(new SetGoalAction(factory.get(0).getGoalFactory(), selector));
                 }
                 return Optional.empty();
             case VALUE_SPAWN:
-                factory = VirtualEntityFactoryCompiler.compile(jsonObject.get(KEY_SPAWN_DATA));
+                factory = VirtualEntityFactoryCompiler.compile(jsonObject);
                 return Optional.of(new SpawnAction(factory));
             case VALUE_STOP_TALK:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);

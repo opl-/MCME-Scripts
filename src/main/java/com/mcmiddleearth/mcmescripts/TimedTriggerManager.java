@@ -10,6 +10,7 @@ import java.util.Set;
 public class
 TimedTriggerManager {
 
+    public static final int MIN_TRIGGER_CHECK_PERIOD = MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10);
     private static BukkitTask timedTriggerTask;
 
     private final Set<TimedTrigger> triggers = new HashSet<>();
@@ -22,7 +23,7 @@ TimedTriggerManager {
                 triggers.forEach(TimedTrigger::call);
             }
         }.runTaskTimer(MCMEScripts.getInstance(), MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,200),
-                                                  MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
+                                                  MIN_TRIGGER_CHECK_PERIOD);
     }
 
     public void stopChecker() {

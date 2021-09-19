@@ -16,8 +16,18 @@ import java.util.*;
 
 public class VirtualEntityFactoryCompiler {
 
-    public static List<VirtualEntityFactory> compile(JsonElement element) {
+    private static final String KEY_SPAWN_DATA        = "spawnData",
+                                KEY_NAME              = "name";
+
+    private static final Random random = new Random();
+
+    public static List<VirtualEntityFactory> compile(JsonObject jsonObject) {
+        return compile(jsonObject,KEY_SPAWN_DATA);
+    }
+
+    public static List<VirtualEntityFactory> compile(JsonObject jsonObject, String key) {
         List<VirtualEntityFactory> result = new ArrayList<>();
+        JsonElement element = jsonObject.get(key);
         if (element == null) return result;
 
         Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
@@ -39,6 +49,27 @@ public class VirtualEntityFactoryCompiler {
             }
         } else if(element.isJsonObject()) {
             compileObject(gson, element.getAsJsonObject()).ifPresent(result::add);
+        }
+
+        JsonElement nameData = jsonObject.get(KEY_NAME);
+        String groupName;
+        if (nameData != null) {
+            groupName = nameData.getAsString();
+        } else if(result.size() == 1 && result.get(0).getName() != null) {
+            groupName = result.get(0).getName();
+        } else {
+            groupName = ""+random.nextInt(100000000);
+        }
+        int i = 0;
+        for(VirtualEntityFactory factory: result) {
+            if(result.size()==1) {
+                factory.withName(groupName);
+            } else if(factory.getName()!=null) {
+                factory.withName(groupName+"__"+factory.getName());
+            } else {
+                factory.withName(groupName + "__" + i);
+                i++;
+            }
         }
         return result;
     }
@@ -63,4 +94,11 @@ public class VirtualEntityFactoryCompiler {
         }
         return factory;*/
     }
+
+    public static String getGroupName(List<VirtualEntityFactory> factories) {
+        if(factories==null || factories.isEmpty()) return "no entities";
+        String[] split = factories.get(0).getName().split("__");
+        return split[split.length-1];
+    }
+
 }
