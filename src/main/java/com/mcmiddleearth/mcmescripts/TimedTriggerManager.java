@@ -20,7 +20,7 @@ TimedTriggerManager {
         timedTriggerTask = new BukkitRunnable() {
             @Override
             public void run() {
-                triggers.forEach(TimedTrigger::call);
+                new HashSet<>(triggers).forEach(TimedTrigger::call);
             }
         }.runTaskTimer(MCMEScripts.getInstance(), MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,200),
                                                   MIN_TRIGGER_CHECK_PERIOD);

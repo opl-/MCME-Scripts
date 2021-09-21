@@ -3,8 +3,10 @@ package com.mcmiddleearth.mcmescripts.compiler;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
+import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 import com.mcmiddleearth.mcmescripts.action.*;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
@@ -19,7 +21,8 @@ public class ActionCompiler {
                                 KEY_ACTION_ARRAY    = "actions",
                                 KEY_ACTION_TYPE     = "type",
                                 KEY_TARGET          = "target",
-                                KEY_GOAL            = "goal",
+                                KEY_GOAL_TARGET = "goalTarget",
+
 
                                 VALUE_REGISTER_TRIGGER      = "registerTrigger",
                                 VALUE_UNREGISTER_TRIGGER    = "unregisterTrigger",
@@ -66,15 +69,15 @@ public class ActionCompiler {
                 if(triggers.isEmpty()) return Optional.empty();
                 return Optional.of(new TriggerUnregisterAction(triggers));
             case VALUE_SET_GOAL:
-                List<VirtualEntityFactory> factory = VirtualEntityFactoryCompiler.compile(jsonObject, KEY_GOAL);
+                Optional<VirtualEntityGoalFactory> goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
+                if(!goalFactory.isPresent()) return Optional.empty();
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                if(!factory.isEmpty()) {
-                    return Optional.of(new SetGoalAction(factory.get(0).getGoalFactory(), selector));
-                }
-                return Optional.empty();
+                McmeEntitySelector goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET)
+                                                                        .orElse(null);
+                return Optional.of(new SetGoalAction(goalFactory.get(), selector, goalTargetSelector));
             case VALUE_SPAWN:
-                factory = VirtualEntityFactoryCompiler.compile(jsonObject);
-                return Optional.of(new SpawnAction(factory));
+                List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);
+                return Optional.of(new SpawnAction(factories));
             case VALUE_STOP_TALK:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 return Optional.of(new StopTalkAction(selector));

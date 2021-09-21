@@ -6,12 +6,10 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
@@ -24,84 +22,6 @@ public class VirtualEntitySelector extends EntitySelector<VirtualEntity> {
 
     @Override
     public List<VirtualEntity> select(TriggerContext context) {
-//Logger.getGlobal().info("Select: "+getSelector());
-        Location loc = context.getLocation();
-        List<VirtualEntity> entities = new ArrayList<>();
-        switch(selectorType) {
-            case TRIGGER_ENTITY:
-                if(context.getEntity()!=null)
-                    entities.add(context.getEntity());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
-                        "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
-                return entities;
-            case VIRTUAL_ENTITIES:
-            case ALL_ENTITIES:
-//Logger.getGlobal().info("Location: "+loc);
-                if(hasAreaLimit() && loc != null) {
-                    loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
-                                                      getAbsolute(loc.getY(),yRelative,y),
-                                                      getAbsolute(loc.getZ(),zRelative,z));
-                    entities.addAll(EntitiesPlugin.getEntityServer().getEntitiesAt(loc,
-                                                                        (dx<0?Integer.MAX_VALUE:(int)dx),
-                                                                        (dy<0?Integer.MAX_VALUE:(int)dy),
-                                                                        (dz<0?Integer.MAX_VALUE:(int)dz))
-                                  .stream().filter(entity -> entity instanceof VirtualEntity)
-                                           .map(entity -> (VirtualEntity)entity).collect(Collectors.toSet()));
-                } else {
-                    entities.addAll(EntitiesPlugin.getEntityServer().getEntities(VirtualEntity.class)
-                            .stream().map(entity -> (VirtualEntity)entity).collect(Collectors.toSet()));
-                }
-                if(entityType != null) {
-                    entities = entities.stream().filter(entity -> entity.getType().equals(entityType) != excludeType)
-                                            .collect(Collectors.toList());
-                }
-//Logger.getGlobal().info("Name: "+name);
-                if(name!=null) {
-                    if(name.endsWith("*")) {
-                        entities = entities.stream().filter(entity -> {
-//Logger.getGlobal().info("Name: "+entity.getName()+" search: "+name.substring(0,name.length()-1));
-                            return entity.getName()
-                                    .startsWith(name.substring(0,name.length()-1)) != excludeName;
-                        })
-                                .collect(Collectors.toList());
-                    } else {
-                        entities = entities.stream().filter(entity -> entity.getName().equals(name) != excludeName)
-                                                .collect(Collectors.toList());
-                    }
-                }
-                if(minPitch>-90 || maxPitch < 90) {
-                    entities = entities.stream().filter(entity -> minPitch <= entity.getPitch() && entity.getPitch() < maxPitch)
-                                            .collect(Collectors.toList());
-                }
-                if(minYaw>-180 || maxYaw < 180) {
-                    entities = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
-                                       .collect(Collectors.toList());
-                }
-                List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
-                        .collect(Collectors.toList());
-                if(loc != null && (minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE)) {
-                    //double minDistanceSquared = minDistance*minDistance;
-                    //double maxDistanceSquared = maxDistance*maxDistance;
-                    //if(loc == null) return Collections.emptyList();
-                    Location finalLoc = loc;
-                    sort = sort.stream()
-                                   .filter(element -> {
-                                       element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
-                                       return minDistanceSquared <= element.getValue()
-                                           && element.getValue() <= maxDistanceSquared;
-                                   }).collect(Collectors.toList());
-                }
-                List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
-                           .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
-                        "Selector: "+getSelector()
-                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
-                return result;
-        }
-        DebugManager.log(Modules.Selector.select(this.getClass()),
-                "Selector: "+getSelector()
-                        +" Selected: none");
-        return Collections.emptyList();
+        return selectVirtualEntities(context);
     }
-
 }

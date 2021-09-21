@@ -7,6 +7,7 @@ import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
@@ -70,15 +71,15 @@ public class ConditionCompiler {
                     getMatchAll(jsonObject).ifPresent(condition::setMatchAllSelected);
                     return Optional.of(condition);
                 case VALUE_PROXIMITY_LOCATION:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
                     Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
                     return Optional.of(new LocationProximityCondition(location, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_ENTITY:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
                     String entityName = jsonObject.get(KEY_CENTER).getAsString();
                     return Optional.of(new VirtualEntityProximityCondition(entityName, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_PLAYER:
-                    selector = SelectorCompiler.compileEntitySelector(jsonObject).orElse(new PlayerSelector("@p"));
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
                     String playerName = jsonObject.get(KEY_CENTER).getAsString();
                     return Optional.of(new PlayerProximityCondition(playerName, selector, compileFunction(jsonObject)));
             }
