@@ -67,7 +67,7 @@ public class ActionCompiler {
             case VALUE_UNREGISTER_TRIGGER:
                 triggers = TriggerCompiler.compile(jsonObject);
                 if(triggers.isEmpty()) return Optional.empty();
-                return Optional.of(new TriggerUnregisterAction(triggers));
+                return Optional.of(new TriggerUnregisterAction(triggers)); kann nicht funktionieren
             case VALUE_SET_GOAL:
                 Optional<VirtualEntityGoalFactory> goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
                 if(!goalFactory.isPresent()) return Optional.empty();

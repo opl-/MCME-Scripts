@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class VirtualEntityGoalFactoryCompiler {
 
@@ -50,8 +51,10 @@ public class VirtualEntityGoalFactoryCompiler {
     }
 
     private static VirtualEntityGoalFactory compileObject(Gson gson, JsonObject jsonObject) {
-        VirtualEntityFactory factory
-                = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityFactory.class);
-        return factory.getGoalFactory();
+//Logger.getGlobal().info(jsonObject.toString());
+        VirtualEntityGoalFactory factory
+                = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityGoalFactory.class);
+//Logger.getGlobal().info("Goal: "+(factory!=null?factory.getGoalType():"null"));
+        return factory;//.getGoalFactory();
     }
 }

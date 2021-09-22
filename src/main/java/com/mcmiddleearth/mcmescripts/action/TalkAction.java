@@ -12,7 +12,7 @@ public class TalkAction extends SelectingAction<VirtualEntity> {
     public TalkAction(SpeechBalloonLayout layout, Selector<VirtualEntity> selector) {
         super(selector, (entity,context) -> {
             entity.say(layout);
-            DebugManager.log(Modules.Action.execute(DespawnAction.class),"Target entity: "+entity.getName());
+            DebugManager.log(Modules.Action.execute(TalkAction.class),"Target entity: "+entity.getName());
         });
         DebugManager.log(Modules.Action.execute(this.getClass()),"Message: "+ Joiner.on("/").join(layout.getLines()));
     }

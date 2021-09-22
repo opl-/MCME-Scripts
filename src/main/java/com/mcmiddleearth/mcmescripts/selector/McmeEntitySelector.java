@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class McmeEntitySelector extends EntitySelector<McmeEntity> {
@@ -51,6 +52,7 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
             case NEAREST_PLAYER:
             case ALL_PLAYERS:
             case RANDOM_PLAYER:
+//Logger.getGlobal().info("Selector type: "+selectorType);
                 selectPlayer(context).stream().map(EntitiesPlugin.getEntityServer().getPlayerProvider()::getOrCreateMcmePlayer)
                         .forEach(result::add);
                 break;

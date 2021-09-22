@@ -183,6 +183,7 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minD
                 DebugManager.log(Modules.Selector.select(this.getClass()),
                         "Selector: " + getSelector() + " Selected: " + (context.getPlayer() != null ? context.getPlayer().getName() : null));
                 return players;
+            case NEAREST_PLAYER:
             case ALL_PLAYERS:
             case ALL_ENTITIES:
             case RANDOM_PLAYER:
