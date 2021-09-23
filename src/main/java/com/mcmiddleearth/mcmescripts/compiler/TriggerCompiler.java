@@ -36,21 +36,21 @@ public class TriggerCompiler {
                                 KEY_PERIOD          = "period",
                                 KEY_THEN            = "then",
                                 KEY_ELSE            = "else",
-                                KEY_CALL_ONCE       = "callOnce",
+                                KEY_CALL_ONCE       = "call_once",
                                 KEY_LOCATION        = "location",
-                                KEY_MET_ALL_CONDITIONS  = "metAllConditions",
+                                KEY_MET_ALL_CONDITIONS  = "met_all_conditions",
 
-                                VALUE_REAL_TIMED_TRIGGER    = "realTimed",
-                                VALUE_REAL_PERIODIC_TRIGGER   = "realPeriodic",
-                                VALUE_SERVER_TIMED_TRIGGER  = "serverTimed",
-                                VALUE_SERVER_PERIODIC_TRIGGER   = "serverPeriodic",
-                                VALUE_PLAYER_TALK_TRIGGER   = "playerTalk",
-                                VALUE_PLAYER_JOIN_TRIGGER   = "playerJoin",
-                                VALUE_PLAYER_QUIT_TRIGGER   = "playerQuit",
-                                VALUE_VIRTUAL_PLAYER_ATTACK_TRIGGER     = "virtualPlayerAttack",
-                                VALUE_VIRTUAL_TALK_TRIGGER              = "virtualTalk",
-                                VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtualStopTalk",
-                                VALUE_GOAL_FINISHED_TRIGGER             = "goalFinished";
+                                VALUE_REAL_TIMED_TRIGGER            = "real_timed",
+                                VALUE_REAL_PERIODIC_TRIGGER         = "real_periodic",
+                                VALUE_SERVER_TIMED_TRIGGER          = "server_timed",
+                                VALUE_SERVER_PERIODIC_TRIGGER       = "server_periodic",
+                                VALUE_PLAYER_TALK_TRIGGER           = "player_talk",
+                                VALUE_PLAYER_JOIN_TRIGGER           = "player_join",
+                                VALUE_PLAYER_QUIT_TRIGGER           = "player_quit",
+                                VALUE_VIRTUAL_PLAYER_ATTACK_TRIGGER     = "virtual_player_attack",
+                                VALUE_VIRTUAL_TALK_TRIGGER              = "virtual_talk",
+                                VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtual_stop_talk",
+                                VALUE_GOAL_FINISHED_TRIGGER             = "goal_finished";
 
     public static Set<Trigger> compile(JsonObject jsonData) {
         JsonElement triggerData = jsonData.get(KEY_TRIGGER);

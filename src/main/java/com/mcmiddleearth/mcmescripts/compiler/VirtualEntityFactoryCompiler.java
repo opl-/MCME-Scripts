@@ -16,7 +16,7 @@ import java.util.*;
 
 public class VirtualEntityFactoryCompiler {
 
-    private static final String KEY_SPAWN_DATA        = "spawnData",
+    private static final String KEY_SPAWN_DATA        = "spawn_data",
                                 KEY_NAME              = "name";
 
     private static final Random random = new Random();

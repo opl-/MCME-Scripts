@@ -2,7 +2,11 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.mcmiddleearth.entities.ai.goal.GoalType;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.condition.GoalTypeCondition;
 import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
@@ -25,13 +29,16 @@ public class ConditionCompiler {
                                 KEY_CONDITION_TYPE      = "type",
                                 KEY_CONSTRAIN           = "constrain",
                                 KEY_CENTER              = "center",
-                                KEY_MATCH_ALL_SELECTED = "matchAll",
+                                KEY_MATCH_ALL_SELECTED  = "match_all",
+                                KEY_GOAL_TYPE           = "goal_type",
+                                KEY_EXCLUDE             = "negate",
 
                                 VALUE_TALK                  = "talk",
-                                VALUE_NO_TALK               = "noTalk",
-                                VALUE_PROXIMITY_LOCATION    = "locationProximity",
-                                VALUE_PROXIMITY_PLAYER      = "playerProximity",
-                                VALUE_PROXIMITY_ENTITY      = "entityProximity";
+                                VALUE_NO_TALK               = "no_talk",
+                                VALUE_GOAL_TYPE             = "goal_type",
+                                VALUE_PROXIMITY_LOCATION    = "location_proximity",
+                                VALUE_PROXIMITY_PLAYER      = "player_proximity",
+                                VALUE_PROXIMITY_ENTITY      = "entity_proximity";
 
     public static Set<Condition> compile(JsonObject jsonData) {
         JsonElement conditions = jsonData.get(KEY_CONDITION);
@@ -70,6 +77,20 @@ public class ConditionCompiler {
                     TalkCondition condition = new TalkCondition((VirtualEntitySelector) selector,noTalk);
                     getMatchAll(jsonObject).ifPresent(condition::setMatchAllSelected);
                     return Optional.of(condition);
+                case VALUE_GOAL_TYPE:
+                    selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                    JsonElement goalTypeJson = jsonObject.get(KEY_GOAL_TYPE);
+                    if(goalTypeJson instanceof JsonPrimitive) {
+                        try {
+                            GoalType goalType = GoalType.valueOf(goalTypeJson.getAsString().toUpperCase());
+                            boolean exclude = jsonObject.has(KEY_EXCLUDE) && jsonObject.get(KEY_EXCLUDE).getAsBoolean();
+                            GoalTypeCondition goalTypeCondition = new GoalTypeCondition((VirtualEntitySelector) selector,
+                                                                                        goalType, exclude);
+                            getMatchAll(jsonObject).ifPresent(goalTypeCondition::setMatchAllSelected);
+                            return Optional.of(goalTypeCondition);
+                        } catch (IllegalArgumentException ignore) {}
+                    }
+                    return Optional.empty();
                 case VALUE_PROXIMITY_LOCATION:
                     selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
                     Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);

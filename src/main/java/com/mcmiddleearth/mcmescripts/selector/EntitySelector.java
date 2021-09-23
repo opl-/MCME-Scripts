@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.selector;
 
 import com.google.common.base.Joiner;
 import com.mcmiddleearth.entities.EntitiesPlugin;
+import com.mcmiddleearth.entities.ai.goal.Goal;
+import com.mcmiddleearth.entities.ai.goal.GoalType;
 import com.mcmiddleearth.entities.api.Entity;
 import com.mcmiddleearth.entities.api.McmeEntityType;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
@@ -39,9 +41,12 @@ public abstract class EntitySelector<T> implements Selector<T> {
     protected boolean excludeGameMode;
     protected float minPitch = -90, maxPitch = 90;
     protected float minYaw = -180, maxYaw = 180;
+    protected GoalType goalType;
+    protected boolean excludeGoalType;
+    protected String talking;
 
     public EntitySelector(String selector) throws IndexOutOfBoundsException {
-DebugManager.log(Modules.Selector.create(this.getClass()),"Selector: "+selector);
+//DebugManager.log(Modules.Selector.create(this.getClass()),"Selector: "+selector);
         this.selector = selector;
         selector = selector.replace(" ","");
         switch(selector.charAt(1)) {
@@ -69,7 +74,7 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"Selector: "+selector)
             String[] arguments = selector.substring(3,selector.length()-1).split(",");
             for(String argument : arguments) {
                 String[] split = argument.split("=");
-DebugManager.log(Modules.Selector.create(this.getClass()),"split: "+ Joiner.on("_").join(split));
+//DebugManager.log(Modules.Selector.create(this.getClass()),"split: "+ Joiner.on("_").join(split));
                 switch(split[0]) {
                     case "limit":
                         limit = Integer.parseInt(split[1]);
@@ -115,7 +120,7 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"split: "+ Joiner.on("
                         break;
                     case "distance":
                         String[] minMax = split[1].split("\\.\\.");
-DebugManager.log(Modules.Selector.create(this.getClass()),"minMax "+Joiner.on("_").join(minMax));
+//DebugManager.log(Modules.Selector.create(this.getClass()),"minMax "+Joiner.on("_").join(minMax));
                         double minDistance = Double.parseDouble(minMax[0]);
                         minDistanceSquared = minDistance * minDistance;
                         if(minMax.length > 1) {
@@ -124,7 +129,7 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"minMax "+Joiner.on("_
                         } else {
                             maxDistanceSquared = minDistanceSquared;
                         }
-DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minDistanceSquared+" "+maxDistanceSquared);
+//DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minDistanceSquared+" "+maxDistanceSquared);
                         break;
                     case "type":
                         if(split[1].startsWith("!")) {
@@ -167,6 +172,17 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minD
                         } else {
                             maxYaw = minYaw;
                         }
+                        break;
+                    case "goal_type":
+                        if(split[1].startsWith("!")) {
+                            goalType = GoalType.valueOf(split[1].substring(1).toUpperCase());
+                            excludeGoalType = true;
+                        } else {
+                            goalType = GoalType.valueOf(split[1].toUpperCase());
+                        }
+                        break;
+                    case "talking":
+                        talking = split[1];
                         break;
                 }
             }
@@ -342,6 +358,16 @@ DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minD
                 }
                 if(minYaw>-180 || maxYaw < 180) {
                     entities = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
+                            .collect(Collectors.toList());
+                }
+                if(goalType!=null) {
+                    entities = entities.stream().filter(entity -> {
+                        Goal goal = entity.getGoal();
+                        return goal!=null && goal.getType().equals(goalType) != excludeGoalType;
+                    }).collect(Collectors.toList());
+                }
+                if(talking != null) {
+                    entities = entities.stream().filter(entity -> entity.isTalking() == talking.equals("true"))
                             .collect(Collectors.toList());
                 }
                 List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)

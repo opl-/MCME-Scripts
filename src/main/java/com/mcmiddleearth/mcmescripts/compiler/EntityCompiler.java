@@ -21,7 +21,7 @@ public class EntityCompiler {
 
     private static final String KEY_ENTITY            = "entity",
                                 KEY_ENTITY_ARRAY      = "entities",
-                                KEY_SPAWN_DISTANCE    = "spawnDistance";
+                                KEY_SPAWN_DISTANCE    = "spawn_range";
 
     private static final int DEFAULT_SPAWN_DISTANCE   = 64;
 

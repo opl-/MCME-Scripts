@@ -21,15 +21,15 @@ public class ActionCompiler {
                                 KEY_ACTION_ARRAY    = "actions",
                                 KEY_ACTION_TYPE     = "type",
                                 KEY_TARGET          = "target",
-                                KEY_GOAL_TARGET = "goalTarget",
+                                KEY_GOAL_TARGET = "goal_target",
 
 
-                                VALUE_REGISTER_TRIGGER      = "registerTrigger",
-                                VALUE_UNREGISTER_TRIGGER    = "unregisterTrigger",
+                                VALUE_REGISTER_TRIGGER      = "register_trigger",
+                                VALUE_UNREGISTER_TRIGGER    = "unregister_trigger",
 
-                                VALUE_SET_GOAL              = "setGoal",
+                                VALUE_SET_GOAL              = "set_goal",
                                 VALUE_SPAWN                 = "spawn",
-                                VALUE_STOP_TALK             = "stopTalk",
+                                VALUE_STOP_TALK             = "stop_talk",
                                 VALUE_TALK                  = "talk",
                                 VALUE_TELEPORT              = "teleport",
 
