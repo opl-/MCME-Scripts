@@ -19,21 +19,24 @@ public class ActionCompiler {
 
     private static final String KEY_ACTION          = "action",
                                 KEY_ACTION_ARRAY    = "actions",
+
                                 KEY_ACTION_TYPE     = "type",
-                                KEY_TARGET          = "target",
-                                KEY_GOAL_TARGET = "goal_target",
+                                KEY_TARGET          = "location",
+                                KEY_GOAL_TARGET     = "goal_target",
+                                KEY_TRIGGER_NAME    = "name",
+                                KEY_TELEPORT_SPREAD = "spread",
 
 
-                                VALUE_REGISTER_TRIGGER      = "register_trigger",
-                                VALUE_UNREGISTER_TRIGGER    = "unregister_trigger",
+                                VALUE_REGISTER_TRIGGER      = "register_event",
+                                VALUE_UNREGISTER_TRIGGER    = "unregister_event",
 
                                 VALUE_SET_GOAL              = "set_goal",
                                 VALUE_SPAWN                 = "spawn",
+                                VALUE_DESPAWN               = "despawn",
                                 VALUE_STOP_TALK             = "stop_talk",
                                 VALUE_TALK                  = "talk",
-                                VALUE_TELEPORT              = "teleport",
+                                VALUE_TELEPORT              = "teleport";
 
-                                KEY_TELEPORT_SPREAD         = "spread";
 
     public static Collection<Action> compile(JsonObject jsonData) {
         JsonElement actionData = jsonData.get(KEY_ACTION);
@@ -65,9 +68,9 @@ public class ActionCompiler {
                 if(triggers.isEmpty()) return Optional.empty();
                 return Optional.of(new TriggerRegisterAction(triggers));
             case VALUE_UNREGISTER_TRIGGER:
-                triggers = TriggerCompiler.compile(jsonObject);
-                if(triggers.isEmpty()) return Optional.empty();
-                return Optional.of(new TriggerUnregisterAction(triggers)); kann nicht funktionieren
+                Set<String> triggerNames = compileTriggerNames(jsonObject);
+                if(triggerNames.isEmpty()) return Optional.empty();
+                return Optional.of(new TriggerUnregisterAction(triggerNames));
             case VALUE_SET_GOAL:
                 Optional<VirtualEntityGoalFactory> goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
                 if(!goalFactory.isPresent()) return Optional.empty();
@@ -78,6 +81,9 @@ public class ActionCompiler {
             case VALUE_SPAWN:
                 List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);
                 return Optional.of(new SpawnAction(factories));
+            case VALUE_DESPAWN:
+                selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                return Optional.of(new DespawnAction(selector));
             case VALUE_STOP_TALK:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 return Optional.of(new StopTalkAction(selector));
@@ -93,5 +99,19 @@ public class ActionCompiler {
             default:
                 return Optional.empty();
         }
+    }
+
+    private static Set<String> compileTriggerNames(JsonObject jsonObject) {
+        JsonElement nameJson = jsonObject.get(KEY_TRIGGER_NAME);
+        if(nameJson != null) {
+            if (nameJson.isJsonPrimitive()) {
+                return Collections.singleton(nameJson.getAsString());
+            } else if (nameJson.isJsonArray()) {
+                Set<String> result = new HashSet<>();
+                nameJson.getAsJsonArray().forEach(element -> result.add(element.getAsString()));
+                return result;
+            }
+        }
+        return Collections.emptySet();
     }
 }

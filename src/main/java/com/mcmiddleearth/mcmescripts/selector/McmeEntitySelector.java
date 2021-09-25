@@ -1,17 +1,14 @@
 package com.mcmiddleearth.mcmescripts.selector;
 
 import com.mcmiddleearth.entities.EntitiesPlugin;
-import com.mcmiddleearth.entities.api.McmeEntityType;
 import com.mcmiddleearth.entities.entities.McmeEntity;
-import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class McmeEntitySelector extends EntitySelector<McmeEntity> {

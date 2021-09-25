@@ -12,6 +12,8 @@ public abstract class Trigger {
 
     private Script script;
 
+    private String name;
+
     private boolean callOnce = false;
 
     private VirtualEntity entity;
@@ -75,5 +77,13 @@ public abstract class Trigger {
         if(callOnce) {
             unregister();
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

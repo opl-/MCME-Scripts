@@ -31,6 +31,7 @@ public class TriggerCompiler {
 
     public static final String  KEY_TRIGGER         = "event",
                                 KEY_TRIGGER_ARRAY   = "events",
+
                                 KEY_TYPE            = "type",
                                 KEY_TIME            = "time",
                                 KEY_PERIOD          = "period",
@@ -39,6 +40,7 @@ public class TriggerCompiler {
                                 KEY_CALL_ONCE       = "call_once",
                                 KEY_LOCATION        = "location",
                                 KEY_MET_ALL_CONDITIONS  = "met_all_conditions",
+                                KEY_NAME                = "name",
 
                                 VALUE_REAL_TIMED_TRIGGER            = "real_timed",
                                 VALUE_REAL_PERIODIC_TRIGGER         = "real_periodic",
@@ -61,17 +63,17 @@ public class TriggerCompiler {
     }
 
     private static Set<Trigger> compileTriggers(JsonElement triggerData) {
-Logger.getGlobal().info("TriggerData: "+triggerData);
+//Logger.getGlobal().info("TriggerData: "+triggerData);
         Set<Trigger> triggers = new HashSet<>();
         if(triggerData == null) return triggers;
         if(triggerData.isJsonArray()) {
-Logger.getGlobal().info("ArraySize: "+triggerData.getAsJsonArray().size());
+//Logger.getGlobal().info("ArraySize: "+triggerData.getAsJsonArray().size());
             for(int i = 0; i< triggerData.getAsJsonArray().size(); i++) {
                 compileTrigger(triggerData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);
-Logger.getGlobal().info("add: "+triggers.size());
+//Logger.getGlobal().info("add: "+triggers.size());
             }
         } else {
-Logger.getGlobal().info("Single!");
+//Logger.getGlobal().info("Single!");
             compileTrigger(triggerData.getAsJsonObject()).ifPresent(triggers::add);
         }
         return triggers;
@@ -79,14 +81,14 @@ Logger.getGlobal().info("Single!");
 
     private static Optional<Trigger> compileTrigger(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_TYPE);
-Logger.getGlobal().info("Type: "+type);
+//Logger.getGlobal().info("Type: "+type);
         if(type==null)  return Optional.empty();
 
         DecisionTreeTrigger trigger = null;
         switch(type.getAsString()) {
             case VALUE_REAL_TIMED_TRIGGER:
                 JsonElement time = jsonObject.get(KEY_TIME);
-Logger.getGlobal().info("RealTime: "+time);
+//Logger.getGlobal().info("RealTime: "+time);
                 if(time!=null) {
                     LocalDateTime localDateTime = LocalDateTime.parse(time.getAsString());
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
@@ -97,21 +99,21 @@ Logger.getGlobal().info("RealTime: "+time);
                 break;
             case VALUE_REAL_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
-Logger.getGlobal().info("Periodic RealTime: "+time);
+//Logger.getGlobal().info("Periodic RealTime: "+time);
                 if(time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicRealTimeTrigger(null,time.getAsInt());
                 }
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
-Logger.getGlobal().info("ServerTime: "+time);
+//Logger.getGlobal().info("ServerTime: "+time);
                 if(time!=null) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 }
                 break;
             case VALUE_SERVER_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
-Logger.getGlobal().info("Periodic RealTime: "+time);
+//Logger.getGlobal().info("Periodic RealTime: "+time);
                 if(time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicServerTimeTrigger(null,time.getAsInt());
                 } else {
@@ -145,6 +147,11 @@ Logger.getGlobal().info("Periodic RealTime: "+time);
         trigger.setDecisionNode(decisionNode);
         trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null));
 
+        JsonElement nameJson = jsonObject.get(KEY_NAME);
+        if(nameJson != null && nameJson.isJsonPrimitive()) {
+            trigger.setName(nameJson.getAsString());
+        }
+
         boolean callOnce = false;
         JsonElement callOnceJson = jsonObject.get(KEY_CALL_ONCE);
         if(callOnceJson!=null) {
@@ -152,7 +159,7 @@ Logger.getGlobal().info("Periodic RealTime: "+time);
         }
         trigger.setCallOnce(callOnce);
 
-Logger.getGlobal().info("Return: "+trigger);
+//Logger.getGlobal().info("Return: "+trigger);
         return Optional.of(trigger);
     }
 

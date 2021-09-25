@@ -63,11 +63,13 @@ public class ScriptManager {
                 scripts.forEach((name,script) -> {
                     if (script.isTriggered() && !script.isActive()) {
                         try {
+//Logger.getGlobal().info("LoadScript: "+script.getName());
                             script.load();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     } else if(!script.isTriggered() && script.isActive()) {
+//Logger.getGlobal().info("UnloadScript: "+script.getName());
                         script.unload();
                     }
                 });

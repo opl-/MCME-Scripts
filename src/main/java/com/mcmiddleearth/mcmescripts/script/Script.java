@@ -19,6 +19,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Script {
 
@@ -52,11 +53,11 @@ public class Script {
 
     public void load() throws IOException {
         if(!active) {
+            DebugManager.log(Modules.Script.load(this.getClass()),
+                    "Name: "+name);
             JsonObject jsonData = loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
             active = true;
-            DebugManager.log(Modules.Script.load(this.getClass()),
-                    "Name: "+name);
         }
     }
 
@@ -112,6 +113,18 @@ public class Script {
 
     public String getName() {
         return name;
+    }
+
+    public Set<Trigger> getTriggers(String name) {
+        if(name.equals("*")) return new HashSet<>(triggers);
+        if(name.endsWith("*")) {
+            return triggers.stream().filter(trigger->trigger.getName()!=null
+                                                  && trigger.getName().startsWith(name.substring(0,name.length()-1)))
+                    .collect(Collectors.toSet());
+        } else {
+            return triggers.stream().filter(trigger->trigger.getName()!=null && trigger.getName().equals(name))
+                    .collect(Collectors.toSet());
+        }
     }
 
     public Set<Trigger> getTriggers() {

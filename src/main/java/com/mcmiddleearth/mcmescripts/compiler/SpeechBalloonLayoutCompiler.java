@@ -8,6 +8,7 @@ import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 public class SpeechBalloonLayoutCompiler {
 
     public static final String KEY_LAYOUT       = "layout",
+
                                KEY_MESSAGE      = "message",
                                KEY_DURATION     = "duration";
 

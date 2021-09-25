@@ -21,6 +21,7 @@ public class EntityCompiler {
 
     private static final String KEY_ENTITY            = "entity",
                                 KEY_ENTITY_ARRAY      = "entities",
+
                                 KEY_SPAWN_DISTANCE    = "spawn_range";
 
     private static final int DEFAULT_SPAWN_DISTANCE   = 64;
@@ -67,7 +68,7 @@ public class EntityCompiler {
         Set<Action> spawnActions = new HashSet<>();
         spawnActions.add(new SpawnAction(factories));
         triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
-Logger.getGlobal().info("trigggers: "+ triggers.size());
+//Logger.getGlobal().info("trigggers: "+ triggers.size());
         spawnActions.add(new TriggerRegisterAction(despawnTrigger));
         spawnActions.add(new TriggerUnregisterAction(spawnTrigger));
         DecisionTreeTrigger.DecisionNode spawnNode = new DecisionTreeTrigger.DecisionNode(spawnActions);

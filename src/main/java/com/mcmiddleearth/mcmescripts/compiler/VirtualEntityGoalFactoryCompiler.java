@@ -1,7 +1,6 @@
 package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -9,16 +8,11 @@ import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 
-import java.awt.image.Kernel;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.logging.Logger;
 
 public class VirtualEntityGoalFactoryCompiler {
 

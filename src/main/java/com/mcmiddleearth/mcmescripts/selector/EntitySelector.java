@@ -1,10 +1,8 @@
 package com.mcmiddleearth.mcmescripts.selector;
 
-import com.google.common.base.Joiner;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.ai.goal.Goal;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
-import com.mcmiddleearth.entities.api.Entity;
 import com.mcmiddleearth.entities.api.McmeEntityType;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.entities.composite.SpeechBalloonEntity;
@@ -20,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class EntitySelector<T> implements Selector<T> {

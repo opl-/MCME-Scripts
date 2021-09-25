@@ -26,8 +26,9 @@ public class ConditionCompiler {
 
     private static final String KEY_CONDITION           = "condition",
                                 KEY_CONDITION_ARRAY     = "conditions",
+
                                 KEY_CONDITION_TYPE      = "type",
-                                KEY_CONSTRAIN           = "constrain",
+                                KEY_CONSTRAIN           = "criterion",
                                 KEY_CENTER              = "center",
                                 KEY_MATCH_ALL_SELECTED  = "match_all",
                                 KEY_GOAL_TYPE           = "goal_type",
