@@ -15,7 +15,8 @@ public enum Modules {
     SCRIPT_LOAD         ("script.load"),
     SCRIPT_UNLOAD       ("script.unload"),
     SELECTOR_SELECT     ("selector.select"),
-    SELECTOR_CREATE     ("selector.create");
+    SELECTOR_CREATE     ("selector.create"),
+    LOCATION_CREATE     ("location.create");
 
     private final String module;
 
@@ -88,6 +89,10 @@ public enum Modules {
             return SELECTOR_CREATE.module+"." + clazz.getSimpleName();
         }
 
+    }
+
+    public static class Location {
+        public static String create(Class clazz) { return LOCATION_CREATE.module+"."+clazz.getSimpleName(); }
     }
 
 }

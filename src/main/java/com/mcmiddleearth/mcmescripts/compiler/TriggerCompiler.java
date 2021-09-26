@@ -5,7 +5,10 @@ import com.google.gson.JsonObject;
 import com.mcmiddleearth.mcmescripts.TimedTriggerManager;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
-import com.mcmiddleearth.mcmescripts.trigger.*;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerJoinTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerQuitTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerTalkTrigger;
@@ -25,7 +28,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class TriggerCompiler {
 
@@ -82,19 +84,25 @@ public class TriggerCompiler {
     private static Optional<Trigger> compileTrigger(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_TYPE);
 //Logger.getGlobal().info("Type: "+type);
-        if(type==null)  return Optional.empty();
+        if(type==null) {
+            DebugManager.debug(Modules.Trigger.create(TriggerCompiler.class),"Can't compile trigger. Missing trigger type.");
+            return Optional.empty();
+        }
 
         DecisionTreeTrigger trigger = null;
         switch(type.getAsString()) {
             case VALUE_REAL_TIMED_TRIGGER:
                 JsonElement time = jsonObject.get(KEY_TIME);
 //Logger.getGlobal().info("RealTime: "+time);
-                if(time!=null) {
+                if(time!=null && time.isJsonPrimitive()) {
                     LocalDateTime localDateTime = LocalDateTime.parse(time.getAsString());
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
                     long millis = zdt.toInstant().toEpochMilli();
                     trigger = new OnceRealTimeTrigger(null, millis);
                     trigger.setCallOnce(true);
+                } else {
+                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_TIMED_TRIGGER+" trigger. Missing time.");
+                    return Optional.empty();
                 }
                 break;
             case VALUE_REAL_PERIODIC_TRIGGER:
@@ -102,13 +110,19 @@ public class TriggerCompiler {
 //Logger.getGlobal().info("Periodic RealTime: "+time);
                 if(time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicRealTimeTrigger(null,time.getAsInt());
+                } else {
+                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_PERIODIC_TRIGGER+" trigger. Missing time.");
+                    return Optional.empty();
                 }
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
 //Logger.getGlobal().info("ServerTime: "+time);
-                if(time!=null) {
+                if(time!=null && time.isJsonPrimitive()) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
+                } else {
+                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_SERVER_TIMED_TRIGGER+" trigger. Missing time.");
+                    return Optional.empty();
                 }
                 break;
             case VALUE_SERVER_PERIODIC_TRIGGER:
@@ -142,7 +156,10 @@ public class TriggerCompiler {
                 trigger = new VirtualEntityStopTalkTrigger(null);
                 break;
         }
-        if(trigger == null) return Optional.empty();
+        if(trigger == null) {
+            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile trigger. Invalid trigger type.");
+            return Optional.empty();
+        }
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);
         trigger.setDecisionNode(decisionNode);
         trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null));

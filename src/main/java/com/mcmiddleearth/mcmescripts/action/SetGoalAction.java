@@ -20,7 +20,7 @@ public class SetGoalAction extends SelectingAction<VirtualEntity> {
             try {
 //DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget selector: "+goalTargetSelector.getSelector());
                 List<McmeEntity> goalTargets = goalTargetSelector.select(context);
-                if(!goalTargets.isEmpty()) {
+                if (!goalTargets.isEmpty()) {
 //DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget entity: "+goalTargets.get(0));
                     goalFactory.withTargetEntity(goalTargets.get(0));
                 }

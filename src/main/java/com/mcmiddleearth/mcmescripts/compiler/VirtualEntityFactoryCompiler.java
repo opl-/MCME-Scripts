@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 
 import java.io.File;
 import java.io.FileReader;
@@ -31,7 +33,10 @@ public class VirtualEntityFactoryCompiler {
     public static List<VirtualEntityFactory> compile(JsonObject jsonObject, String key) {
         List<VirtualEntityFactory> result = new ArrayList<>();
         JsonElement element = jsonObject.get(key);
-        if (element == null) return result;
+        if (element == null) {
+            DebugManager.debug(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Missing spawn data.");
+            return result;
+        }
 
         Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
         if(element.isJsonPrimitive()) {
@@ -43,7 +48,7 @@ public class VirtualEntityFactoryCompiler {
                 }
                 reader.endArray();
             } catch (IOException e) {
-                e.printStackTrace();
+                DebugManager.debug(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Invalid data in external file.");
             }
         } else if (element.isJsonArray()) {
             JsonArray jsonArray = element.getAsJsonArray();

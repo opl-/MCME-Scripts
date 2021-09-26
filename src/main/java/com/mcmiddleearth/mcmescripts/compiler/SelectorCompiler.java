@@ -26,13 +26,13 @@ public class SelectorCompiler {
         return selectorJson.getAsString();
     }
 
-    public static Optional<McmeEntitySelector> compileMcmeEntitySelector(JsonObject jsonObject) {
+    public static McmeEntitySelector compileMcmeEntitySelector(JsonObject jsonObject) {
         return compileMcmeEntitySelector(jsonObject,KEY_SELECTOR);
     }
 
-    public static Optional<McmeEntitySelector> compileMcmeEntitySelector(JsonObject jsonObject, String key) {
+    public static McmeEntitySelector compileMcmeEntitySelector(JsonObject jsonObject, String key) {
         String selectorData = getSelectorData(jsonObject, key);
-        return Optional.of(new McmeEntitySelector(selectorData));
+        return new McmeEntitySelector(selectorData);
         /*String selectorData = getSelectorData(jsonObject);
         switch(selectorData.charAt(1)) {
             case 'p':

@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 
@@ -26,6 +28,7 @@ public class ScriptCompiler {
         if(element!=null && element.isJsonPrimitive()) {
             return Optional.of(element.getAsString());
         } else {
+            DebugManager.debug(Modules.Script.create(ScriptCompiler.class),"Can't compile script. Missing name.");
             return Optional.empty();
         }
     }

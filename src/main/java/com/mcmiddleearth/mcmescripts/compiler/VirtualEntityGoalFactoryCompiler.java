@@ -7,6 +7,8 @@ import com.google.gson.stream.JsonReader;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,7 +23,10 @@ public class VirtualEntityGoalFactoryCompiler {
     public static Optional<VirtualEntityGoalFactory> compile(JsonObject jsonObject) {
         VirtualEntityGoalFactory result = null;
         JsonElement element = jsonObject.get(KEY_GOAL);
-        if (element == null) return Optional.empty();
+        if (element == null) {
+            DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Missing goal data.");
+            return Optional.empty();
+        }
 
         Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
         if(element.isJsonPrimitive()) {
@@ -33,13 +38,16 @@ public class VirtualEntityGoalFactoryCompiler {
                     result = factory.getGoalFactory();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Invalid goal data in external file.");
             }
         } else if(element.isJsonObject()) {
             result = compileObject(gson, element.getAsJsonObject());
         }
 
-        if(result == null) return Optional.empty();
+        if(result == null) {
+            DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Unknown error.");
+            return Optional.empty();
+        }
 
         return Optional.of(result);
     }

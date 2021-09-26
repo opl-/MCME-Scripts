@@ -11,6 +11,8 @@ import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
@@ -89,24 +91,45 @@ public class ConditionCompiler {
                                                                                         goalType, exclude);
                             getMatchAll(jsonObject).ifPresent(goalTypeCondition::setMatchAllSelected);
                             return Optional.of(goalTypeCondition);
-                        } catch (IllegalArgumentException ignore) {}
+                        } catch (IllegalArgumentException ex) {
+                            DebugManager.debug(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_GOAL_TYPE+" condition. Illegal goal type.");
+                        }
+                    } else {
+                        DebugManager.debug(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_GOAL_TYPE+" condition. Missing goal type.");
                     }
                     return Optional.empty();
                 case VALUE_PROXIMITY_LOCATION:
-                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                     Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
+                    if(location==null) {
+                        DebugManager.debug(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_PROXIMITY_LOCATION+" condition. Missing center location.");
+                        return Optional.empty();
+                    }
                     return Optional.of(new LocationProximityCondition(location, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_ENTITY:
-                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
-                    String entityName = jsonObject.get(KEY_CENTER).getAsString();
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                    String entityName = getName(jsonObject.get(KEY_CENTER));
+                    if(entityName==null) {
+                        DebugManager.debug(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_PROXIMITY_ENTITY+" condition. Missing center entity name.");
+                        return Optional.empty();
+                    }
                     return Optional.of(new VirtualEntityProximityCondition(entityName, selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_PLAYER:
-                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject).orElse(new McmeEntitySelector("@p"));
-                    String playerName = jsonObject.get(KEY_CENTER).getAsString();
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                    String playerName = getName(jsonObject.get(KEY_CENTER));
+                    if(playerName==null) {
+                        DebugManager.debug(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_PROXIMITY_ENTITY+" condition. Missing center player name.");
+                        return Optional.empty();
+                    }
                     return Optional.of(new PlayerProximityCondition(playerName, selector, compileFunction(jsonObject)));
             }
         } catch(NullPointerException ignore) {}
         return Optional.empty();
+    }
+
+    private static String getName(JsonElement element) {
+        if(!(element instanceof JsonPrimitive)) return null;
+        return element.getAsString();
     }
 
     private static Optional<Boolean> getMatchAll(JsonObject jsonObject) {
