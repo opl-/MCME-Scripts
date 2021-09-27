@@ -8,7 +8,7 @@ public class OnceRealTimeTrigger extends OnceTrigger {
 
     public OnceRealTimeTrigger(Action action, long timeMillis) {
         super(action, timeMillis);
-        DebugManager.log(Modules.Trigger.create(this.getClass()),
+        DebugManager.info(Modules.Trigger.create(this.getClass()),
                 "Time: "+timeMillis+" Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 

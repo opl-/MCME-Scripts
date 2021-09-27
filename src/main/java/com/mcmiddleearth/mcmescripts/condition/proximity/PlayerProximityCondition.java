@@ -21,7 +21,7 @@ public class PlayerProximityCondition implements Condition {
         this.selector = selector;
         this.playerName = playerName;
         this.test = test;
-        DebugManager.log(Modules.Condition.create(this.getClass()),
+        DebugManager.info(Modules.Condition.create(this.getClass()),
                 "Selector: "+selector.getSelector()+" Player: "+playerName);
     }
 
@@ -31,7 +31,7 @@ public class PlayerProximityCondition implements Condition {
         if(player!=null) {
             context = new TriggerContext(context).withPlayer(player);
         }
-        DebugManager.log(Modules.Condition.test(this.getClass()),
+        DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Player: "+ player);
         return test.apply(selector.select(context).size());
     }

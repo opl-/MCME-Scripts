@@ -41,7 +41,7 @@ public class Script {
         name = ScriptCompiler.getName(jsonData).orElse(System.currentTimeMillis()+"_"+Math.random());
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
-        DebugManager.log(Modules.Script.create(this.getClass()),
+        DebugManager.info(Modules.Script.create(this.getClass()),
                 "Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
     }
 
@@ -53,7 +53,7 @@ public class Script {
 
     public void load() throws IOException {
         if(!active) {
-            DebugManager.log(Modules.Script.load(this.getClass()),
+            DebugManager.info(Modules.Script.load(this.getClass()),
                     "Name: "+name);
             JsonObject jsonData = loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
@@ -66,7 +66,7 @@ public class Script {
         entities.forEach(entity -> EntitiesPlugin.getEntityServer().removeEntity(entity));
         entities.clear();
         active = false;
-        DebugManager.log(Modules.Script.unload(this.getClass()),
+        DebugManager.info(Modules.Script.unload(this.getClass()),
                 "Name: "+name);
     }
 
@@ -86,12 +86,15 @@ public class Script {
             public void call(TriggerContext context) {}
         });
         for(Condition condition: conditions) {
-            if(metAllConditions && !condition.test(context)) {
+            boolean testResult = condition.test(context);
+            if(metAllConditions && !testResult) {
                 return false;
-            } else if(!metAllConditions && condition.test(context)) {
+            } else if(!metAllConditions && testResult) {
+//Logger.getGlobal().info("trigger!");
                 return true;
             }
         }
+//Logger.getGlobal().info("isTriggered: "+getName()+" "+metAllConditions);
         return metAllConditions;
     }
 

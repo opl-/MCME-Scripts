@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
@@ -23,6 +24,7 @@ public class ActionCompiler {
                                 KEY_ACTION_ARRAY    = "actions",
 
                                 KEY_ACTION_TYPE     = "type",
+                                KEY_DELAY           = "delay",
                                 KEY_TARGET          = "location",
                                 KEY_GOAL_TARGET     = "goal_target",
                                 KEY_TRIGGER_NAME    = "name",
@@ -62,64 +64,82 @@ public class ActionCompiler {
     }
 
     private static Optional<Action> compileAction(JsonObject jsonObject) {
+        Action action;
         JsonElement type = jsonObject.get(KEY_ACTION_TYPE);
         if (type == null) {
-            DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile action. Missing: "+KEY_ACTION_TYPE);
+            DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile action. Missing: "+KEY_ACTION_TYPE);
             return Optional.empty();
         }
         switch(type.getAsString()) {
             case VALUE_REGISTER_TRIGGER:
                 Set<Trigger> triggers = TriggerCompiler.compile(jsonObject);
                 if(triggers.isEmpty()) {
-                    DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_REGISTER_TRIGGER+" action. Missing event.");
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_REGISTER_TRIGGER+" action. Missing event.");
                     return Optional.empty();
                 }
-                return Optional.of(new TriggerRegisterAction(triggers));
+                action = new TriggerRegisterAction(triggers);
+                break;
             case VALUE_UNREGISTER_TRIGGER:
                 Set<String> triggerNames = compileTriggerNames(jsonObject);
                 if(triggerNames.isEmpty()) {
-                    DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_UNREGISTER_TRIGGER+" action. Missing events.");
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_UNREGISTER_TRIGGER+" action. Missing events.");
                     return Optional.empty();
                 }
-                return Optional.of(new TriggerUnregisterAction(triggerNames));
+                action = new TriggerUnregisterAction(triggerNames);
+                break;
             case VALUE_SET_GOAL:
                 Optional<VirtualEntityGoalFactory> goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
                 if(!goalFactory.isPresent()) {
-                    DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SET_GOAL+" action. Missing goal.");
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SET_GOAL+" action. Missing goal.");
                     return Optional.empty();
                 }
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 McmeEntitySelector goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
-                return Optional.of(new SetGoalAction(goalFactory.get(), selector, goalTargetSelector));
+                action = new SetGoalAction(goalFactory.get(), selector, goalTargetSelector);
+                break;
             case VALUE_SPAWN:
                 List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);
                 if(factories.isEmpty()) {
-                    DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SPAWN+" action. Missing entity factory.");
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SPAWN+" action. Missing entity factory.");
                     return Optional.empty();
                 }
-                return Optional.of(new SpawnAction(factories));
+                action = new SpawnAction(factories);
+                break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return Optional.of(new DespawnAction(selector));
+                action = new DespawnAction(selector);
+                break;
             case VALUE_STOP_TALK:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return Optional.of(new StopTalkAction(selector));
+                action = new StopTalkAction(selector);
+                break;
             case VALUE_TALK:
                 SpeechBalloonLayout layout = SpeechBalloonLayoutCompiler.compile(jsonObject);
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
-                return Optional.of(new TalkAction(layout,selector));
+                action = new TalkAction(layout,selector);
+                break;
             case VALUE_TELEPORT:
                 Location target = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
                 if(target == null) {
-                    DebugManager.debug(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_TELEPORT+" action. Missing target location.");
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_TELEPORT+" action. Missing target location.");
                     return Optional.empty();
                 }
                 PlayerSelector playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 double spread = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_TELEPORT_SPREAD),0);
-                return Optional.of(new TeleportAction(target,spread,playerSelector));
+                action = new TeleportAction(target,spread,playerSelector);
+                break;
             default:
                 return Optional.empty();
         }
+        JsonElement delayJson = jsonObject.get(KEY_DELAY);
+        if(delayJson instanceof JsonPrimitive) {
+            try {
+                action.setDelay(delayJson.getAsInt());
+            } catch(ClassCastException ex) {
+                DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Ignoring invalid delay data!");
+            }
+        }
+        return Optional.of(action);
     }
 
     private static Set<String> compileTriggerNames(JsonObject jsonObject) {

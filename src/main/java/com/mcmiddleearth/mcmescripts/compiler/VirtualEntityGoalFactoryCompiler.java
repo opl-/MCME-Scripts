@@ -24,7 +24,7 @@ public class VirtualEntityGoalFactoryCompiler {
         VirtualEntityGoalFactory result = null;
         JsonElement element = jsonObject.get(KEY_GOAL);
         if (element == null) {
-            DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Missing goal data.");
+            DebugManager.warn(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Missing goal data.");
             return Optional.empty();
         }
 
@@ -38,14 +38,14 @@ public class VirtualEntityGoalFactoryCompiler {
                     result = factory.getGoalFactory();
                 }
             } catch (IOException e) {
-                DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Invalid goal data in external file.");
+                DebugManager.warn(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Invalid goal data in external file.");
             }
         } else if(element.isJsonObject()) {
             result = compileObject(gson, element.getAsJsonObject());
         }
 
         if(result == null) {
-            DebugManager.debug(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Unknown error.");
+            DebugManager.warn(Modules.Trigger.create(VirtualEntityGoalFactoryCompiler.class),"Can't compile VirtualEntityGoalFactory. Unknown error.");
             return Optional.empty();
         }
 

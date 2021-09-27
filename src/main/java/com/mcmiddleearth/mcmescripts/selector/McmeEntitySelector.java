@@ -15,7 +15,7 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
 
     public McmeEntitySelector(String selector) throws IndexOutOfBoundsException {
         super(selector);
-        DebugManager.log(Modules.Selector.create(this.getClass()),
+        DebugManager.info(Modules.Selector.create(this.getClass()),
                 "Selector: "+selector);
     }
 
@@ -41,8 +41,8 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
                             }).collect(Collectors.toList());
                     result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                             .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                    DebugManager.log(Modules.Selector.select(this.getClass()),
-                            "Selector: "+getSelector()
+                    DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                            "Selector!!: "+getSelector()
                                     +" Selected: "+(result.size()>0?result.get(0).getName():null));
                 }
                 break;

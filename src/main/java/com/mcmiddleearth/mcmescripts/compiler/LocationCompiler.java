@@ -16,17 +16,17 @@ public class LocationCompiler {
     public static Optional<Location> compile(JsonElement element) {
         //JsonElement element = jsonObject.get(KEY_LOCATION);
         if(element == null) {
-            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile location. Missing json element.");
+            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile location. Missing json element.");
             return Optional.empty();
         }
         String[] split = element.getAsString().replace(" ","").split(",");
         if(split.length<4) {
-            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile location. To few coordinates.");
+            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile location. To few coordinates.");
             return Optional.empty();
-        };
+        }
         World world = Bukkit.getWorld(split[0]);
         if(world == null) {
-            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile location. World not found.");
+            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile location. World not found.");
             return Optional.empty();
         }
         try {
@@ -35,7 +35,7 @@ public class LocationCompiler {
             double z = Double.parseDouble(split[3]);
             return Optional.of(new Location(world, x, y, z));
         } catch(NumberFormatException ex) {
-            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile location. NumberFormatException.");
+            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile location. NumberFormatException.");
             return Optional.empty();
         }
     }

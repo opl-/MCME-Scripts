@@ -8,7 +8,7 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public class SelectingAction<T> implements Action {
+public class SelectingAction<T> extends Action {
 
     private final Selector<T> selector;
 
@@ -20,9 +20,9 @@ public class SelectingAction<T> implements Action {
     }
 
     @Override
-    public void execute(TriggerContext context) {
+    protected void handler(TriggerContext context) {
         List<T> selected = selector.select(context);
-        DebugManager.log(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
+        DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
         selected.forEach(element -> executor.accept(element,context));
     }
 }

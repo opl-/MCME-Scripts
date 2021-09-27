@@ -61,20 +61,21 @@ public class ScriptManager {
             @Override
             public void run() {
                 scripts.forEach((name,script) -> {
-                    if (script.isTriggered() && !script.isActive()) {
+                    boolean isTriggered = script.isTriggered();
+                    if (isTriggered && !script.isActive()) {
                         try {
 //Logger.getGlobal().info("LoadScript: "+script.getName());
                             script.load();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    } else if(!script.isTriggered() && script.isActive()) {
+                    } else if(!isTriggered && script.isActive()) {
 //Logger.getGlobal().info("UnloadScript: "+script.getName());
                         script.unload();
                     }
                 });
             }
-        }.runTaskTimer(MCMEScripts.getInstance(),MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,195),
+        }.runTaskTimer(MCMEScripts.getInstance(),MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,95),
                                                  MCMEScripts.getConfigInt(ConfigKeys.SCRIPT_CHECKER_PERIOD,100));
     }
 

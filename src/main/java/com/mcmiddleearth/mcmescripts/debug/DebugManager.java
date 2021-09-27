@@ -6,20 +6,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DebugManager {
 
-    private static final Set<String> debugModules = new HashSet<>();
+    private static Map<String,Level> debugModules = new HashMap<>();
 
     private static final File logFile = new File(MCMEScripts.getInstance().getDataFolder(),"debug.txt");
 
     private static PrintWriter writer;
 
     public static void open() {
+        Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule()))
+                .forEach(module -> debugModules.put(module.getModule(),Level.WARNING));
+        Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule().split("\\.")[0]))
+                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.WARNING));
         if(logFile.exists()) {
             if(!logFile.delete()) {
                 Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Can't delete old log file!");
@@ -39,27 +41,31 @@ public class DebugManager {
         writer.close();
     }
 
-    public static void toggleDebug(String module) {
-        debug(module,!debugModules.contains(module));
-    }
-
-    public static void debug(String module, String enable) {
-        debug(module, enable.equalsIgnoreCase("true"));
-        log("Active Debug Modules: ");
-        debugModules.forEach(DebugManager::log);
-    }
-
-    public static void debug(String module, boolean enable) {
-        if(module.equalsIgnoreCase("all")) {
-            Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(), true));
-        } else if(module.equalsIgnoreCase("none")) {
-                Arrays.stream(Modules.values()).forEach(mod -> debug(mod.getModule(),false));
+    public static void cycleDebug(String module) {
+        if(module.equals("all")) {
+            debug("all", Level.VERBOSE);
+        } else if(module.equals("none")) {
+            debug("all", Level.CRITICAL);
         } else {
-            if (enable) {
-                debugModules.add(module);
-            } else {
-                debugModules.remove(module);
-            }
+            debug(module, Level.next(debugModules.get(module)));
+        }
+        log("Debug Modules: ");
+        debugModules.forEach((key, value) -> log(key+" - "+value.name()));
+    }
+
+    public static void debug(String module, String debugLevel) {
+        try {
+            debug(module, Level.valueOf(debugLevel.toUpperCase()));
+        } catch(IllegalArgumentException ignore) {}
+        log("Debug Modules: ");
+        debugModules.forEach((key, value) -> log(key+" - "+value.name()));
+    }
+
+    public static void debug(String module, Level debugLevel) {
+        if(module.equalsIgnoreCase("all")) {
+            new HashSet<>(debugModules.keySet()).forEach(mod -> debug(mod, debugLevel));
+        } else {
+            debugModules.put(module, debugLevel);
         }
     }
 
@@ -82,24 +88,48 @@ public class DebugManager {
         }
     }
 
-    public static void log(String module, String message) {
+    public static void verbose(String module, String message) {
+        log(module, message, Level.VERBOSE);
+    }
+
+    public static void info(String module, String message) {
+        log(module, message, Level.INFO);
+    }
+
+    public static void warn(String module, String message) {
+        log(module, message, Level.WARNING);
+    }
+
+    public static void severe(String module, String message) {
+        log(module, message, Level.SEVERE);
+    }
+
+    public static void critical(String module, String message) {
+        log(module, message, Level.CRITICAL);
+    }
+
+    public static void log(String module, String message, Level debugLevel) {
         String initialModule = ""+module;
         module = module + ".";
         int lastDot = module.lastIndexOf('.');
         do {
             module = module.substring(0,lastDot);
             //log(module);
-            if(debugModules.contains(module)) {
+            if(isActive(module, debugLevel)) {
                 //log("Found: "+module);
                 break;
             }
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
         //log("Final module: "+module);
-        if(debugModules.contains(module) || debugModules.contains(module.split("\\.")[0])) {
+        if(isActive(module,debugLevel) || isActive(module.split("\\.")[0],debugLevel)) {
             //log("found final module.");
             log(initialModule + " -> " + message);
         }
+    }
+
+    private static boolean isActive(String module, Level debugLevel) {
+        return debugModules.get(module)!=null && debugModules.get(module).getDebugLevel()<=debugLevel.getDebugLevel();
     }
 
     public static void log(String message) {

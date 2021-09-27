@@ -23,7 +23,7 @@ public abstract class PeriodicTrigger extends TimedTrigger {
         if(current < timeLastCheck) {
             timeLastCheck = current;
             timeNextCall = timeLastCheck + periodMillis;
-            DebugManager.log(Modules.Trigger.call(this.getClass()),
+            DebugManager.info(Modules.Trigger.call(this.getClass()),
                     "Reset current time: " + current);
         }
         if(current >= timeNextCall && timeLastCheck < timeNextCall) {
@@ -31,7 +31,7 @@ public abstract class PeriodicTrigger extends TimedTrigger {
             timeNextCall = current + periodMillis;
         }
         timeLastCheck = current;
-        DebugManager.log(Modules.Trigger.call(this.getClass()),
+        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
                 "Current time: " + current +" last check: "+timeLastCheck + "next call: "+timeNextCall);
     }
 

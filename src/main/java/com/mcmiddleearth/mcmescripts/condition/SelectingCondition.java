@@ -32,7 +32,7 @@ public class SelectingCondition<T> implements Condition {
                 break;
             }
         }
-        DebugManager.log(Modules.Condition.test(this.getClass()),
+        DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Result: "+result);
         return result;
     }

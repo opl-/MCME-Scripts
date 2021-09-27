@@ -9,7 +9,7 @@ public class TalkCondition extends SelectingCondition<VirtualEntity> {
 
     public TalkCondition(EntitySelector<VirtualEntity> talkerSelector, boolean noTalk) {
         super(talkerSelector, (noTalk ? entity -> !entity.isTalking() : VirtualEntity::isTalking));
-        DebugManager.log(Modules.Condition.create(this.getClass()),
+        DebugManager.info(Modules.Condition.create(this.getClass()),
                 "Selector: "+talkerSelector.getSelector()+" Test not talking: "+noTalk);
    }
 }

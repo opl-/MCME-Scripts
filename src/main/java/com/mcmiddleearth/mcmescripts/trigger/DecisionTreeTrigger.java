@@ -6,6 +6,7 @@ import com.mcmiddleearth.mcmescripts.condition.Condition;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 public abstract class DecisionTreeTrigger extends Trigger {
 

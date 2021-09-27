@@ -193,7 +193,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case TRIGGER_ENTITY:
                 if (context.getPlayer() != null)
                     players.add(context.getPlayer());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
+                DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: " + getSelector() + " Selected: " + (context.getPlayer() != null ? context.getPlayer().getName() : null));
                 return players;
             case NEAREST_PLAYER:
@@ -270,7 +270,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     case NEAREST_PLAYER:
                         result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(1)
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                        DebugManager.log(Modules.Selector.select(this.getClass()),
+                        DebugManager.verbose(Modules.Selector.select(this.getClass()),
                                 "Selector: "+getSelector()
                                         +" Selected: "+(result.size()>0?result.get(0).getName():null));
                         return result;
@@ -284,14 +284,14 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         break;
                 }
 //DebugManager.log(Modules.Selector.select(this.getClass()),"Result: "+result.size());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
-                        "Selector: "+getSelector()
+                DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                        "Selector!: "+getSelector()
                                 +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
                 return result;
         }
-        DebugManager.log(Modules.Selector.select(this.getClass()),
+        DebugManager.warn(Modules.Selector.select(this.getClass()),
                 "Selector: "+getSelector()
-                        +" Selected: none");
+                        +" Invalid selector type!");
         return Collections.emptyList();
     }
 
@@ -303,7 +303,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case TRIGGER_ENTITY:
                 if(context.getEntity()!=null)
                     entities.add(context.getEntity());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
+                DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
                 return entities;
             case VIRTUAL_ENTITIES:
@@ -383,14 +383,14 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 }
                 List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                         .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                DebugManager.log(Modules.Selector.select(this.getClass()),
+                DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()
                                 +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
                 return result;
         }
-        DebugManager.log(Modules.Selector.select(this.getClass()),
+        DebugManager.warn(Modules.Selector.select(this.getClass()),
                 "Selector: "+getSelector()
-                        +" Selected: none");
+                        +" Invalid selector type!");
         return Collections.emptyList();
     }
 

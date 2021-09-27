@@ -10,21 +10,21 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 import java.util.List;
 
-public class SpawnAction implements Action  {
+public class SpawnAction extends Action  {
 
     private final List<VirtualEntityFactory> factories;
 
     public SpawnAction(List<VirtualEntityFactory> factory) {
         this.factories = factory;
-        DebugManager.log(Modules.Action.create(this.getClass()),"Entities: "+ factories.size());
+        DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ factories.size());
     }
 
     @Override
-    public void execute(TriggerContext context) {
+    protected void handler(TriggerContext context) {
         factories.forEach(factory -> {
             try {
+                DebugManager.verbose(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
                 context.getScript().addEntity(EntitiesPlugin.getEntityServer().spawnEntity(factory));
-                DebugManager.log(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
             } catch (InvalidLocationException | InvalidDataException e) {
                 e.printStackTrace();
             }

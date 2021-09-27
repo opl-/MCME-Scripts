@@ -19,17 +19,17 @@ public class SetGoalAction extends SelectingAction<VirtualEntity> {
         super(selector, (entity,context) -> {
             try {
 //DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget selector: "+goalTargetSelector.getSelector());
+                DebugManager.verbose(Modules.Action.execute(SetGoalAction.class),"Target entity: "+entity.getName());
                 List<McmeEntity> goalTargets = goalTargetSelector.select(context);
                 if (!goalTargets.isEmpty()) {
 //DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget entity: "+goalTargets.get(0));
                     goalFactory.withTargetEntity(goalTargets.get(0));
                 }
                 entity.setGoal(goalFactory.build(entity));
-                DebugManager.log(Modules.Action.execute(SetGoalAction.class),"Target entity: "+entity.getName());
             } catch (InvalidLocationException | InvalidDataException e) {
                 e.printStackTrace();
             }
         });
-        DebugManager.log(Modules.Action.create(this.getClass()),"Goal type: "+(goalFactory!=null?goalFactory.getGoalType().name():"null"));
+        DebugManager.info(Modules.Action.create(this.getClass()),"Goal type: "+(goalFactory!=null?goalFactory.getGoalType().name():"null"));
     }
 }

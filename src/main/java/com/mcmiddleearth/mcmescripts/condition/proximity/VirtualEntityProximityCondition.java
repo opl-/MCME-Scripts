@@ -10,6 +10,7 @@ import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @SuppressWarnings("rawtypes")
 public class VirtualEntityProximityCondition implements Condition {
@@ -22,7 +23,7 @@ public class VirtualEntityProximityCondition implements Condition {
         this.selector = selector;
         this.entityName = entityName;
         this.test = test;
-        DebugManager.log(Modules.Condition.create(this.getClass()),
+        DebugManager.info(Modules.Condition.create(this.getClass()),
                 "Selector: "+selector.getSelector()+" Entity: "+entityName);
     }
 
@@ -32,7 +33,7 @@ public class VirtualEntityProximityCondition implements Condition {
         if(entity instanceof VirtualEntity) {
             context = new TriggerContext(context).withEntity((VirtualEntity) entity);
         }
-        DebugManager.log(Modules.Condition.test(this.getClass()),
+        DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Entity: "+(entity!=null?entity.getName():"null"));
         return test.apply(selector.select(context).size());
     }

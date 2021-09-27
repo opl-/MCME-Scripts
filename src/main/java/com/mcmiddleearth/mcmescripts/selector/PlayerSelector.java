@@ -11,7 +11,7 @@ public class PlayerSelector extends EntitySelector<Player>{
 
     public PlayerSelector(String selector) throws IndexOutOfBoundsException {
         super(selector);
-        DebugManager.log(Modules.Selector.create(this.getClass()),
+        DebugManager.info(Modules.Selector.create(this.getClass()),
                 "Selector: "+selector);
     }
 

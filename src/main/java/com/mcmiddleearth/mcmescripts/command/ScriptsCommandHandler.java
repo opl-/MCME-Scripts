@@ -32,12 +32,12 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
             .then(HelpfulLiteralBuilder.literal("debug")
                 .then(HelpfulRequiredArgumentBuilder.argument("module",word())
                     .executes(context -> {
-                        DebugManager.toggleDebug(context.getArgument("module",String.class));
+                        DebugManager.cycleDebug(context.getArgument("module",String.class));
                         return 0; })
-                    .then(HelpfulRequiredArgumentBuilder.argument("enable",word())
+                    .then(HelpfulRequiredArgumentBuilder.argument("level",word())
                         .executes(context -> {
                             DebugManager.debug(context.getArgument("module",String.class),
-                                    context.getArgument("enable",String.class));
+                                    context.getArgument("level",String.class));
                             return 0; }))))
             .then(HelpfulLiteralBuilder.literal("list")
                 .then(HelpfulRequiredArgumentBuilder.argument("module",word())

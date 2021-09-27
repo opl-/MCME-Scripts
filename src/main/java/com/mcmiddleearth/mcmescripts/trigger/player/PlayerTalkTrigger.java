@@ -16,7 +16,7 @@ public class PlayerTalkTrigger extends BukkitEventTrigger {
 
     public PlayerTalkTrigger(Action action) {
         super(action);
-        DebugManager.log(Modules.Trigger.create(this.getClass()),
+        DebugManager.info(Modules.Trigger.create(this.getClass()),
                 "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
@@ -39,7 +39,7 @@ public class PlayerTalkTrigger extends BukkitEventTrigger {
 
     private void callInternal(TriggerContext context) {
         call(context);
-        DebugManager.log(Modules.Trigger.call(this.getClass()),
+        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
                 "Player: " + context.getPlayer().getName() + " Message: " + context.getMessage());
     }
 

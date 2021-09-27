@@ -13,7 +13,7 @@ VirtualEntityStopTalkTrigger extends EntitiesEventTrigger {
 
     public VirtualEntityStopTalkTrigger(Action action) {
         super(action);
-        DebugManager.log(Modules.Trigger.create(this.getClass()),
+        DebugManager.info(Modules.Trigger.create(this.getClass()),
                  "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
@@ -23,7 +23,7 @@ VirtualEntityStopTalkTrigger extends EntitiesEventTrigger {
         TriggerContext context = new TriggerContext(this)
                                          .withEntity(event.getVirtualEntity());
         call(context);
-        DebugManager.log(Modules.Trigger.call(this.getClass()),
+        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
                 "Entity: "+context.getEntity());
     }
 }

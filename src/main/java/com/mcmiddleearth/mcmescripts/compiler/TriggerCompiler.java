@@ -85,7 +85,7 @@ public class TriggerCompiler {
         JsonElement type = jsonObject.get(KEY_TYPE);
 //Logger.getGlobal().info("Type: "+type);
         if(type==null) {
-            DebugManager.debug(Modules.Trigger.create(TriggerCompiler.class),"Can't compile trigger. Missing trigger type.");
+            DebugManager.warn(Modules.Trigger.create(TriggerCompiler.class),"Can't compile trigger. Missing trigger type.");
             return Optional.empty();
         }
 
@@ -101,7 +101,7 @@ public class TriggerCompiler {
                     trigger = new OnceRealTimeTrigger(null, millis);
                     trigger.setCallOnce(true);
                 } else {
-                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_TIMED_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_TIMED_TRIGGER+" trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
@@ -111,7 +111,7 @@ public class TriggerCompiler {
                 if(time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicRealTimeTrigger(null,time.getAsInt());
                 } else {
-                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_PERIODIC_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_PERIODIC_TRIGGER+" trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
@@ -121,7 +121,7 @@ public class TriggerCompiler {
                 if(time!=null && time.isJsonPrimitive()) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 } else {
-                    DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_SERVER_TIMED_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_SERVER_TIMED_TRIGGER+" trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
@@ -157,7 +157,7 @@ public class TriggerCompiler {
                 break;
         }
         if(trigger == null) {
-            DebugManager.debug(Modules.Location.create(LocationCompiler.class),"Can't compile trigger. Invalid trigger type.");
+            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile trigger. Invalid trigger type.");
             return Optional.empty();
         }
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);

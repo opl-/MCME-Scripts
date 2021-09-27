@@ -7,7 +7,9 @@ import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
 
+import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @SuppressWarnings("rawtypes")
 public class LocationProximityCondition implements Condition {
@@ -20,16 +22,20 @@ public class LocationProximityCondition implements Condition {
         this.selector = selector;
         this.location = center;
         this.test = test;
-        DebugManager.log(Modules.Condition.create(this.getClass()),
+        DebugManager.info(Modules.Condition.create(this.getClass()),
                 "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
     }
 
     @Override
     public boolean test(TriggerContext context) {
+//Logger.getGlobal().info("TEST");
         context = new TriggerContext(context).withLocation(location);
-        DebugManager.log(Modules.Condition.test(this.getClass()),
+        DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
-        return test.apply(selector.select(context).size());
+        List selectorResult = selector.select(context);
+//Logger.getGlobal().info("Selected entities: "+selectorResult.size());
+        //Logger.getGlobal().info("Result: "+result);
+        return test.apply(selectorResult.size());
     }
 
     @Override

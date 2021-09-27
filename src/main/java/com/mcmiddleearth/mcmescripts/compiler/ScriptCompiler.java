@@ -28,7 +28,7 @@ public class ScriptCompiler {
         if(element!=null && element.isJsonPrimitive()) {
             return Optional.of(element.getAsString());
         } else {
-            DebugManager.debug(Modules.Script.create(ScriptCompiler.class),"Can't compile script. Missing name.");
+            DebugManager.warn(Modules.Script.create(ScriptCompiler.class),"Can't compile script. Missing name.");
             return Optional.empty();
         }
     }

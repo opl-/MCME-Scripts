@@ -2,9 +2,9 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcmiddleearth.mcmescripts.selector.*;
-
-import java.util.Optional;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
+import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
+import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 
 public class SelectorCompiler {
 

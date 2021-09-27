@@ -34,7 +34,7 @@ public class VirtualEntityFactoryCompiler {
         List<VirtualEntityFactory> result = new ArrayList<>();
         JsonElement element = jsonObject.get(key);
         if (element == null) {
-            DebugManager.debug(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Missing spawn data.");
+            DebugManager.warn(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Missing spawn data.");
             return result;
         }
 
@@ -48,7 +48,7 @@ public class VirtualEntityFactoryCompiler {
                 }
                 reader.endArray();
             } catch (IOException e) {
-                DebugManager.debug(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Invalid data in external file.");
+                DebugManager.warn(Modules.Trigger.create(VirtualEntityFactoryCompiler.class),"Can't compile VirtualEntityFactory. Invalid data in external file.");
             }
         } else if (element.isJsonArray()) {
             JsonArray jsonArray = element.getAsJsonArray();
