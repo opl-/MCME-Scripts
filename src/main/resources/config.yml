@@ -1,3 +1,11 @@
 triggerCheckerPeriod: 10
 scriptCheckerPeriod: 100
 startUpDelay: 600
+drive:
+  accessToken: xxx
+  refreshToken: xxx
+  animationsFolder: google drive folder ID
+  entitiesFolder: google drive folder ID
+  scriptsFolder: google drive folder ID
+  clientId: google app client ID
+  clientSecret: google app client secret

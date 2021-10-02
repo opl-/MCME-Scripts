@@ -59,15 +59,20 @@ public final class MCMEScripts extends JavaPlugin {
         return timedTriggerManager;
     }
 
-    public static int getConfigInt(ConfigKeys key, int defaultValue) {
+    public static synchronized int getConfigInt(ConfigKeys key, int defaultValue) {
         return instance.getConfig().getInt(key.getKey(),defaultValue);
     }
 
-    public static String getConfigString(ConfigKeys key, String defaultValue) {
+    public static synchronized String getConfigString(ConfigKeys key, String defaultValue) {
         return instance.getConfig().getString(key.getKey(),defaultValue);
     }
 
-    public static double getConfigValueDouble(ConfigKeys key, double defaultValue) {
+    public static synchronized void setConfigString(ConfigKeys key, String value) {
+        instance.getConfig().set(key.getKey(),value);
+        instance.saveConfig();
+    }
+
+    public static synchronized double getConfigValueDouble(ConfigKeys key, double defaultValue) {
         return instance.getConfig().getDouble(key.getKey(),defaultValue);
     }
 

@@ -2,11 +2,14 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
@@ -23,7 +26,8 @@ public class EntityCompiler {
     private static final String KEY_ENTITY            = "entity",
                                 KEY_ENTITY_ARRAY      = "entities",
 
-                                KEY_SPAWN_DISTANCE    = "spawn_range";
+                                KEY_SPAWN_DISTANCE    = "spawn_range",
+                                KEY_VIEW_DISTANCE     = "view_distance";
 
     private static final int DEFAULT_SPAWN_DISTANCE   = 64;
 
@@ -62,8 +66,16 @@ public class EntityCompiler {
         DecisionTreeTrigger spawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
         DecisionTreeTrigger despawnTrigger = new PeriodicServerTimeTrigger(null, MCMEScripts.getConfigInt(ConfigKeys.TRIGGER_CHECKER_PERIOD,10));
 
-        for (VirtualEntityFactory factory : factories) {
-            factory.withViewDistance((int) (spawnDistance * 0.9));
+        JsonElement viewDistanceJson = jsonObject.get(KEY_VIEW_DISTANCE);
+        if(viewDistanceJson instanceof JsonPrimitive) {
+            try {
+                int viewDistance = viewDistanceJson.getAsInt();
+                for (VirtualEntityFactory factory : factories) {
+                    factory.withViewDistance((int) (viewDistance));
+                }
+            } catch(ClassCastException ex) {
+                DebugManager.warn(Modules.Trigger.create(EntityCompiler.class),"Can't read view distance. Number format exception.");
+            }
         }
 
         Set<Action> spawnActions = new HashSet<>();

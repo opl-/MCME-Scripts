@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcmescripts.script;
 
+import com.google.gson.JsonSyntaxException;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,18 +20,18 @@ public class ScriptManager {
 
     private BukkitTask checker;
 
-    private static final File scripFolder = new File(MCMEScripts.getInstance().getDataFolder(),"scripts");
+    private static final File scriptFolder = new File(MCMEScripts.getInstance().getDataFolder(),"scripts");
 
     public void readScripts() {
-        if(!scripFolder.exists()) {
-            if(scripFolder.mkdir()) {
+        if(!scriptFolder.exists()) {
+            if(scriptFolder.mkdir()) {
                 Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Scripts folder created.");
             }
         }
-        for(File file : scripFolder.listFiles(((dir, name) -> name.endsWith(".json")))) {
+        for(File file : scriptFolder.listFiles(((dir, name) -> name.endsWith(".json")))) {
             try {
                 addScript(file);
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException | JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
@@ -66,7 +67,7 @@ public class ScriptManager {
                         try {
 //Logger.getGlobal().info("LoadScript: "+script.getName());
                             script.load();
-                        } catch (IOException e) {
+                        } catch (IOException | IllegalStateException | JsonSyntaxException e) {
                             e.printStackTrace();
                         }
                     } else if(!isTriggered && script.isActive()) {
@@ -87,5 +88,9 @@ public class ScriptManager {
 
     public  Map<String, Script> getScripts() {
         return scripts;
+    }
+
+    public static File getScriptFolder() {
+        return scriptFolder;
     }
 }
