@@ -9,7 +9,6 @@ public enum ConfigKeys {
     DRIVE_FOLDER_SCRIPTS ("drive.scriptsFolder"),
     DRIVE_CLIENT_ID ("drive.clientId"),
     DRIVE_CLIENT_SECRET("drive.clientSecret"),
-    TEST_KEY("test"),
     SCRIPT_CHECKER_PERIOD ("scriptCheckerPeriod"),
     TRIGGER_CHECKER_PERIOD ("triggerCheckerPeriod"),
     START_UP_DELAY ("startUpDelay");

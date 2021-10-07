@@ -14,6 +14,7 @@ import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import org.bukkit.Location;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
 
@@ -39,7 +40,9 @@ public class ActionCompiler {
                                 VALUE_DESPAWN               = "despawn",
                                 VALUE_STOP_TALK             = "stop_talk",
                                 VALUE_TALK                  = "talk",
-                                VALUE_TELEPORT              = "teleport";
+                                VALUE_TELEPORT              = "teleport",
+                                VALUE_ADD_POTION_EFFECT     = "add_potion_effect",
+                                VALUE_REMOVE_POTION_EFFECT  = "remove_potion_effect";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -128,6 +131,15 @@ public class ActionCompiler {
                 double spread = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_TELEPORT_SPREAD),0);
                 action = new TeleportAction(target,spread,playerSelector);
                 break;
+            case VALUE_ADD_POTION_EFFECT:
+                McmeEntitySelector mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                PotionEffect effect = PotionEffectCommpiler.compile(jsonObject);
+                action = new PotionEffectAddAction(effect, mcmeSelector);
+                break;
+            case VALUE_REMOVE_POTION_EFFECT:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                effect = PotionEffectCommpiler.compile(jsonObject);
+                action = new PotionEffectRemoveAction(effect, mcmeSelector);
             default:
                 return Optional.empty();
         }
