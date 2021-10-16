@@ -81,7 +81,7 @@
         <dependency>
             <groupId>com.mcmiddleearth</groupId>
             <artifactId>MCME-Entities</artifactId>
-            <version>1.0-SNAPSHOT-100</version>
+            <version>1.0-SNAPSHOT-200</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

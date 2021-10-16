@@ -1,12 +1,12 @@
 package com.mcmiddleearth.mcmescripts.action;
 
+import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
-import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.potion.PotionEffect;
 
-public class PotionEffectRemoveAction extends SelectingAction<McmeEntitySelector> {
+public class PotionEffectRemoveAction extends SelectingAction<McmeEntity> {
 
     PotionEffect effect;
 

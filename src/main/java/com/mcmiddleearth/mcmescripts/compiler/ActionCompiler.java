@@ -14,6 +14,8 @@ import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import org.bukkit.Location;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
@@ -30,6 +32,15 @@ public class ActionCompiler {
                                 KEY_GOAL_TARGET     = "goal_target",
                                 KEY_TRIGGER_NAME    = "name",
                                 KEY_TELEPORT_SPREAD = "spread",
+                                KEY_POTION_EFFECT   = "potion_effect",
+                                KEY_TIME            = "time",
+                                KEY_STATE           = "state",
+                                KEY_ANIMATION       = "animation",
+                                KEY_OVERRIDE        = "override",
+                                KEY_ITEM            = "item",
+                                KEY_ITEMS           = "items",
+                                KEY_SLOT            = "slot",
+                                KEY_SLOT_ID         = "slot_id",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -42,7 +53,11 @@ public class ActionCompiler {
                                 VALUE_TALK                  = "talk",
                                 VALUE_TELEPORT              = "teleport",
                                 VALUE_ADD_POTION_EFFECT     = "add_potion_effect",
-                                VALUE_REMOVE_POTION_EFFECT  = "remove_potion_effect";
+                                VALUE_REMOVE_POTION_EFFECT  = "remove_potion_effect",
+                                VALUE_SET_SERVER_TIME       = "set_server_time",
+                                VALUE_ENTITY_STATE          = "entity_state",
+                                VALUE_ANIMATION             = "animation",
+                                VALUE_GIVE_ITEM             = "give_item";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -133,13 +148,82 @@ public class ActionCompiler {
                 break;
             case VALUE_ADD_POTION_EFFECT:
                 McmeEntitySelector mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
-                PotionEffect effect = PotionEffectCommpiler.compile(jsonObject);
+                PotionEffect effect = PotionEffectCompiler.compile(jsonObject.get(KEY_POTION_EFFECT));
+                if(effect == null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_ADD_POTION_EFFECT+" action. Missing potion effect.");
+                    return Optional.empty();
+                }
                 action = new PotionEffectAddAction(effect, mcmeSelector);
                 break;
             case VALUE_REMOVE_POTION_EFFECT:
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
-                effect = PotionEffectCommpiler.compile(jsonObject);
+                effect = PotionEffectCompiler.compile(jsonObject.get(KEY_POTION_EFFECT));
+                if(effect == null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_REMOVE_POTION_EFFECT+" action. Missing potion effect.");
+                    return Optional.empty();
+                }
                 action = new PotionEffectRemoveAction(effect, mcmeSelector);
+                break;
+            case VALUE_SET_SERVER_TIME:
+                JsonElement timeJson = jsonObject.get(KEY_TIME);
+                if(! (timeJson instanceof JsonPrimitive)) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SET_SERVER_TIME+" action. Missing server time.");
+                    return Optional.empty();
+                }
+                long serverTime = timeJson.getAsLong();
+                action = new ServerTimeAction(serverTime);
+                break;
+            case VALUE_ENTITY_STATE:
+                JsonElement stateJson = jsonObject.get(KEY_STATE);
+                if(! (stateJson instanceof JsonPrimitive)) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_ENTITY_STATE+" action. Missing entity state.");
+                    return Optional.empty();
+                }
+                String state = stateJson.getAsString();
+                selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                action = new EntityStateAction(selector, state);
+                break;
+            case VALUE_ANIMATION:
+                JsonElement animationJson = jsonObject.get(KEY_ANIMATION);
+                if(! (animationJson instanceof JsonPrimitive)) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_ANIMATION+" action. Missing animation name.");
+                    return Optional.empty();
+                }
+                String animationName = animationJson.getAsString();
+                JsonElement overrideJson = jsonObject.get(KEY_OVERRIDE);
+                boolean override = true;
+                if(overrideJson instanceof JsonPrimitive) {
+                    override = overrideJson.getAsBoolean();
+                }
+                selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                action = new AnimationAction(selector, animationName, override);
+                break;
+            case VALUE_GIVE_ITEM:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                Set<ItemStack> items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
+                items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
+                if(items.isEmpty()) return Optional.empty();
+                EquipmentSlot slot = null;
+                JsonElement slotJson = jsonObject.get(KEY_SLOT);
+                if(slotJson instanceof JsonPrimitive) {
+                    try {
+                        slot = EquipmentSlot.valueOf(slotJson.getAsString().toUpperCase());
+                    } catch (IllegalArgumentException ex) {
+                        DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Illegal equipment slot for "+VALUE_GIVE_ITEM+" action. Using main hand slot.");
+                        slot = EquipmentSlot.HAND;
+                    }
+                }
+                int slotId = -1;
+                JsonElement slotIdJson = jsonObject.get(KEY_SLOT_ID);
+                if(slotIdJson instanceof JsonPrimitive) {
+                    try {
+                        slotId = slotIdJson.getAsInt();
+                    } catch(NumberFormatException ex) {
+                        DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't parse slot id for action "+VALUE_GIVE_ITEM+".");
+                    }
+                }
+                action = new GiveItemAction(mcmeSelector, items, slot, slotId);
+                break;
             default:
                 return Optional.empty();
         }

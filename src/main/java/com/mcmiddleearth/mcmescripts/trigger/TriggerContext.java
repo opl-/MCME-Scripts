@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.trigger;
 
 import com.mcmiddleearth.entities.ai.goal.Goal;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
+import com.mcmiddleearth.entities.events.events.McmeEntityEvent;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,6 +23,8 @@ public class TriggerContext {
 
     private Goal goal;
 
+    private McmeEntityEvent entityEvent;
+
     public TriggerContext(Trigger trigger) {//Script script) {
         //this.script = script;
         this.trigger = trigger;
@@ -35,6 +38,7 @@ public class TriggerContext {
         this.entity = context.entity;
         this.goal = context.goal;
         this.location = context.location;
+        this.entityEvent = context.entityEvent;
     }
 
     public Trigger getTrigger() {
@@ -60,6 +64,15 @@ public class TriggerContext {
 
     public TriggerContext withMessage(String message) {
         this.message = message;
+        return this;
+    }
+
+    public McmeEntityEvent getEntityEvent() {
+        return entityEvent;
+    }
+
+    public TriggerContext withEntityEvent(McmeEntityEvent entityEvent) {
+        this.entityEvent = entityEvent;
         return this;
     }
 

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
+import com.mcmiddleearth.mcmescripts.condition.AnimationCondition;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.condition.GoalTypeCondition;
 import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
@@ -35,13 +36,18 @@ public class ConditionCompiler {
                                 KEY_MATCH_ALL_SELECTED  = "match_all",
                                 KEY_GOAL_TYPE           = "goal_type",
                                 KEY_EXCLUDE             = "negate",
+                                KEY_CURRENT_ANIMATION   = "current_animation",
+                                KEY_MANUAL_ANIMATION    = "manual_animation",
+                                KEY_INSTANT_SWITCHING   = "instant_animation_switching",
+                                KEY_MANUAL_OVERRIDE     = "manual_animation_override",
 
                                 VALUE_TALK                  = "talk",
                                 VALUE_NO_TALK               = "no_talk",
                                 VALUE_GOAL_TYPE             = "goal_type",
                                 VALUE_PROXIMITY_LOCATION    = "location_proximity",
                                 VALUE_PROXIMITY_PLAYER      = "player_proximity",
-                                VALUE_PROXIMITY_ENTITY      = "entity_proximity";
+                                VALUE_PROXIMITY_ENTITY      = "entity_proximity",
+                                VALUE_ANIMATION             = "animation";
 
     public static Set<Condition> compile(JsonObject jsonData) {
         JsonElement conditions = jsonData.get(KEY_CONDITION);
@@ -122,6 +128,14 @@ public class ConditionCompiler {
                         return Optional.empty();
                     }
                     return Optional.of(new PlayerProximityCondition(playerName, selector, compileFunction(jsonObject)));
+                case VALUE_ANIMATION:
+                    selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                    String current = getName(jsonObject.get(KEY_CURRENT_ANIMATION));
+                    Boolean manualAnimation = getBoolean(jsonObject.get(KEY_MANUAL_ANIMATION));
+                    Boolean manualOverride = getBoolean(jsonObject.get(KEY_MANUAL_OVERRIDE));
+                    Boolean instantSwitching = getBoolean(jsonObject.get(KEY_INSTANT_SWITCHING));
+                    return Optional.of(new AnimationCondition(selector, current, manualAnimation,
+                                                              instantSwitching, manualOverride));
             }
         } catch(NullPointerException ignore) {}
         return Optional.empty();
@@ -130,6 +144,11 @@ public class ConditionCompiler {
     private static String getName(JsonElement element) {
         if(!(element instanceof JsonPrimitive)) return null;
         return element.getAsString();
+    }
+
+    private static Boolean getBoolean(JsonElement element) {
+        if(!(element instanceof JsonPrimitive)) return null;
+        return element.getAsBoolean();
     }
 
     private static Optional<Boolean> getMatchAll(JsonObject jsonObject) {

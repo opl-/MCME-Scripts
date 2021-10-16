@@ -8,15 +8,14 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ScriptManager {
 
     private final Map<String,Script> scripts = new HashMap<>();
+
+    private final Map<UUID, PlayerScriptData> playerScriptData = new HashMap<>();
 
     private BukkitTask checker;
 

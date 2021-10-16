@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.mcmescripts.TimedTriggerManager;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
@@ -17,6 +18,7 @@ import com.mcmiddleearth.mcmescripts.trigger.timed.OnceRealTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.OnceServerTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicRealTimeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicServerTimeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.virtual.AnimationChangeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.GoalFinishedTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.VirtualEntityStopTalkTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.VirtualEntityTalkTrigger;
@@ -43,6 +45,8 @@ public class TriggerCompiler {
                                 KEY_LOCATION        = "location",
                                 KEY_MET_ALL_CONDITIONS  = "met_all_conditions",
                                 KEY_NAME                = "name",
+                                KEY_CURRENT_ANIMATION   = "current_animation",
+                                KEY_NEXT_ANIMATION      = "next_animation",
 
                                 VALUE_REAL_TIMED_TRIGGER            = "real_timed",
                                 VALUE_REAL_PERIODIC_TRIGGER         = "real_periodic",
@@ -54,7 +58,8 @@ public class TriggerCompiler {
                                 VALUE_PLAYER_VIRTUAL_ATTACK_TRIGGER = "player_virtual_attack",
                                 VALUE_VIRTUAL_TALK_TRIGGER              = "virtual_talk",
                                 VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtual_stop_talk",
-                                VALUE_GOAL_FINISHED_TRIGGER             = "goal_finished";
+                                VALUE_GOAL_FINISHED_TRIGGER             = "goal_finished",
+                                VALUE_ANIMATION_CHANGE_TRIGGER          = "animation_change";
 
     public static Set<Trigger> compile(JsonObject jsonData) {
         JsonElement triggerData = jsonData.get(KEY_TRIGGER);
@@ -154,6 +159,19 @@ public class TriggerCompiler {
                 break;
             case VALUE_VIRTUAL_STOP_TALK_TRIGGER:
                 trigger = new VirtualEntityStopTalkTrigger(null);
+                break;
+            case VALUE_ANIMATION_CHANGE_TRIGGER:
+                JsonElement currentJson = jsonObject.get(KEY_CURRENT_ANIMATION);
+                String current = null;
+                if(currentJson instanceof JsonPrimitive) {
+                    current = currentJson.getAsString();
+                }
+                JsonElement nextJson = jsonObject.get(KEY_CURRENT_ANIMATION);
+                String next = null;
+                if(nextJson instanceof JsonPrimitive) {
+                    next = nextJson.getAsString();
+                }
+                trigger = new AnimationChangeTrigger(null, current, next);
                 break;
         }
         if(trigger == null) {

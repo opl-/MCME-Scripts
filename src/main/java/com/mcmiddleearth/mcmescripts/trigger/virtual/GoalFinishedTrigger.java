@@ -25,6 +25,7 @@ public class GoalFinishedTrigger extends EntitiesEventTrigger {
             context.withEntity((VirtualEntity) event.getEntity());
         }
         context.withGoal(event.getGoal());
+        context.withEntityEvent(event);
         call(context);
         DebugManager.verbose(Modules.Trigger.call(this.getClass()),
                 "Entity: "+context.getEntity() + " Goal: " + event.getGoal());
