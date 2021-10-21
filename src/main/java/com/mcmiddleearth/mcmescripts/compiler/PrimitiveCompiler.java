@@ -16,4 +16,17 @@ public class PrimitiveCompiler {
         }
 
     }
+
+    public static int compileInteger(JsonElement element, int defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                return Integer.parseInt(element.getAsString());
+            } catch(NumberFormatException ex) {
+                return defaultValue;
+            }
+        }
+
+    }
 }

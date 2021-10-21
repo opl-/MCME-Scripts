@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmescripts.trigger;
 
 import com.mcmiddleearth.entities.ai.goal.Goal;
+import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.events.events.McmeEntityEvent;
 import com.mcmiddleearth.mcmescripts.script.Script;
@@ -17,7 +18,7 @@ public class TriggerContext {
 
     private boolean firstJoin;
 
-    private VirtualEntity entity;
+    private McmeEntity entity;
 
     private Location location;
 
@@ -85,11 +86,11 @@ public class TriggerContext {
         return this;
     }
 
-    public VirtualEntity getEntity() {
+    public McmeEntity getEntity() {
         return entity;
     }
 
-    public TriggerContext withEntity(VirtualEntity entity) {
+    public TriggerContext withEntity(McmeEntity entity) {
         this.entity = entity;
         return this;
     }

@@ -19,6 +19,12 @@ public abstract class PeriodicTrigger extends TimedTrigger {
 
     @Override
     public void call(TriggerContext context) {
+        if (checkPeriod()) {
+            super.call(context);
+        }
+    }
+
+    protected boolean checkPeriod() {
         long current = getCurrentTime();
         if(current < timeLastCheck) {
             timeLastCheck = current;
@@ -27,12 +33,13 @@ public abstract class PeriodicTrigger extends TimedTrigger {
                     "Reset current time: " + current);
         }
         if(current >= timeNextCall && timeLastCheck < timeNextCall) {
-            super.call(context);
+            DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+                    "Current time: " + current +" last check: "+timeLastCheck + "next call: "+timeNextCall);
             timeNextCall = current + periodMillis;
+            return true;
         }
         timeLastCheck = current;
-        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                "Current time: " + current +" last check: "+timeLastCheck + "next call: "+timeNextCall);
+        return false;
     }
 
     public abstract long getCurrentTime();

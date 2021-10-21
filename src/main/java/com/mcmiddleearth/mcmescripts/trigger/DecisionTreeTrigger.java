@@ -2,6 +2,8 @@ package com.mcmiddleearth.mcmescripts.trigger;
 
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -71,6 +73,8 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         public void call(TriggerContext context) {
+            DebugManager.info(Modules.Trigger.call(this.getClass()),
+                    "Conditions: "+conditions.size()+" actions: "+actions.size()+" met all: "+metAllConditions);
             if(checkConditions(context)) {
                 if(actions!=null) {
                     actions.forEach(action -> action.execute(context));

@@ -29,7 +29,7 @@ public class AnimationChangeTrigger extends EntitiesEventTrigger {
         if((current == null || current.equalsIgnoreCase(event.getCurrentAnimation()))
                 && (next == null || next.equalsIgnoreCase(event.getNextAnimation()))) {
             TriggerContext context = new TriggerContext(this);
-            context.withEntity((VirtualEntity) event.getEntity());
+            context.withEntity(event.getEntity());
             context.withEntityEvent(event);
             call(context);
             DebugManager.verbose(Modules.Trigger.call(this.getClass()),

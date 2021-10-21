@@ -8,16 +8,14 @@ import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerJoinTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerQuitTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerTalkTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.VirtualPlayerAttackTrigger;
-import com.mcmiddleearth.mcmescripts.trigger.timed.OnceRealTimeTrigger;
-import com.mcmiddleearth.mcmescripts.trigger.timed.OnceServerTimeTrigger;
-import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicRealTimeTrigger;
-import com.mcmiddleearth.mcmescripts.trigger.timed.PeriodicServerTimeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.timed.*;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.AnimationChangeTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.GoalFinishedTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.virtual.VirtualEntityStopTalkTrigger;
@@ -43,10 +41,12 @@ public class TriggerCompiler {
                                 KEY_ELSE            = "else",
                                 KEY_CALL_ONCE       = "call_once",
                                 KEY_LOCATION        = "location",
+                                KEY_CENTER          = "center",
                                 KEY_MET_ALL_CONDITIONS  = "met_all_conditions",
                                 KEY_NAME                = "name",
                                 KEY_CURRENT_ANIMATION   = "current_animation",
                                 KEY_NEXT_ANIMATION      = "next_animation",
+                                KEY_PROCESS             = "process",
 
                                 VALUE_REAL_TIMED_TRIGGER            = "real_timed",
                                 VALUE_REAL_PERIODIC_TRIGGER         = "real_periodic",
@@ -59,7 +59,8 @@ public class TriggerCompiler {
                                 VALUE_VIRTUAL_TALK_TRIGGER              = "virtual_talk",
                                 VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtual_stop_talk",
                                 VALUE_GOAL_FINISHED_TRIGGER             = "goal_finished",
-                                VALUE_ANIMATION_CHANGE_TRIGGER          = "animation_change";
+                                VALUE_ANIMATION_CHANGE_TRIGGER          = "animation_change",
+                                VALUE_SELECTION_TRIGGER                 = "selection";
 
     public static Set<Trigger> compile(JsonObject jsonData) {
         JsonElement triggerData = jsonData.get(KEY_TRIGGER);
@@ -99,42 +100,42 @@ public class TriggerCompiler {
             case VALUE_REAL_TIMED_TRIGGER:
                 JsonElement time = jsonObject.get(KEY_TIME);
 //Logger.getGlobal().info("RealTime: "+time);
-                if(time!=null && time.isJsonPrimitive()) {
+                if (time != null && time.isJsonPrimitive()) {
                     LocalDateTime localDateTime = LocalDateTime.parse(time.getAsString());
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
                     long millis = zdt.toInstant().toEpochMilli();
                     trigger = new OnceRealTimeTrigger(null, millis);
                     trigger.setCallOnce(true);
                 } else {
-                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_TIMED_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't compile " + VALUE_REAL_TIMED_TRIGGER + " trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
             case VALUE_REAL_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
 //Logger.getGlobal().info("Periodic RealTime: "+time);
-                if(time != null && time.isJsonPrimitive()) {
-                    trigger = new PeriodicRealTimeTrigger(null,time.getAsInt());
+                if (time != null && time.isJsonPrimitive()) {
+                    trigger = new PeriodicRealTimeTrigger(null, time.getAsInt());
                 } else {
-                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_REAL_PERIODIC_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't compile " + VALUE_REAL_PERIODIC_TRIGGER + " trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
 //Logger.getGlobal().info("ServerTime: "+time);
-                if(time!=null && time.isJsonPrimitive()) {
+                if (time != null && time.isJsonPrimitive()) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 } else {
-                    DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile "+VALUE_SERVER_TIMED_TRIGGER+" trigger. Missing time.");
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't compile " + VALUE_SERVER_TIMED_TRIGGER + " trigger. Missing time.");
                     return Optional.empty();
                 }
                 break;
             case VALUE_SERVER_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
 //Logger.getGlobal().info("Periodic RealTime: "+time);
-                if(time != null && time.isJsonPrimitive()) {
-                    trigger = new PeriodicServerTimeTrigger(null,time.getAsInt());
+                if (time != null && time.isJsonPrimitive()) {
+                    trigger = new PeriodicServerTimeTrigger(null, time.getAsInt());
                 } else {
                     trigger = new PeriodicServerTimeTrigger(null, TimedTriggerManager.MIN_TRIGGER_CHECK_PERIOD);
                 }
@@ -163,16 +164,38 @@ public class TriggerCompiler {
             case VALUE_ANIMATION_CHANGE_TRIGGER:
                 JsonElement currentJson = jsonObject.get(KEY_CURRENT_ANIMATION);
                 String current = null;
-                if(currentJson instanceof JsonPrimitive) {
+                if (currentJson instanceof JsonPrimitive) {
                     current = currentJson.getAsString();
                 }
                 JsonElement nextJson = jsonObject.get(KEY_CURRENT_ANIMATION);
                 String next = null;
-                if(nextJson instanceof JsonPrimitive) {
+                if (nextJson instanceof JsonPrimitive) {
                     next = nextJson.getAsString();
                 }
                 trigger = new AnimationChangeTrigger(null, current, next);
                 break;
+            case VALUE_SELECTION_TRIGGER:
+                JsonElement timeJson = jsonObject.get(KEY_PERIOD);
+                int period = TimedTriggerManager.MIN_TRIGGER_CHECK_PERIOD;
+//Logger.getGlobal().info("Periodic RealTime: "+time);
+                if (timeJson != null && timeJson.isJsonPrimitive()) {
+                    try {
+                        period = timeJson.getAsInt();
+                    } catch(NumberFormatException ignore) {}
+                }
+                McmeEntitySelector mcmeEntitySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                JsonElement processJson = jsonObject.get(KEY_PROCESS);
+                SelectionTrigger.Process process;
+                if (processJson instanceof JsonPrimitive && processJson.getAsString().equalsIgnoreCase("leave")) {
+                    process = SelectionTrigger.Process.LEAVE;
+                } else if (processJson instanceof JsonPrimitive && processJson.getAsString().equalsIgnoreCase("enter")) {
+                    process = SelectionTrigger.Process.ENTER;
+                } else{
+                    process = SelectionTrigger.Process.ENTER;
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't parse " + KEY_PROCESS + ". Using "+process.name());
+                }
+                trigger = new SelectionTrigger(null, period, mcmeEntitySelector, process);
+
         }
         if(trigger == null) {
             DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile trigger. Invalid trigger type.");
@@ -181,6 +204,8 @@ public class TriggerCompiler {
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);
         trigger.setDecisionNode(decisionNode);
         trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null));
+        DecisionTreeTrigger finalTrigger = trigger;
+        LocationCompiler.compile(jsonObject.get(KEY_CENTER)).ifPresent(finalTrigger::setLocation);
 
         JsonElement nameJson = jsonObject.get(KEY_NAME);
         if(nameJson != null && nameJson.isJsonPrimitive()) {

@@ -16,6 +16,7 @@ import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
@@ -41,6 +42,8 @@ public class ActionCompiler {
                                 KEY_ITEMS           = "items",
                                 KEY_SLOT            = "slot",
                                 KEY_SLOT_ID         = "slot_id",
+                                KEY_DURATION        = "duration",
+                                KEY_COMMAND         = "command",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -57,7 +60,10 @@ public class ActionCompiler {
                                 VALUE_SET_SERVER_TIME       = "set_server_time",
                                 VALUE_ENTITY_STATE          = "entity_state",
                                 VALUE_ANIMATION             = "animation",
-                                VALUE_GIVE_ITEM             = "give_item";
+                                VALUE_GIVE_ITEM             = "give_item",
+                                VALUE_EYE_EFFECT            = "eye_effect",
+                                VALUE_EXECUTE_COMMAND       = "execute_command",
+                                VALUE_FIREWORK              = "firework";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -224,6 +230,24 @@ public class ActionCompiler {
                 }
                 action = new GiveItemAction(mcmeSelector, items, slot, slotId);
                 break;
+            case VALUE_EYE_EFFECT:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                int duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),200);
+                action = new EyeEffectAction(playerSelector, duration);
+                break;
+            case VALUE_EXECUTE_COMMAND:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                JsonElement commandJson = jsonObject.get(KEY_COMMAND);
+                if(!(commandJson instanceof JsonPrimitive)) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_EXECUTE_COMMAND+" action. Missing command line.");
+                    return Optional.empty();
+                }
+                action = new ExecuteCommandAction(playerSelector, commandJson.getAsString());
+                break;
+            case VALUE_FIREWORK:
+                Location location = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
+                FireworkMeta fireworkMeta = FireworkMetaCompiler.compile(jsonObject);
+                action = new FireworkAction(location, fireworkMeta);
             default:
                 return Optional.empty();
         }

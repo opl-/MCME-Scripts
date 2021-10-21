@@ -22,7 +22,7 @@ public class GoalFinishedTrigger extends EntitiesEventTrigger {
     public void onGoalFinished(GoalFinishedEvent event) {
         TriggerContext context = new TriggerContext(this);
         if(event.getEntity() instanceof VirtualEntity) {
-            context.withEntity((VirtualEntity) event.getEntity());
+            context.withEntity(event.getEntity());
         }
         context.withGoal(event.getGoal());
         context.withEntityEvent(event);

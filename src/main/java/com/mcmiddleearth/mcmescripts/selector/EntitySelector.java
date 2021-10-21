@@ -4,6 +4,7 @@ import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.ai.goal.Goal;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
 import com.mcmiddleearth.entities.api.McmeEntityType;
+import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.entities.composite.SpeechBalloonEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
@@ -188,7 +189,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
 
     public List<Player> selectPlayer(TriggerContext context) {
         Location loc = context.getLocation();
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        List<Player> players = new ArrayList<>();
         switch(selectorType) {
             case TRIGGER_ENTITY:
                 if (context.getPlayer() != null)
@@ -201,6 +202,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case ALL_ENTITIES:
             case RANDOM_PLAYER:
 //Logger.getGlobal().info("Location rel: "+loc.toString());
+                players.addAll(Bukkit.getOnlinePlayers());
                 if(loc!=null) {
                     loc = new Location(loc.getWorld(), getAbsolute(loc.getX(), xRelative, x),
                                 getAbsolute(loc.getY(), yRelative, y),
@@ -286,7 +288,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
 //DebugManager.log(Modules.Selector.select(this.getClass()),"Result: "+result.size());
                 DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector!: "+getSelector()
-                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
+                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and total of "+result.size());
                 return result;
         }
         DebugManager.warn(Modules.Selector.select(this.getClass()),
@@ -301,8 +303,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
         List<VirtualEntity> entities = new ArrayList<>();
         switch(selectorType) {
             case TRIGGER_ENTITY:
-                if(context.getEntity()!=null)
-                    entities.add(context.getEntity());
+                if(context.getEntity()!=null && (context.getEntity() instanceof VirtualEntity))
+                    entities.add((VirtualEntity) context.getEntity());
                 DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
                 return entities;
@@ -385,7 +387,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         .map(EntitySelectorElement::getContent).collect(Collectors.toList());
                 DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()
-                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and "+result.size()+" more");
+                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and toal of "+result.size());
                 return result;
         }
         DebugManager.warn(Modules.Selector.select(this.getClass()),

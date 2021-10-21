@@ -58,7 +58,12 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
                 break;
             case TRIGGER_ENTITY:
                 if(context.getEntity()!=null) result.add(context.getEntity());
-                if(context.getPlayer()!=null) result.add(EntitiesPlugin.getEntityServer().getPlayerProvider().getOrCreateMcmePlayer(context.getPlayer()));
+                if(context.getPlayer()!=null) {
+                    McmeEntity realPlayer = EntitiesPlugin.getEntityServer().getPlayerProvider().getOrCreateMcmePlayer(context.getPlayer());
+                    if(!realPlayer.equals(context.getEntity())) {
+                        result.add(realPlayer);
+                    }
+                }
                 break;
         }
         return result;
