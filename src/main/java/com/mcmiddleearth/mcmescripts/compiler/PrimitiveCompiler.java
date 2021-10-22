@@ -27,6 +27,18 @@ public class PrimitiveCompiler {
                 return defaultValue;
             }
         }
+    }
+
+    public static boolean compileBoolean(JsonElement element, boolean defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                return Boolean.parseBoolean(element.getAsString());
+            } catch(NumberFormatException ex) {
+                return defaultValue;
+            }
+        }
 
     }
 }

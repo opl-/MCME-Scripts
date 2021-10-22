@@ -5,10 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
-import com.mcmiddleearth.mcmescripts.condition.AnimationCondition;
-import com.mcmiddleearth.mcmescripts.condition.Condition;
-import com.mcmiddleearth.mcmescripts.condition.GoalTypeCondition;
-import com.mcmiddleearth.mcmescripts.condition.TalkCondition;
+import com.mcmiddleearth.mcmescripts.condition.*;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
@@ -18,7 +15,11 @@ import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -40,6 +41,8 @@ public class ConditionCompiler {
                                 KEY_MANUAL_ANIMATION    = "manual_animation",
                                 KEY_INSTANT_SWITCHING   = "instant_animation_switching",
                                 KEY_MANUAL_OVERRIDE     = "manual_animation_override",
+                                KEY_START               = "start",
+                                KEY_END                 = "end",
 
                                 VALUE_TALK                  = "talk",
                                 VALUE_NO_TALK               = "no_talk",
@@ -47,7 +50,9 @@ public class ConditionCompiler {
                                 VALUE_PROXIMITY_LOCATION    = "location_proximity",
                                 VALUE_PROXIMITY_PLAYER      = "player_proximity",
                                 VALUE_PROXIMITY_ENTITY      = "entity_proximity",
-                                VALUE_ANIMATION             = "animation";
+                                VALUE_ANIMATION             = "animation",
+                                VALUE_PLAYER_ONLINE         = "player_online",
+                                VALUE_SERVER_DAYTIME        = "server_daytime";
 
     public static Set<Condition> compile(JsonObject jsonData) {
         JsonElement conditions = jsonData.get(KEY_CONDITION);
@@ -136,6 +141,27 @@ public class ConditionCompiler {
                     Boolean instantSwitching = getBoolean(jsonObject.get(KEY_INSTANT_SWITCHING));
                     return Optional.of(new AnimationCondition(selector, current, manualAnimation,
                                                               instantSwitching, manualOverride));
+                case VALUE_SERVER_DAYTIME:
+                    boolean exclude = jsonObject.has(KEY_EXCLUDE) && jsonObject.get(KEY_EXCLUDE).getAsBoolean();
+                    JsonElement worldJson = jsonObject.get(KEY_WORLD);
+                    if(!((worldJson instanceof JsonPrimitive) && Bukkit.getWorld(worldJson.getAsString()) != null)) {
+                        DebugManager.warn(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_SERVER_DAYTIME+" condition. Missing or invalid world name.");
+                        return Optional.empty();
+                    }
+                    World world = Bukkit.getWorld(worldJson.getAsString());
+                    long startTick = -1, endTick = -1;
+                    try {
+                        startTick = jsonObject.get(KEY_START).getAsInt();
+                        endTick = jsonObject.get(KEY_END).getAsInt();
+                    } catch(NullPointerException | NumberFormatException ignore) {}
+                    if(startTick == -1 || endTick == -1 || startTick >= endTick) {
+                        DebugManager.warn(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_SERVER_DAYTIME+" condition. Missing or invalid time period.");
+                        return Optional.empty();
+                    }
+                    return Optional.of(new ServerDaytimeCondition(world, startTick, endTick, exclude));
+                case VALUE_PLAYER_ONLINE:
+                    selector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                    return Optional.of(new PlayerOnlineCondition(selector, compileFunction(jsonObject)));
             }
         } catch(NullPointerException ignore) {}
         return Optional.empty();

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
+import com.mcmiddleearth.entities.effect.Explosion;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 import com.mcmiddleearth.mcmescripts.action.*;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
@@ -63,7 +64,9 @@ public class ActionCompiler {
                                 VALUE_GIVE_ITEM             = "give_item",
                                 VALUE_EYE_EFFECT            = "eye_effect",
                                 VALUE_EXECUTE_COMMAND       = "execute_command",
-                                VALUE_FIREWORK              = "firework";
+                                VALUE_FIREWORK              = "firework",
+                                VALUE_EXPLOSION             = "explosion",
+                                VALUE_RANDOM_SPAWN          = "random_spawn";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -127,6 +130,7 @@ public class ActionCompiler {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SPAWN+" action. Missing entity factory.");
                     return Optional.empty();
                 }
+                //TODO: optional - set Goal
                 action = new SpawnAction(factories);
                 break;
             case VALUE_DESPAWN:
@@ -247,7 +251,24 @@ public class ActionCompiler {
             case VALUE_FIREWORK:
                 Location location = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
                 FireworkMeta fireworkMeta = FireworkMetaCompiler.compile(jsonObject);
+                if(fireworkMeta == null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_FIREWORK+" action. Missing firework meta.");
+                    return Optional.empty();
+                }
                 action = new FireworkAction(location, fireworkMeta);
+                break;
+            case VALUE_EXPLOSION:
+                Explosion explosion = ExplosionCompiler.compile(jsonObject);
+                if(explosion == null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_EXPLOSION+" action. Missing explosion data.");
+                }
+                McmeEntitySelector unaffectedSelector = ExplosionCompiler.getUnaffectedSelector(jsonObject);
+                McmeEntitySelector damagerSelector = ExplosionCompiler.getDamagerSelector(jsonObject);
+                action = new ExplosionAction(explosion, unaffectedSelector, damagerSelector);
+                break;
+            case VALUE_RANDOM_SPAWN:
+
+                break;
             default:
                 return Optional.empty();
         }
