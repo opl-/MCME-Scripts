@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcmescripts.compiler;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -45,6 +46,13 @@ public class ActionCompiler {
                                 KEY_SLOT_ID         = "slot_id",
                                 KEY_DURATION        = "duration",
                                 KEY_COMMAND         = "command",
+                                KEY_PROBABILITY     = "probability",
+                                KEY_GROUP           = "group",
+                                KEY_RADIUS          = "radius",
+                                KEY_QUANTITY        = "quantity",
+                                KEY_CHOICES         = "choices",
+                                KEY_WEIGHT          = "weight",
+                                KEY_CENTER          = "center",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -267,7 +275,38 @@ public class ActionCompiler {
                 action = new ExplosionAction(explosion, unaffectedSelector, damagerSelector);
                 break;
             case VALUE_RANDOM_SPAWN:
-
+                JsonElement choicesJson = jsonObject.get(KEY_CHOICES);
+                if(!(choicesJson instanceof JsonArray)) {
+                    return Optional.empty();
+                }
+                List<SpawnRandomSelectionAction.Choice> choices = new ArrayList<>();
+                for(JsonElement choiceJson: choicesJson.getAsJsonArray()) {
+                    factories = VirtualEntityFactoryCompiler.compile(choiceJson.getAsJsonObject());
+                    int weight = PrimitiveCompiler.compileInteger(choiceJson.getAsJsonObject().get(KEY_WEIGHT), 10);
+                    choices.add(new SpawnRandomSelectionAction.Choice(weight, factories));
+                }
+                double probability = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_PROBABILITY),1);
+                boolean group = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_GROUP),true);
+                int minRadius = PrimitiveCompiler.compileLowerInt(jsonObject.get(KEY_RADIUS),5);
+                int maxRadius = PrimitiveCompiler.compileUpperInt(jsonObject.get(KEY_RADIUS),10);
+                int minQuantity = PrimitiveCompiler.compileLowerInt(jsonObject.get(KEY_QUANTITY),2);
+                int maxQuantity = PrimitiveCompiler.compileUpperInt(jsonObject.get(KEY_QUANTITY),5);
+                SpawnRandomSelectionAction.RandomSpawnData randomSpawnData = new SpawnRandomSelectionAction.RandomSpawnData(choices)
+                        .withMinQuantity(minQuantity).withMaxQuantity(maxQuantity)
+                        .withMinRadius(minRadius).withMaxRadius(maxRadius)
+                        .withProbability(probability).withGroup(group);
+                JsonElement goalTargetJson = jsonObject.get(KEY_GOAL_TARGET);
+                if(goalTargetJson instanceof JsonPrimitive) {
+                    randomSpawnData.withGoalTargetSelector(new McmeEntitySelector(goalTargetJson.getAsString()));
+                }
+                VirtualEntityGoalFactoryCompiler.compile(jsonObject).ifPresent(randomSpawnData::withGoalFactory);
+                Location center = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
+                if(center != null) {
+                    action = new SpawnRandomLocationAction(center, randomSpawnData);
+                } else {
+                    mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                    action = new SpawnRandomSelectionAction(mcmeSelector,randomSpawnData);
+                }
                 break;
             default:
                 return Optional.empty();

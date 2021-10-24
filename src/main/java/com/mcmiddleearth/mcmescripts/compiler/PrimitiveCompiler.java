@@ -39,6 +39,31 @@ public class PrimitiveCompiler {
                 return defaultValue;
             }
         }
+    }
 
+    public static int compileLowerInt(JsonElement element, int defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                String[] split = element.getAsString().split("\\.\\.");
+                return Integer.parseInt(split[0]);
+            } catch(NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+                return defaultValue;
+            }
+        }
+    }
+
+    public static int compileUpperInt(JsonElement element, int defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                String[] split = element.getAsString().split("\\.\\.");
+                return Integer.parseInt(split[1]);
+            } catch(NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+                return defaultValue;
+            }
+        }
     }
 }

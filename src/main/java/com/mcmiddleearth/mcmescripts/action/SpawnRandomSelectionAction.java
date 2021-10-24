@@ -12,6 +12,8 @@ import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.apache.commons.math3.util.FastMath;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 import java.util.List;
 import java.util.Random;
@@ -64,7 +66,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                             Location location = groupCenter.clone().add(random.nextInt(edge*2+1)-edge,
                                                                         random.nextInt(edge*2+1)-edge, 0);
                             if(notContains(spawnLocations, location)) {
-                                location = findSave(location);
+                                location = findSafe(location).add(0.5,0,0.5);;
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
                                 i++;
@@ -78,7 +80,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                             int radius = getRadius();
                             Location location = center.clone().add(direction.getDirection().multiply(radius));
                             if(notContains(spawnLocations, location)) {
-                                location = findSave(location);
+                                location = findSafe(location).add(0.5,0,0.5);
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
                                 i++;
@@ -100,8 +102,29 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
             }
         }
 
-        private Location findSave(Location location) {
-
+        private Location findSafe(Location location) {
+            Block lower = location.getBlock();
+            Block upper = lower.getRelative(BlockFace.UP);
+            while((lower.isPassable() && upper.isPassable()) && lower.getY()>1) {
+                upper = lower;
+                lower = upper.getRelative(BlockFace.DOWN);
+            }
+            if(!lower.isPassable()) {
+                return upper.getLocation();
+            }
+            while(!(lower.isPassable() && upper.isPassable()) && upper.getY() < location.getWorld().getMaxHeight()-1) {
+                lower = upper;
+                upper = lower.getRelative(BlockFace.UP);
+            }
+            if(lower.isPassable() && upper.isPassable()) {
+                return lower.getLocation();
+            } else {
+                if(upper.isPassable()) {
+                    return upper.getLocation();
+                } else {
+                    return upper.getLocation().add(0,1,0);
+                }
+            }
         }
 
         private boolean notContains(Location[] spawnLocations, Location newLocation) {
