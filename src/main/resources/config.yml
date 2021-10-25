@@ -1,6 +1,6 @@
 triggerCheckerPeriod: 10
 scriptCheckerPeriod: 100
-startUpDelay: 600
+startUpDelay: 200
 drive:
   accessToken: xxx
   refreshToken: xxx

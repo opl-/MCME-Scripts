@@ -48,53 +48,70 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
         }
 
         public void spawn(TriggerContext context, Location center) {
-            if(probability < random.nextFloat()) {
+            float rand = random.nextFloat();
+//Logger.getGlobal().info("probability: "+probability+ " > "+rand+" "+(probability>rand));
+            if(probability > rand) {
                 int quantity = getQuantity();
+//Logger.getGlobal().info("spawn: "+quantity);
+//Logger.getGlobal().info("choices: "+choices.size());
+//choices.forEach(choice -> Logger.getGlobal().info("choice: "+choice.getFactories().size()));
                 Choice selectedChoice = getSelectedChoice();
                 if(quantity > 0 && selectedChoice.getFactories().size()>0) {
                     updateGoal(context, selectedChoice);
-                    //TODO: spawn location suchen.
                     Location[] spawnLocations = new Location[quantity];
                     if(group) {
+//Logger.getGlobal().info("group: "+group);
                         Location direction = center.clone();
                         direction.setYaw(random.nextFloat()*360-180);
                         int radius = getRadius();
                         Location groupCenter = center.clone().add(direction.getDirection().multiply(radius));
                         int edge = (int) FastMath.sqrt(quantity);
                         int i = 0;
-                        while(i < spawnLocations.length) {
+                        int tries = 0;
+                        while(i < spawnLocations.length && tries < 1000) {
                             Location location = groupCenter.clone().add(random.nextInt(edge*2+1)-edge,
                                                                         random.nextInt(edge*2+1)-edge, 0);
+//Logger.getGlobal().info("try spawn location: "+location);
                             if(notContains(spawnLocations, location)) {
                                 location = findSafe(location).add(0.5,0,0.5);;
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
+//Logger.getGlobal().info("add spawn location: "+location);
                                 i++;
                             }
+                            tries++;
                         }
                     } else {
+//Logger.getGlobal().info("group: "+group);
                         int i = 0;
-                        while(i < spawnLocations.length) {
+                        int tries = 0;
+                        while(i < spawnLocations.length && tries < 1000) {
                             Location direction = center.clone();
                             direction.setYaw(random.nextFloat()*360-180);
                             int radius = getRadius();
                             Location location = center.clone().add(direction.getDirection().multiply(radius));
+//Logger.getGlobal().info("try spawn location: "+location);
                             if(notContains(spawnLocations, location)) {
                                 location = findSafe(location).add(0.5,0,0.5);
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
+//Logger.getGlobal().info("try spawn location: "+location);
                                 i++;
                             }
+                            tries++;
                         }
                     }
                     for(int i =0; i < quantity; i++) {
                         int finalI = i;
                         selectedChoice.getFactories().forEach(factory -> {
-                            try {
-                                factory.withLocation(spawnLocations[finalI]);
-                                context.getScript().addEntity(EntitiesPlugin.getEntityServer().spawnEntity(factory));
-                            } catch (InvalidLocationException | InvalidDataException e) {
-                                e.printStackTrace();
+                            if(spawnLocations[finalI]!=null) {
+                                try {
+                                    factory.withLocation(spawnLocations[finalI]);
+                                    context.getScript().addEntity(EntitiesPlugin.getEntityServer().spawnEntity(factory));
+//Logger.getGlobal().info("Execute spawn: " + factory.getLocation());
+                                } catch (InvalidLocationException | InvalidDataException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     }
@@ -129,7 +146,8 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
         private boolean notContains(Location[] spawnLocations, Location newLocation) {
             for(Location search: spawnLocations) {
-                if(search.getBlockX() == newLocation.getBlockX() && search.getBlockZ() == newLocation.getBlockZ()) {
+                if(search!= null && search.getBlockX() == newLocation.getBlockX()
+                                 && search.getBlockZ() == newLocation.getBlockZ()) {
                     return false;
                 }
             }
@@ -142,6 +160,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 weightSum += choice.getWeight();
             }
             int randomWeight = random.nextInt(weightSum+1);
+//Logger.getGlobal().info("weightsum: "+weightSum+" rand: "+randomWeight);
             Choice selectedChoice;
             int i = -1;
             int currentWeight = 0;
@@ -150,6 +169,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 currentWeight = currentWeight + choices.get(i).weight;
             }
             while(randomWeight > currentWeight);
+//Logger.getGlobal().info("i: "+i);
             return choices.get(i);
         }
 

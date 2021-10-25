@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmescripts.action;
 
 import com.mcmiddleearth.entities.effect.Explosion;
+import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
@@ -20,6 +21,15 @@ public class ExplosionAction extends Action {
 
     @Override
     protected void handler(TriggerContext context) {
+        if(damagerSelector !=null) {
+            McmeEntity damager = damagerSelector.select(context).stream().findFirst().orElse(null);
+            explosion.setDamager(damager);
+            if(damager!=null) {
+                explosion.setLocation(damager.getLocation());
+            }
+        } else {
+            explosion.setDamager(null);
+        }
         if(explosion.getLocation() == null) {
             explosion.setLocation(context.getLocation());
         }
@@ -28,11 +38,6 @@ public class ExplosionAction extends Action {
                 unaffectedSelector.select(context).forEach(explosion::addUnaffected);
             } else {
                 explosion.clearUnaffected();
-            }
-            if(damagerSelector !=null) {
-                explosion.setDamager(damagerSelector.select(context).stream().findFirst().orElse(null));
-            } else {
-                explosion.setDamager(null);
             }
             explosion.explode();
         } else {

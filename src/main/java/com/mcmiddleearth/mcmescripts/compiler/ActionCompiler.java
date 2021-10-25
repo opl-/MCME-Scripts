@@ -70,6 +70,7 @@ public class ActionCompiler {
                                 VALUE_ENTITY_STATE          = "entity_state",
                                 VALUE_ANIMATION             = "animation",
                                 VALUE_GIVE_ITEM             = "give_item",
+                                VALUE_REMOVE_ITEM           = "remove_item",
                                 VALUE_EYE_EFFECT            = "eye_effect",
                                 VALUE_EXECUTE_COMMAND       = "execute_command",
                                 VALUE_FIREWORK              = "firework",
@@ -240,11 +241,19 @@ public class ActionCompiler {
                         DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't parse slot id for action "+VALUE_GIVE_ITEM+".");
                     }
                 }
-                action = new GiveItemAction(mcmeSelector, items, slot, slotId);
+                int duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),-1);
+                action = new ItemGiveAction(mcmeSelector, items, slot, slotId, duration);
+                break;
+            case VALUE_REMOVE_ITEM:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
+                items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
+                if(items.isEmpty()) return Optional.empty();
+                action = new ItemRemoveAction(mcmeSelector, items);
                 break;
             case VALUE_EYE_EFFECT:
                 playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
-                int duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),200);
+                duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),200);
                 action = new EyeEffectAction(playerSelector, duration);
                 break;
             case VALUE_EXECUTE_COMMAND:

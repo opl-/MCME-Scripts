@@ -37,6 +37,7 @@ public class FireworkMetaCompiler {
         if(effectsJson instanceof JsonArray) {
             effectsJson.getAsJsonArray().forEach(element -> compileEffect(element.getAsJsonObject()).ifPresent(meta::addEffect));
         }
+        meta.setPower(power);
         return meta;
     }
 
@@ -64,13 +65,13 @@ public class FireworkMetaCompiler {
     private static Collection<Color> compileColors(JsonElement element) {
         List<Color> result = new ArrayList<>();
         if(element instanceof JsonArray) {
-            element.getAsJsonArray().forEach(entry -> result.add(compileColor(entry.getAsJsonObject())));
+            element.getAsJsonArray().forEach(entry -> result.add(compileColor(entry.getAsString())));
         }
         return result;
     }
 
-    private static Color compileColor(JsonObject jsonObject) {
-        String[] rgb = jsonObject.getAsString().replace(" ","").split(",");
+    private static Color compileColor(String colorJson) {
+        String[] rgb = colorJson.replace(" ","").split(",");
         int red = 255, green = 255, blue = 255;
         try {
             red = Integer.parseInt(rgb[0]);

@@ -43,6 +43,7 @@ public class ConditionCompiler {
                                 KEY_MANUAL_OVERRIDE     = "manual_animation_override",
                                 KEY_START               = "start",
                                 KEY_END                 = "end",
+                                KEY_WORLD               = "world",
 
                                 VALUE_TALK                  = "talk",
                                 VALUE_NO_TALK               = "no_talk",

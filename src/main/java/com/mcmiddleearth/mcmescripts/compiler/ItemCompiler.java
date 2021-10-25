@@ -4,15 +4,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 public class ItemCompiler {
@@ -77,7 +81,8 @@ public class ItemCompiler {
         if(type == null) {
             return Optional.empty();
         }
-        return Optional.of(new ItemStack(type, quantity));
+        ItemStack item = new ItemStack(type, quantity);
+        return Optional.of(item);
     }
 
     public static Optional<Material> compileMaterial(String material) {
