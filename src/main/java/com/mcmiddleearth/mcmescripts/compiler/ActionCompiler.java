@@ -8,6 +8,7 @@ import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.effect.Explosion;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
+import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class ActionCompiler {
@@ -53,6 +55,8 @@ public class ActionCompiler {
                                 KEY_CHOICES         = "choices",
                                 KEY_WEIGHT          = "weight",
                                 KEY_CENTER          = "center",
+                                KEY_MUSIC_FILE      = "sound_file",
+                                KEY_MUSIC_ID        = "sound_id",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -75,7 +79,9 @@ public class ActionCompiler {
                                 VALUE_EXECUTE_COMMAND       = "execute_command",
                                 VALUE_FIREWORK              = "firework",
                                 VALUE_EXPLOSION             = "explosion",
-                                VALUE_RANDOM_SPAWN          = "random_spawn";
+                                VALUE_RANDOM_SPAWN          = "random_spawn",
+                                VALUE_MUSIC_START           = "start_sound",
+                                VALUE_MUSIC_STOP            = "stop_sound";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -263,15 +269,34 @@ public class ActionCompiler {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_EXECUTE_COMMAND+" action. Missing command line.");
                     return Optional.empty();
                 }
-                action = new ExecuteCommandAction(playerSelector, commandJson.getAsString());
+                String command = commandJson.getAsString();
+//Logger.getGlobal().info("Command: "+command);
+                List<String> whitelist = MCMEScripts.getInstance().getConfig().getStringList("commandWhitelist");
+                boolean done = false;
+//Logger.getGlobal().info("Whitelist:");
+                action = null;
+                for(String search: whitelist) {
+//Logger.getGlobal().info("- "+search + " equal: "+search.equalsIgnoreCase(command)+" wildcard: "+(search.charAt(search.length()-1)=='*') + " similar: "+command.toLowerCase().startsWith(search.substring(0,search.length()-1).toLowerCase()));
+                    if(search.equalsIgnoreCase(command)
+                            || search.charAt(search.length()-1)=='*'
+                                && command.toLowerCase().startsWith(search.substring(0,search.length()-1).toLowerCase())) {
+                        action = new ExecuteCommandAction(playerSelector, command);
+                        done = true;
+                        break;
+                    }
+                }
+                if(!done) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class), "Can't compile " + VALUE_EXECUTE_COMMAND + " action. Command not whitelisted: " + command);
+                    return Optional.empty();
+                }
                 break;
             case VALUE_FIREWORK:
                 Location location = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
                 FireworkMeta fireworkMeta = FireworkMetaCompiler.compile(jsonObject);
-                if(fireworkMeta == null) {
+                /*if(fireworkMeta == null) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_FIREWORK+" action. Missing firework meta.");
                     return Optional.empty();
-                }
+                }*/
                 action = new FireworkAction(location, fireworkMeta);
                 break;
             case VALUE_EXPLOSION:
@@ -316,6 +341,20 @@ public class ActionCompiler {
                     mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                     action = new SpawnRandomSelectionAction(mcmeSelector,randomSpawnData);
                 }
+                break;
+            case VALUE_MUSIC_START:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                String musicFile = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_FILE),null);
+                if(musicFile == null) {
+                    return Optional.empty();
+                }
+                String musicId = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_ID),null);
+                action = new SoundStartAction(playerSelector,musicFile, musicId);
+                break;
+            case VALUE_MUSIC_STOP:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                musicId = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_ID),null);
+                action = new SoundStopAction(playerSelector, musicId);
                 break;
             default:
                 return Optional.empty();

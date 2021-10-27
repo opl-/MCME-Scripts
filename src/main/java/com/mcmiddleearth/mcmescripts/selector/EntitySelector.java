@@ -300,6 +300,11 @@ public abstract class EntitySelector<T> implements Selector<T> {
     public List<VirtualEntity> selectVirtualEntities(TriggerContext context) {
 //Logger.getGlobal().info("Select: "+getSelector());
         Location loc = context.getLocation();
+        if(loc!=null) {
+            loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
+                    getAbsolute(loc.getY(),yRelative,y),
+                    getAbsolute(loc.getZ(),zRelative,z));
+        }
         List<VirtualEntity> entities = new ArrayList<>();
         switch(selectorType) {
             case TRIGGER_ENTITY:
@@ -307,15 +312,11 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     entities.add((VirtualEntity) context.getEntity());
                 DebugManager.verbose(Modules.Selector.select(this.getClass()),
                         "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
-                return entities;
+                //return entities;
+                break;
             case VIRTUAL_ENTITIES:
             case ALL_ENTITIES:
 //Logger.getGlobal().info("Location: "+loc);
-                if(loc!=null) {
-                    loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
-                            getAbsolute(loc.getY(),yRelative,y),
-                            getAbsolute(loc.getZ(),zRelative,z));
-                }
                 if(hasAreaLimit() && loc != null) {
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntitiesAt(loc,
                             (dx<0?Integer.MAX_VALUE:(int)dx),
@@ -330,70 +331,70 @@ public abstract class EntitySelector<T> implements Selector<T> {
                                 return (VirtualEntity)entity;
                             }).collect(Collectors.toSet()));
                 }
-                entities = entities.stream().filter(entity -> !(entity instanceof SpeechBalloonEntity)
-                                                            && (entityType == null || entity.getType().equals(entityType) != excludeType))
-                        .collect(Collectors.toList());
+        }
+        entities = entities.stream().filter(entity -> !(entity instanceof SpeechBalloonEntity)
+                                                    && (entityType == null || entity.getType().equals(entityType) != excludeType))
+                .collect(Collectors.toList());
 //Logger.getGlobal().info("Name: "+name);
-                if(name!=null) {
-                    if(name.endsWith("*")) {
-                        entities = entities.stream().filter(entity -> {
+        if(name!=null) {
+            if(name.endsWith("*")) {
+                entities = entities.stream().filter(entity -> {
 //Logger.getGlobal().info("Name: "+entity.getName()+" search: "+name.substring(0,name.length()-1));
-                            return entity.getName()
-                                    .startsWith(name.substring(0,name.length()-1)) != excludeName;
-                        })
-                                .collect(Collectors.toList());
-                    } else {
-                        entities = entities.stream().filter(entity -> {
+                    return entity.getName()
+                            .startsWith(name.substring(0,name.length()-1)) != excludeName;
+                })
+                        .collect(Collectors.toList());
+            } else {
+                entities = entities.stream().filter(entity -> {
 //Logger.getGlobal().info("Entity: "+entity);
 //Logger.getGlobal().info("name: "+entity.getName());
-                            return entity.getName() != null && entity.getName().equals(name) != excludeName;
-                        })
-                                .collect(Collectors.toList());
-                    }
-                }
-                if(minPitch>-90 || maxPitch < 90) {
-                    entities = entities.stream().filter(entity -> minPitch <= entity.getPitch() && entity.getPitch() < maxPitch)
-                            .collect(Collectors.toList());
-                }
-                if(minYaw>-180 || maxYaw < 180) {
-                    entities = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
-                            .collect(Collectors.toList());
-                }
-                if(goalType!=null) {
-                    entities = entities.stream().filter(entity -> {
-                        Goal goal = entity.getGoal();
-                        return goal!=null && goal.getType().equals(goalType) != excludeGoalType;
-                    }).collect(Collectors.toList());
-                }
-                if(talking != null) {
-                    entities = entities.stream().filter(entity -> entity.isTalking() == talking.equals("true"))
-                            .collect(Collectors.toList());
-                }
-                List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
+                    return entity.getName() != null && entity.getName().equals(name) != excludeName;
+                })
                         .collect(Collectors.toList());
-                if(loc != null && (minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE)) {
-                    //double minDistanceSquared = minDistance*minDistance;
-                    //double maxDistanceSquared = maxDistance*maxDistance;
-                    //if(loc == null) return Collections.emptyList();
-                    Location finalLoc = loc;
-                    sort = sort.stream()
-                            .filter(element -> {
-                                element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
-                                return minDistanceSquared <= element.getValue()
-                                        && element.getValue() <= maxDistanceSquared;
-                            }).collect(Collectors.toList());
-                }
-                List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
-                        .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                        "Selector: "+getSelector()
-                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and toal of "+result.size());
-                return result;
+            }
         }
-        DebugManager.warn(Modules.Selector.select(this.getClass()),
+        if(minPitch>-90 || maxPitch < 90) {
+            entities = entities.stream().filter(entity -> minPitch <= entity.getPitch() && entity.getPitch() < maxPitch)
+                    .collect(Collectors.toList());
+        }
+        if(minYaw>-180 || maxYaw < 180) {
+            entities = entities.stream().filter(entity -> minYaw <= entity.getYaw() && entity.getYaw() < maxYaw)
+                    .collect(Collectors.toList());
+        }
+        if(goalType!=null) {
+            entities = entities.stream().filter(entity -> {
+                Goal goal = entity.getGoal();
+                return goal!=null && goal.getType().equals(goalType) != excludeGoalType;
+            }).collect(Collectors.toList());
+        }
+        if(talking != null) {
+            entities = entities.stream().filter(entity -> entity.isTalking() == talking.equals("true"))
+                    .collect(Collectors.toList());
+        }
+        List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
+                .collect(Collectors.toList());
+        if(loc != null && (minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE)) {
+            //double minDistanceSquared = minDistance*minDistance;
+            //double maxDistanceSquared = maxDistance*maxDistance;
+            //if(loc == null) return Collections.emptyList();
+            Location finalLoc = loc;
+            sort = sort.stream()
+                    .filter(element -> {
+                        element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
+                        return minDistanceSquared <= element.getValue()
+                                && element.getValue() <= maxDistanceSquared;
+                    }).collect(Collectors.toList());
+        }
+        List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
+                .map(EntitySelectorElement::getContent).collect(Collectors.toList());
+        DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                "Selector: "+getSelector()
+                        +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and toal of "+result.size());
+        return result;
+        /*DebugManager.warn(Modules.Selector.select(this.getClass()),
                 "Selector: "+getSelector()
                         +" Invalid selector type!");
-        return Collections.emptyList();
+        return Collections.emptyList();*/
     }
 
     public boolean hasAreaLimit() {

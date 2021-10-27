@@ -66,4 +66,16 @@ public class PrimitiveCompiler {
             }
         }
     }
+
+    public static String compileString(JsonElement element, String defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                return element.getAsString();
+            } catch(ClassCastException | IllegalStateException ex) {
+                return defaultValue;
+            }
+        }
+    }
 }

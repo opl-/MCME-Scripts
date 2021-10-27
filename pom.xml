@@ -111,5 +111,18 @@
             <artifactId>google-api-services-drive</artifactId>
             <version>v3-rev197-1.25.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.craftmend.openaudiomc</groupId>
+            <artifactId>OpenAudioMc</artifactId>
+            <version>6.5.7</version>
+            <systemPath>D:/MCME/Plugins/Downloads/OpenAudioMc-6.5.7.jar</systemPath>
+            <scope>system</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

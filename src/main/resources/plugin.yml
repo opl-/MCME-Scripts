@@ -4,6 +4,7 @@ main: com.mcmiddleearth.mcmescripts.MCMEScripts
 api-version: 1.16
 authors: [ Eriol_Eandur ]
 depend: [ MCME-Entities ]
+softdepend: [ OpenAudioMc ]
 
 commands:
   scripts:

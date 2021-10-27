@@ -9,3 +9,8 @@ drive:
   scriptsFolder: google drive folder ID
   clientId: google app client ID
   clientSecret: google app client secret
+
+# careful with wildcard '*'! There should be a SPACE after command, otherwise similar commands with same start will all be whitelisted too.
+commandWhitelist:
+  - "say *"
+  - "gamemode survival"

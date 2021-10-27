@@ -16,4 +16,5 @@ public class ExecuteCommandAction extends SelectingAction<Player> {
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }
+
 }
