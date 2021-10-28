@@ -13,6 +13,7 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -209,6 +210,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                                 getAbsolute(loc.getZ(), zRelative, z));
                 }
                 if (hasAreaLimit() && loc != null) {
+                    World world = loc.getWorld();
                     //Logger.getGlobal().info("Location: "+loc.toString() + " Players: "+players.size());
                     double xMin = (dx < 0 ? Integer.MIN_VALUE : loc.getX() - dx);
                     double xMax = (dx < 0 ? Integer.MAX_VALUE : loc.getX() + dx);
@@ -216,7 +218,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     double yMax = (dy < 0 ? Integer.MAX_VALUE : loc.getY() + dy);
                     double zMin = (dz < 0 ? Integer.MIN_VALUE : loc.getZ() - dz);
                     double zMax = (dz < 0 ? Integer.MAX_VALUE : loc.getZ() + dz);
-                    players = players.stream().filter(player -> xMin <= player.getLocation().getX()
+                    players = players.stream().filter(player -> player.getLocation().getWorld().equals(world)
+                            && xMin <= player.getLocation().getX()
                             && player.getLocation().getX() < xMax
                             && yMin <= player.getLocation().getY()
                             && player.getLocation().getY() < yMax
@@ -260,6 +263,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     Location finalLoc = loc;
                     sort = sort.stream()
                             .filter(element -> {
+                                if(!finalLoc.getWorld().equals(element.getContent().getWorld())) return false;
                                 element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
 //DebugManager.log(Modules.Selector.select(this.getClass()),"Element distance: " + element.getValue());
                                 return minDistanceSquared <= element.getValue()
@@ -318,11 +322,13 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case ALL_ENTITIES:
 //Logger.getGlobal().info("Location: "+loc);
                 if(hasAreaLimit() && loc != null) {
+                    World world = loc.getWorld();
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntitiesAt(loc,
                             (dx<0?Integer.MAX_VALUE:(int)dx),
                             (dy<0?Integer.MAX_VALUE:(int)dy),
                             (dz<0?Integer.MAX_VALUE:(int)dz))
-                            .stream().filter(entity -> entity instanceof VirtualEntity)
+                            .stream().filter(entity -> entity instanceof VirtualEntity
+                                            && entity.getLocation().getWorld().equals(world))
                             .map(entity -> (VirtualEntity)entity).collect(Collectors.toSet()));
                 } else {
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntities(VirtualEntity.class)
@@ -380,6 +386,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
             Location finalLoc = loc;
             sort = sort.stream()
                     .filter(element -> {
+                        if(!element.getContent().getLocation().getWorld().equals(finalLoc.getWorld())) return false;
                         element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
                         return minDistanceSquared <= element.getValue()
                                 && element.getValue() <= maxDistanceSquared;
