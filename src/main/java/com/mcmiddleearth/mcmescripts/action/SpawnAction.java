@@ -2,32 +2,55 @@ package com.mcmiddleearth.mcmescripts.action;
 
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
+import com.mcmiddleearth.entities.entities.McmeEntity;
+import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.exception.InvalidDataException;
 import com.mcmiddleearth.entities.exception.InvalidLocationException;
+import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SpawnAction extends Action  {
 
     private final List<VirtualEntityFactory> factories;
 
-    public SpawnAction(List<VirtualEntityFactory> factory) {
+    private final int lifespan;
+
+    public SpawnAction(List<VirtualEntityFactory> factory, int lifespan) {
         this.factories = factory;
+        this.lifespan = lifespan;
         DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ factories.size());
     }
 
     @Override
     protected void handler(TriggerContext context) {
+        Set<McmeEntity> entities = new HashSet<>();
         factories.forEach(factory -> {
             try {
                 DebugManager.verbose(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
-                context.getScript().addEntity(EntitiesPlugin.getEntityServer().spawnEntity(factory));
+                String name = context.getName();
+                if(name!=null) factory.withDisplayName(name);
+                McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
+                context.getScript().addEntity(entity);
+                entities.add(entity);
             } catch (InvalidLocationException | InvalidDataException e) {
                 e.printStackTrace();
             }
         });
+        if(lifespan>0) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    entities.forEach(entity -> context.getScript().removeEntity(entity));
+                    EntitiesPlugin.getEntityServer().removeEntity(entities);
+                }
+            }.runTaskLater(MCMEScripts.getInstance(), lifespan);
+        }
     }
 }

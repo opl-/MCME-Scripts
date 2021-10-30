@@ -89,6 +89,10 @@ public class ScriptManager {
         return scripts;
     }
 
+    public Script getScript(String name) {
+        return scripts.get(name);
+    }
+
     public static File getScriptFolder() {
         return scriptFolder;
     }

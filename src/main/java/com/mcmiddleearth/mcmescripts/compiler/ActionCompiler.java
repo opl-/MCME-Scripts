@@ -57,6 +57,7 @@ public class ActionCompiler {
                                 KEY_CENTER          = "center",
                                 KEY_MUSIC_FILE      = "sound_file",
                                 KEY_MUSIC_ID        = "sound_id",
+                                KEY_LIFESPAN        = "lifespan",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -145,8 +146,9 @@ public class ActionCompiler {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SPAWN+" action. Missing entity factory.");
                     return Optional.empty();
                 }
+                int lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
                 //TODO: optional - set Goal
-                action = new SpawnAction(factories);
+                action = new SpawnAction(factories, lifespan);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
@@ -334,12 +336,13 @@ public class ActionCompiler {
                     randomSpawnData.withGoalTargetSelector(new McmeEntitySelector(goalTargetJson.getAsString()));
                 }
                 VirtualEntityGoalFactoryCompiler.compile(jsonObject).ifPresent(randomSpawnData::withGoalFactory);
+                lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
                 Location center = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
                 if(center != null) {
-                    action = new SpawnRandomLocationAction(center, randomSpawnData);
+                    action = new SpawnRandomLocationAction(center, randomSpawnData, lifespan);
                 } else {
                     mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
-                    action = new SpawnRandomSelectionAction(mcmeSelector,randomSpawnData);
+                    action = new SpawnRandomSelectionAction(mcmeSelector,randomSpawnData, lifespan);
                 }
                 break;
             case VALUE_MUSIC_START:

@@ -61,8 +61,10 @@ public class PrimitiveCompiler {
             try {
                 String[] split = element.getAsString().split("\\.\\.");
                 return Integer.parseInt(split[1]);
-            } catch(NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+            } catch(NumberFormatException ex) {
                 return defaultValue;
+            } catch(ArrayIndexOutOfBoundsException ex) {
+                return compileLowerInt(element, defaultValue);
             }
         }
     }

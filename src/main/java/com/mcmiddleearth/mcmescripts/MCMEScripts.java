@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class MCMEScripts extends JavaPlugin {
 
     private static TimedTriggerManager timedTriggerManager;
+    private static ExternalTriggerManager externalTriggerManager;
     private static ScriptManager scriptManager;
     private static MCMEScripts instance;
 
@@ -25,6 +26,7 @@ public final class MCMEScripts extends JavaPlugin {
         //DebugManager.debug("all",true);
         scriptManager = new ScriptManager();
         timedTriggerManager = new TimedTriggerManager();
+        externalTriggerManager = new ExternalTriggerManager();
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
         enableScripts();
         //BukkitAudiences.create(this);
@@ -51,6 +53,10 @@ public final class MCMEScripts extends JavaPlugin {
 
     public static ScriptManager getScriptManager() {
         return scriptManager;
+    }
+
+    public static ExternalTriggerManager getExternalTriggerManager() {
+        return externalTriggerManager;
     }
 
     public static MCMEScripts getInstance() {
@@ -85,7 +91,6 @@ public final class MCMEScripts extends JavaPlugin {
             if (executor instanceof TabCompleter)
                 pluginCommand.setTabCompleter((TabCompleter) executor);
         }
-
     }
 
 

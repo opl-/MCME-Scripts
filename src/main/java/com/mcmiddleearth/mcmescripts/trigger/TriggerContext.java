@@ -15,6 +15,7 @@ public class TriggerContext {
 
     private Player player;
     private String message;
+    private String name;
 
     private boolean firstJoin;
 
@@ -65,6 +66,15 @@ public class TriggerContext {
 
     public TriggerContext withMessage(String message) {
         this.message = message;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TriggerContext withName(String name) {
+        this.name = name;
         return this;
     }
 

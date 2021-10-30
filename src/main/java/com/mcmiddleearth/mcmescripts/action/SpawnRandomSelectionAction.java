@@ -6,6 +6,7 @@ import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.exception.InvalidDataException;
 import com.mcmiddleearth.entities.exception.InvalidLocationException;
+import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
@@ -14,16 +15,19 @@ import org.apache.commons.math3.util.FastMath;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
-    public SpawnRandomSelectionAction(Selector<McmeEntity> selector, RandomSpawnData data) {
+    public SpawnRandomSelectionAction(Selector<McmeEntity> selector, RandomSpawnData data, int lifespan) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRandomSelectionAction.class),"Selected entity: "+entity.getName());
-            data.spawn(context, entity.getLocation());
+            data.spawn(context, entity.getLocation(), lifespan);
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }
@@ -47,7 +51,8 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
             this.choices = choices;
         }
 
-        public void spawn(TriggerContext context, Location center) {
+        public void spawn(TriggerContext context, Location center, int lifespan) {
+            Set<McmeEntity> entities = new HashSet<>();
             float rand = random.nextFloat();
 //Logger.getGlobal().info("probability: "+probability+ " > "+rand+" "+(probability>rand));
             if(probability > rand) {
@@ -101,13 +106,17 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                             tries++;
                         }
                     }
+                    String name = context.getName();
                     for(int i =0; i < quantity; i++) {
                         int finalI = i;
                         selectedChoice.getFactories().forEach(factory -> {
                             if(spawnLocations[finalI]!=null) {
                                 try {
                                     factory.withLocation(spawnLocations[finalI]);
-                                    context.getScript().addEntity(EntitiesPlugin.getEntityServer().spawnEntity(factory));
+                                    if(name!=null) factory.withDisplayName(name);
+                                    McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
+                                    context.getScript().addEntity(entity);
+                                    entities.add(entity);
 //Logger.getGlobal().info("Execute spawn: " + factory.getLocation());
                                 } catch (InvalidLocationException | InvalidDataException e) {
                                     e.printStackTrace();
@@ -116,6 +125,15 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                         });
                     }
                 }
+            }
+            if(lifespan > 0) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        entities.forEach(entity -> context.getScript().removeEntity(entity));
+                        EntitiesPlugin.getEntityServer().removeEntity(entities);
+                    }
+                }.runTaskLater(MCMEScripts.getInstance(), lifespan);
             }
         }
 

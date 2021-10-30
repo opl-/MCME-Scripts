@@ -4,19 +4,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 
 public class ItemCompiler {
@@ -24,7 +21,7 @@ public class ItemCompiler {
     private static String
         KEY_MATERIAL        = "material",
         KEY_QUANTITY        = "quantity",
-        KEY_DURABILITY      = "durability",
+        KEY_DAMAGE          = "damage",
         KEY_LORE            = "lore",
         KEY_ENCHANTMENT     = "enchantment",
         KEY_ENCHANTMENTS    = "enchantments";
@@ -64,16 +61,31 @@ public class ItemCompiler {
         }
         ItemStack item = compileItem(materialJson.getAsString(),quantity).orElse(null);
         if(item == null) return Optional.empty();
-        JsonElement durabilityJson = jsonObject.get(KEY_DURABILITY);
-        if(durabilityJson instanceof JsonPrimitive) {
-            try{
-                short durability = durabilityJson.getAsShort();
-                item.setDurability(durability);
-            } catch(NumberFormatException ex) {
-                DebugManager.warn(Modules.Item.create(ItemCompiler.class), "Number format exception, can't parse durability. Using full durability.");
+        ItemMeta meta = item.getItemMeta();
+        if(meta instanceof Damageable) {
+            JsonElement damageJson = jsonObject.get(KEY_DAMAGE);
+            if (damageJson instanceof JsonPrimitive) {
+                try {
+                    short damage = damageJson.getAsShort();
+                    ((Damageable)meta).setDamage(damage);
+                } catch (NumberFormatException ex) {
+                    DebugManager.warn(Modules.Item.create(ItemCompiler.class), "Number format exception, can't parse durability. Using full durability.");
+                }
             }
         }
+        addEnchantments(meta, jsonObject.get(KEY_ENCHANTMENT));
+        addEnchantments(meta, jsonObject.get(KEY_ENCHANTMENTS));
+        item.setItemMeta(meta);
         return Optional.of(item);
+    }
+
+    private static void addEnchantments(ItemMeta meta, JsonElement enchantJson) {
+        if(enchantJson instanceof JsonArray) {
+            todo
+        } else if(enchantJson instanceof JsonObject) {
+            todo
+        }
+
     }
 
     public static Optional<ItemStack> compileItem(String material, int quantity){

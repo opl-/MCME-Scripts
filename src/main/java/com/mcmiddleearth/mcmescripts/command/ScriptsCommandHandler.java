@@ -10,6 +10,8 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.Permission;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.drive.DriveUtil;
+import com.mcmiddleearth.mcmescripts.script.Script;
+import com.mcmiddleearth.mcmescripts.trigger.ExternalTrigger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
+import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 
 public class ScriptsCommandHandler extends AbstractCommandHandler implements TabExecutor {
@@ -65,6 +68,27 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                 .executes(context -> {
                     MCMEScripts.getInstance().enableScripts();
                     return 0; }))
+            .then(HelpfulLiteralBuilder.literal("external")
+                .then(HelpfulRequiredArgumentBuilder.argument("script",word())
+                    .suggests(((commandContext, suggestionsBuilder) -> {
+                            MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
+                                       .forEach(script -> suggestionsBuilder.suggest(script.getName()));
+                            return suggestionsBuilder.buildFuture();}))
+                    .then(HelpfulRequiredArgumentBuilder.argument("name",word())
+                        .suggests((((commandContext, suggestionsBuilder) -> {
+                            Script script = MCMEScripts.getScriptManager().getScript(commandContext.getArgument("script",String.class));
+                            if(script!=null) {
+                                script.getTriggers().stream().filter(trigger->trigger instanceof ExternalTrigger)
+                                        .forEach(trigger -> suggestionsBuilder.suggest(trigger.getName()));
+                            }
+                            return suggestionsBuilder.buildFuture();})))
+                        .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
+                            .executes(context -> {
+                                MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
+                                                                             context.getArgument("name",String.class),
+                                                                             context.getArgument("arguments",String.class).split(" "));
+                                return 0;
+                            })))))
             .then(HelpfulLiteralBuilder.literal("import")
                 .then(HelpfulRequiredArgumentBuilder.argument("type",word())
                     .suggests((commandContext, suggestionsBuilder) -> suggestionsBuilder.suggest("animations").suggest("entities").suggest("scripts").buildFuture())

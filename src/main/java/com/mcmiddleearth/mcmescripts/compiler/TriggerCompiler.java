@@ -10,6 +10,7 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.DecisionTreeTrigger;
+import com.mcmiddleearth.mcmescripts.trigger.ExternalTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerJoinTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.player.PlayerQuitTrigger;
@@ -60,7 +61,8 @@ public class TriggerCompiler {
                                 VALUE_VIRTUAL_STOP_TALK_TRIGGER         = "virtual_stop_talk",
                                 VALUE_GOAL_FINISHED_TRIGGER             = "goal_finished",
                                 VALUE_ANIMATION_CHANGE_TRIGGER          = "animation_change",
-                                VALUE_SELECTION_TRIGGER                 = "selection";
+                                VALUE_SELECTION_TRIGGER                 = "selection",
+                                VALUE_EXTERNAL_TRIGGER                  = "external";
 
     public static Set<Trigger> compile(JsonObject jsonData) {
         JsonElement triggerData = jsonData.get(KEY_TRIGGER);
@@ -195,7 +197,15 @@ public class TriggerCompiler {
                     DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't parse " + KEY_PROCESS + ". Using "+process.name());
                 }
                 trigger = new SelectionTrigger(null, period, mcmeEntitySelector, process);
-
+                break;
+            case VALUE_EXTERNAL_TRIGGER:
+                String name = PrimitiveCompiler.compileString(jsonObject.get(KEY_NAME),null);
+                if(name == null) {
+                    DebugManager.warn(Modules.Location.create(LocationCompiler.class), "Can't compile " + VALUE_EXTERNAL_TRIGGER + " trigger. Missing name.");
+                    return Optional.empty();
+                }
+                trigger = new ExternalTrigger(null,name);
+                break;
         }
         if(trigger == null) {
             DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile trigger. Invalid trigger type.");
