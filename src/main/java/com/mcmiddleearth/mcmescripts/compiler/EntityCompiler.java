@@ -79,7 +79,7 @@ public class EntityCompiler {
         }
 
         Set<Action> spawnActions = new HashSet<>();
-        spawnActions.add(new SpawnAction(factories));
+        spawnActions.add(new SpawnAction(factories, -1));
         triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
 //Logger.getGlobal().info("trigggers: "+ triggers.size());
         spawnActions.add(new TriggerRegisterAction(despawnTrigger));

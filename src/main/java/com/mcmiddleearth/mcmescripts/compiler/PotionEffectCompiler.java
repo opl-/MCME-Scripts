@@ -7,6 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class PotionEffectCompiler {
 
@@ -19,10 +20,13 @@ public class PotionEffectCompiler {
     KEY_ICON        = "icon";
 
     public static PotionEffect compile(JsonElement jsonElement) {
+//Logger.getGlobal().info("1");
         if(! (jsonElement instanceof JsonObject)) return null;
+//Logger.getGlobal().info("2");
         JsonElement typeJson = jsonElement.getAsJsonObject().get(KEY_TYPE);
         if(!(typeJson instanceof JsonPrimitive)) return null;
         PotionEffectType type = PotionEffectType.getByName(typeJson.getAsString().toUpperCase());
+//Logger.getGlobal().info("3: "+typeJson.getAsString()+" "+type);
         JsonElement durationJson = jsonElement.getAsJsonObject().get(KEY_DURATION);
         int duration = 200;
         if(durationJson instanceof JsonPrimitive) {

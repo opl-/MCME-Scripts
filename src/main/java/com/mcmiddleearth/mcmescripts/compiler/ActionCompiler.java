@@ -82,7 +82,8 @@ public class ActionCompiler {
                                 VALUE_EXPLOSION             = "explosion",
                                 VALUE_RANDOM_SPAWN          = "random_spawn",
                                 VALUE_MUSIC_START           = "start_sound",
-                                VALUE_MUSIC_STOP            = "stop_sound";
+                                VALUE_MUSIC_STOP            = "stop_sound",
+                                VALUE_GIVE_CHEST            = "give_chest";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -176,11 +177,26 @@ public class ActionCompiler {
             case VALUE_ADD_POTION_EFFECT:
                 McmeEntitySelector mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 PotionEffect effect = PotionEffectCompiler.compile(jsonObject.get(KEY_POTION_EFFECT));
-                if(effect == null) {
+                Set<PotionEffectAddAction.PotionEffectChoice> potionEffectChoices = new HashSet<>();
+                JsonElement effectChoicesJson = jsonObject.get(KEY_CHOICES);
+                if(effectChoicesJson instanceof JsonArray) {
+                    effectChoicesJson.getAsJsonArray().forEach(element -> {
+                        if(element instanceof JsonObject) {
+                            int weight = PrimitiveCompiler.compileInteger(element.getAsJsonObject().get(KEY_WEIGHT),10);
+                            PotionEffect choiceEffect = PotionEffectCompiler.compile(element.getAsJsonObject().get(KEY_POTION_EFFECT));
+                            if(choiceEffect!=null) {
+                                potionEffectChoices.add(new PotionEffectAddAction.PotionEffectChoice(choiceEffect, weight));
+                            } else {
+                                DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't parse potion effect in random choice.");
+                            }
+                        }
+                    });
+                }
+                if(effect == null && potionEffectChoices.isEmpty()) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_ADD_POTION_EFFECT+" action. Missing potion effect.");
                     return Optional.empty();
                 }
-                action = new PotionEffectAddAction(effect, mcmeSelector);
+                action = new PotionEffectAddAction(effect, potionEffectChoices, mcmeSelector);
                 break;
             case VALUE_REMOVE_POTION_EFFECT:
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
@@ -229,7 +245,19 @@ public class ActionCompiler {
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 Set<ItemStack> items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                if(items.isEmpty()) return Optional.empty();
+                Set<ItemGiveAction.ItemChoice> itemChoices = new HashSet<>();
+                JsonElement itemChoicesJson = jsonObject.get(KEY_CHOICES);
+                if(itemChoicesJson instanceof JsonArray) {
+                    itemChoicesJson.getAsJsonArray().forEach(element -> {
+                        if(element instanceof JsonObject) {
+                            int weight = PrimitiveCompiler.compileInteger(element.getAsJsonObject().get(KEY_WEIGHT),10);
+                            Set<ItemStack> choiceItems = ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEM));
+                            choiceItems.addAll(ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEMS)));
+                            itemChoices.add(new ItemGiveAction.ItemChoice(weight,choiceItems));
+                        }
+                    });
+                }
+                if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
                 EquipmentSlot slot = null;
                 JsonElement slotJson = jsonObject.get(KEY_SLOT);
                 if(slotJson instanceof JsonPrimitive) {
@@ -250,7 +278,7 @@ public class ActionCompiler {
                     }
                 }
                 int duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),-1);
-                action = new ItemGiveAction(mcmeSelector, items, slot, slotId, duration);
+                action = new ItemGiveAction(mcmeSelector, items, itemChoices, slot, slotId, duration);
                 break;
             case VALUE_REMOVE_ITEM:
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
@@ -305,6 +333,7 @@ public class ActionCompiler {
                 Explosion explosion = ExplosionCompiler.compile(jsonObject);
                 if(explosion == null) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_EXPLOSION+" action. Missing explosion data.");
+                    return Optional.empty();
                 }
                 McmeEntitySelector unaffectedSelector = ExplosionCompiler.getUnaffectedSelector(jsonObject);
                 McmeEntitySelector damagerSelector = ExplosionCompiler.getDamagerSelector(jsonObject);
@@ -317,7 +346,9 @@ public class ActionCompiler {
                 }
                 List<SpawnRandomSelectionAction.Choice> choices = new ArrayList<>();
                 for(JsonElement choiceJson: choicesJson.getAsJsonArray()) {
+//Logger.getGlobal().info("Creating factories!");
                     factories = VirtualEntityFactoryCompiler.compile(choiceJson.getAsJsonObject());
+//factories.forEach(factory -> Logger.getGlobal().info("Factory type compiler: "+factory.getType()));
                     int weight = PrimitiveCompiler.compileInteger(choiceJson.getAsJsonObject().get(KEY_WEIGHT), 10);
                     choices.add(new SpawnRandomSelectionAction.Choice(weight, factories));
                 }
@@ -358,6 +389,13 @@ public class ActionCompiler {
                 playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 musicId = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_ID),null);
                 action = new SoundStopAction(playerSelector, musicId);
+                break;
+            case VALUE_GIVE_CHEST:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),1200);
+                items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
+                items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
+                action = new GiveChestAction(mcmeSelector,items,duration);
                 break;
             default:
                 return Optional.empty();

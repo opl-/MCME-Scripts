@@ -21,14 +21,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
     public SpawnRandomSelectionAction(Selector<McmeEntity> selector, RandomSpawnData data, int lifespan) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRandomSelectionAction.class),"Selected entity: "+entity.getName());
+//data.getChoices().forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("6: "+factory.getType())));
             data.spawn(context, entity.getLocation(), lifespan);
         });
+/*new BukkitRunnable() {
+    @Override
+    public void run() {
+        data.getChoices().forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("5: "+factory.getType())));
+    }
+}.runTaskTimer(MCMEScripts.getInstance(),20,20);*/
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }
 
@@ -52,6 +60,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
         }
 
         public void spawn(TriggerContext context, Location center, int lifespan) {
+//choices.forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("Factory random Spawn: "+factory.getType())));
             Set<McmeEntity> entities = new HashSet<>();
             float rand = random.nextFloat();
 //Logger.getGlobal().info("probability: "+probability+ " > "+rand+" "+(probability>rand));
@@ -114,7 +123,9 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                                 try {
                                     factory.withLocation(spawnLocations[finalI]);
                                     if(name!=null) factory.withDisplayName(name);
+//Logger.getGlobal().info("Factory type Action: "+factory.getType());
                                     McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
+//Logger.getGlobal().info("Spawn done!");
                                     context.getScript().addEntity(entity);
                                     entities.add(entity);
 //Logger.getGlobal().info("Execute spawn: " + factory.getLocation());
@@ -252,7 +263,9 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
             return minRadius + random.nextInt(maxRadius - minRadius + 1);
         }
 
-
+        public List<Choice> getChoices() {
+            return choices;
+        }
     }
 
     public static class Choice {

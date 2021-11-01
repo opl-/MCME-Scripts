@@ -6,25 +6,37 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class ItemCompiler {
 
-    private static String
+    private static final String
         KEY_MATERIAL        = "material",
         KEY_QUANTITY        = "quantity",
         KEY_DAMAGE          = "damage",
+        KEY_NAME            = "name",
         KEY_LORE            = "lore",
+        KEY_ATTRIBUTE       = "attribute",
+        KEY_ATTRIBUTE_MOD   = "attribute_modifier",
+        KEY_ATTRIBUTE_MODS  = "attribute_modifiers",
+        KEY_AMOUNT          = "amount",
+        KEY_OPERATION       = "operation",
+        KEY_SLOT            = "slot",
         KEY_ENCHANTMENT     = "enchantment",
-        KEY_ENCHANTMENTS    = "enchantments";
+        KEY_ENCHANTMENTS    = "enchantments",
+        KEY_LEVEL           = "level",
+        KEY_TYPE            = "type";
 
     public static Set<ItemStack> compile(JsonElement jsonElement) {
         Set<ItemStack> result = new HashSet<>();
@@ -75,17 +87,16 @@ public class ItemCompiler {
         }
         addEnchantments(meta, jsonObject.get(KEY_ENCHANTMENT));
         addEnchantments(meta, jsonObject.get(KEY_ENCHANTMENTS));
+        addAttributeModifiers(meta, jsonObject.get(KEY_ATTRIBUTE_MOD));
+        addAttributeModifiers(meta, jsonObject.get(KEY_ATTRIBUTE_MODS));
+        JsonElement loreJson = jsonObject.get(KEY_LORE);
+        if(loreJson instanceof JsonArray) {
+            loreJson.getAsJsonArray().forEach(element -> addLore(meta, element));
+        } else {
+            addLore(meta, loreJson);
+        }
         item.setItemMeta(meta);
         return Optional.of(item);
-    }
-
-    private static void addEnchantments(ItemMeta meta, JsonElement enchantJson) {
-        if(enchantJson instanceof JsonArray) {
-            todo
-        } else if(enchantJson instanceof JsonObject) {
-            todo
-        }
-
     }
 
     public static Optional<ItemStack> compileItem(String material, int quantity){
@@ -106,7 +117,56 @@ public class ItemCompiler {
         }
     }
 
-    public static Enchantment compileEnchantment(JsonObject jsonObject) {
-        return null;
+    private static void addEnchantments(ItemMeta meta, JsonElement enchantJson) {
+        if(enchantJson instanceof JsonArray) {
+            enchantJson.getAsJsonArray().forEach(element -> {
+                addEnchantment(meta, element);
+            });
+        } else if(enchantJson instanceof JsonObject) {
+            addEnchantment(meta, enchantJson);
+        }
+    }
+
+    private static void addEnchantment(ItemMeta meta, JsonElement enchantJson) {
+        try {
+            JsonObject jsonObject = enchantJson.getAsJsonObject();
+            int level = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LEVEL),1);
+            NamespacedKey key = NamespacedKey.minecraft(jsonObject.get(KEY_TYPE).getAsString());
+            meta.addEnchant(Objects.requireNonNull(Enchantment.getByKey(key)),level,true);
+        } catch(IllegalStateException | ClassCastException | NullPointerException ignore) {}
+    }
+
+    private static void addAttributeModifiers(ItemMeta meta, JsonElement modJson) {
+        if(modJson instanceof JsonArray) {
+            modJson.getAsJsonArray().forEach(element -> {
+                addAttributeModifier(meta, element);
+            });
+        } else if(modJson instanceof JsonObject) {
+            addAttributeModifier(meta, modJson);
+        }
+    }
+
+    private static void addAttributeModifier(ItemMeta meta, JsonElement modJson) {
+        try {
+            JsonObject jsonObject = modJson.getAsJsonObject();
+            int amount = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_AMOUNT),1);
+            EquipmentSlot slot = EquipmentSlot.valueOf(jsonObject.get(KEY_SLOT).getAsString());
+            AttributeModifier.Operation operation = AttributeModifier.Operation.valueOf(jsonObject.get(KEY_OPERATION).getAsString());
+            Attribute attribute = Attribute.valueOf(jsonObject.get(KEY_ATTRIBUTE).getAsString());
+            String name = jsonObject.get(KEY_NAME).getAsString();
+            UUID uuid = UUID.randomUUID();
+            AttributeModifier mod = new AttributeModifier(uuid,name,amount,operation,slot);
+            meta.addAttributeModifier(attribute,mod);
+        } catch(IllegalStateException | ClassCastException | NullPointerException | IllegalArgumentException ignore) {}
+    }
+
+    private static void addLore(ItemMeta meta, JsonElement loreJson) {
+        try {
+            if(meta.hasLore()) {
+                Objects.requireNonNull(meta.lore()).add(Component.text(loreJson.getAsString()));
+            } else {
+                meta.lore(Collections.singletonList(Component.text(loreJson.getAsString())));
+            }
+        } catch(NullPointerException | ClassCastException | IllegalStateException ignore) {}
     }
 }
