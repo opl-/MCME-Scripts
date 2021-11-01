@@ -58,6 +58,7 @@ public class ActionCompiler {
                                 KEY_MUSIC_FILE      = "sound_file",
                                 KEY_MUSIC_ID        = "sound_id",
                                 KEY_LIFESPAN        = "lifespan",
+                                KEY_DROP_HEIGHT     = "drop_height",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -83,7 +84,8 @@ public class ActionCompiler {
                                 VALUE_RANDOM_SPAWN          = "random_spawn",
                                 VALUE_MUSIC_START           = "start_sound",
                                 VALUE_MUSIC_STOP            = "stop_sound",
-                                VALUE_GIVE_CHEST            = "give_chest";
+                                VALUE_GIVE_CHEST            = "give_chest",
+                                VALUE_RAIN_ITEM             = "rain_item";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -245,18 +247,7 @@ public class ActionCompiler {
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 Set<ItemStack> items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                Set<ItemGiveAction.ItemChoice> itemChoices = new HashSet<>();
-                JsonElement itemChoicesJson = jsonObject.get(KEY_CHOICES);
-                if(itemChoicesJson instanceof JsonArray) {
-                    itemChoicesJson.getAsJsonArray().forEach(element -> {
-                        if(element instanceof JsonObject) {
-                            int weight = PrimitiveCompiler.compileInteger(element.getAsJsonObject().get(KEY_WEIGHT),10);
-                            Set<ItemStack> choiceItems = ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEM));
-                            choiceItems.addAll(ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEMS)));
-                            itemChoices.add(new ItemGiveAction.ItemChoice(weight,choiceItems));
-                        }
-                    });
-                }
+                Set<ItemGiveAction.ItemChoice> itemChoices = compileItemChoices(jsonObject).orElse(new HashSet<>());
                 if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
                 EquipmentSlot slot = null;
                 JsonElement slotJson = jsonObject.get(KEY_SLOT);
@@ -397,6 +388,17 @@ public class ActionCompiler {
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
                 action = new GiveChestAction(mcmeSelector,items,duration);
                 break;
+            case VALUE_RAIN_ITEM:
+                items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
+                items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
+                if(items.isEmpty()) return Optional.empty();
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),200);
+                probability = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_PROBABILITY),0.5);
+                int radius = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_RADIUS),10);
+                int drop_height = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DROP_HEIGHT),5);
+                action = new ItemRainAction(mcmeSelector,items,radius,drop_height,probability,duration);
+                break;
             default:
                 return Optional.empty();
         }
@@ -423,5 +425,22 @@ public class ActionCompiler {
             }
         }
         return Collections.emptySet();
+    }
+
+    private static Optional<Set<ItemGiveAction.ItemChoice>> compileItemChoices(JsonObject jsonObject) {
+        Set<ItemGiveAction.ItemChoice> itemChoices = new HashSet<>();
+        JsonElement itemChoicesJson = jsonObject.get(KEY_CHOICES);
+        if(itemChoicesJson instanceof JsonArray) {
+            itemChoicesJson.getAsJsonArray().forEach(element -> {
+                if(element instanceof JsonObject) {
+                    int weight = PrimitiveCompiler.compileInteger(element.getAsJsonObject().get(KEY_WEIGHT),10);
+                    Set<ItemStack> choiceItems = ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEM));
+                    choiceItems.addAll(ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEMS)));
+                    itemChoices.add(new ItemGiveAction.ItemChoice(weight,choiceItems));
+                }
+            });
+        }
+        if(itemChoices.isEmpty()) return Optional.empty();
+        return Optional.of(itemChoices);
     }
 }

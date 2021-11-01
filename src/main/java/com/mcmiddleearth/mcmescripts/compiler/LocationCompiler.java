@@ -16,7 +16,7 @@ public class LocationCompiler {
     public static Optional<Location> compile(JsonElement element) {
         //JsonElement element = jsonObject.get(KEY_LOCATION);
         if(element == null) {
-            DebugManager.warn(Modules.Location.create(LocationCompiler.class),"Can't compile location. Missing json element.");
+            DebugManager.info(Modules.Location.create(LocationCompiler.class),"Can't compile location. Missing json element.");
             return Optional.empty();
         }
         String[] split = element.getAsString().replace(" ","").split(",");

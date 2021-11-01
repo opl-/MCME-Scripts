@@ -25,9 +25,9 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
             Location loc = entity.getLocation().clone();
             BlockFace face = null;
             if(loc.getYaw()<-135 || loc.getYaw()>135) face = BlockFace.NORTH;
-            else if(loc.getYaw()<-45) face = BlockFace.WEST;
+            else if(loc.getYaw()<-45) face = BlockFace.EAST;
             else if(loc.getYaw()<45) face = BlockFace.SOUTH;
-            else face = BlockFace.EAST;
+            else face = BlockFace.WEST;
             Block block = loc.getBlock().getRelative(face,2);
             if(!block.isPassable()) {
                 block = block.getRelative(face.getOppositeFace());
@@ -40,13 +40,13 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
             }
             BlockData data = Bukkit.createBlockData(Material.CHEST);
             ((Chest)data).setFacing(face.getOppositeFace());
+            BlockState restore = block.getState();
             block.setBlockData(data,false);
             Block finalBlock = block;
-            BlockState blockState = finalBlock.getState();
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    org.bukkit.block.Chest chest = ((org.bukkit.block.Chest) finalBlock);
+                    org.bukkit.block.Chest chest = ((org.bukkit.block.Chest) finalBlock.getState());
                     int size = chest.getInventory().getContents().length;
                     chest.getInventory().setContents(Arrays.copyOfRange(items.toArray(new ItemStack[0]),0,size));
                 }
@@ -54,7 +54,9 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    blockState.update(true, false);
+                    org.bukkit.block.Chest chest = ((org.bukkit.block.Chest) finalBlock.getState());
+                    chest.getInventory().clear();
+                    restore.update(true, false);
                 }
             }.runTaskLater(MCMEScripts.getInstance(),duration+1);
         });
