@@ -3,7 +3,7 @@ package com.mcmiddleearth.mcmescripts;
 public enum Permission {
 
     USER    ("mcmescripts.user"),
-    ADMIN   ("mcmeentities.admin");
+    ADMIN   ("mcmescripts.admin");
 
     private final String node;
 
