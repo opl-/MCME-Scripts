@@ -56,7 +56,11 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
                     EntitiesPlugin.getEntityServer().getCurrentTick() + duration);
         }
         if(context.getMessage()!=null) {
-            ItemCompiler.addLore(meta, new JsonPrimitive(context.getMessage()));
+            if(context.getName() != null) {
+                ItemCompiler.addLore(meta, new JsonPrimitive(context.getName()+": "+context.getMessage()));
+            } else {
+                ItemCompiler.addLore(meta, new JsonPrimitive(context.getMessage()));
+            }
             /*if (meta.hasLore()) {
                 Objects.requireNonNull(meta.lore()).add(Component.text(context.getMessage()));
             } else {

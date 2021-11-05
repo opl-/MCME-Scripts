@@ -59,6 +59,11 @@ public class ActionCompiler {
                                 KEY_MUSIC_ID        = "sound_id",
                                 KEY_LIFESPAN        = "lifespan",
                                 KEY_DROP_HEIGHT     = "drop_height",
+                                KEY_TITLE           = "title",
+                                KEY_SUBTITLE        = "subtitle",
+                                KEY_FADE_IN         = "fade_in",
+                                KEY_STAY            = "stay",
+                                KEY_FADE_OUT        = "fade_out",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -85,7 +90,8 @@ public class ActionCompiler {
                                 VALUE_MUSIC_START           = "start_sound",
                                 VALUE_MUSIC_STOP            = "stop_sound",
                                 VALUE_GIVE_CHEST            = "give_chest",
-                                VALUE_RAIN_ITEM             = "rain_item";
+                                VALUE_RAIN_ITEM             = "rain_item",
+                                VALUE_TITLE                 = "title";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -398,6 +404,19 @@ public class ActionCompiler {
                 int radius = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_RADIUS),10);
                 int drop_height = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DROP_HEIGHT),5);
                 action = new ItemRainAction(mcmeSelector,items,radius,drop_height,probability,duration);
+                break;
+            case VALUE_TITLE:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                String title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),"");
+                String subtitle = PrimitiveCompiler.compileString(jsonObject.get(KEY_SUBTITLE),"");
+                if(title.equals("") && subtitle.equals("")) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_TITLE+" action. Missing title and subtitle.");
+                    return Optional.empty();
+                }
+                int fadeIn = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_FADE_IN),10);
+                int stay = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_STAY),70);
+                int fadeout = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_FADE_OUT),20);
+                action = new TitleAction(playerSelector,title,subtitle,fadeIn,stay,fadeout);
                 break;
             default:
                 return Optional.empty();
