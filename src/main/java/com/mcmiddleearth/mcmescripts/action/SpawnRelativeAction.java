@@ -1,35 +1,51 @@
 package com.mcmiddleearth.mcmescripts.action;
 
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
+import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
-    public SpawnRelativeAction(Selector<McmeEntity> selector, List<VirtualEntityFactory> factories, int lifespan, boolean onGround) {
+    public SpawnRelativeAction(Selector<McmeEntity> selector, List<VirtualEntityFactory> factories, int lifespan, boolean onGround,
+                               McmeEntitySelector goalTargetSelector, VirtualEntityGoalFactory goalFactory,
+                               Location location, Location[] waypoints) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRelativeAction.class),"Selected entity: "+entity.getName());
-            factories.forEach(factory -> {
-                if(factory.getLocation()!=null) {
-                    Location location = entity.getLocation().clone().add(factory.getLocation().toVector());
-                    factory.withLocation(findSafe(location,onGround));
+            if (goalFactory !=null) {
+                List<McmeEntity> goalTargets = goalTargetSelector.select(context);
+                if(!goalTargets.isEmpty()) {
+//DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget entity: "+goalTargets.get(0));
+                    goalFactory.withTargetEntity(goalTargets.get(0));
                 }
-                if(factory.getGoalFactory()!=null) {
-                    Location[] waypoints = factory.getGoalFactory().getCheckpoints();
-                    if(waypoints!=null) {
-                        for (int i = 0; i < waypoints.length; i++) {
-                            waypoints[i] = findSafe(entity.getLocation().clone().add(waypoints[i].toVector()),onGround);
-                        }
-                        factory.getGoalFactory().withCheckpoints(waypoints);
+            }
+            factories.forEach(factory -> {
+                if(location!=null) {
+                    Location loc = entity.getLocation().clone().add(rotate(location.toVector(),entity));
+                    factory.withLocation(findSafe(loc,onGround));
+                }
+                if(goalFactory!=null) {
+                    factory.withGoalFactory(goalFactory);
+                }
+                if(factory.getGoalFactory()!=null && waypoints != null) {
+                    Location[] checkpoints = new Location[waypoints.length];
+                    for (int i = 0; i < waypoints.length; i++) {
+                        checkpoints[i] = findSafe(entity.getLocation().clone()
+                                                        .add(rotate(waypoints[i].toVector(),entity)),onGround);
                     }
+                    factory.getGoalFactory().withCheckpoints(checkpoints);
+//Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                 }
             });
             SpawnAction.spawnEntity(context,factories,lifespan);
@@ -48,5 +64,18 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
             }
         }
         return block.getLocation().add(new Vector(0.5,0,0.5));
+    }
+
+    private static Vector rotate(Vector vector, McmeEntity entity) {
+        float yaw = entity.getYaw();
+        if(yaw < -135 || yaw > 135) {
+            return new Vector(-vector.getX(),vector.getY(),-vector.getZ());
+        } else if(yaw < -45) {
+            return new Vector(vector.getZ(),vector.getY(),-vector.getX());
+        } else if(yaw > 45) {
+            return new Vector(-vector.getZ(),vector.getY(),vector.getX());
+        } else {
+            return vector;
+        }
     }
 }

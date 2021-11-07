@@ -81,6 +81,7 @@ public class ActionCompiler {
                                 KEY_MUSIC           = "music",
                                 KEY_PROGRESS        = "progress",
                                 KEY_LOCATION        = "location",
+                                KEY_CHECKPOINTS     = "checkpoints",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -162,14 +163,14 @@ public class ActionCompiler {
                 action = new TriggerUnregisterAction(triggerNames);
                 break;
             case VALUE_SET_GOAL:
-                Optional<VirtualEntityGoalFactory> goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
-                if(!goalFactory.isPresent()) {
+                Optional<VirtualEntityGoalFactory> goalFactoryOpt = VirtualEntityGoalFactoryCompiler.compile(jsonObject);
+                if(!goalFactoryOpt.isPresent()) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SET_GOAL+" action. Missing goal.");
                     return Optional.empty();
                 }
                 VirtualEntitySelector selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
                 McmeEntitySelector goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
-                action = new SetGoalAction(goalFactory.get(), selector, goalTargetSelector);
+                action = new SetGoalAction(goalFactoryOpt.get(), selector, goalTargetSelector);
                 break;
             case VALUE_SPAWN:
                 List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);
@@ -189,13 +190,31 @@ public class ActionCompiler {
                 }
                 lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
                 Location location = LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null);
-                if(location !=null) {
-                    factories.forEach(factory -> factory.withLocation(location));
-                }
+                JsonElement checkpointJson = jsonObject.get(KEY_CHECKPOINTS);
                 boolean onGround = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_ON_GROUND),true);
+                VirtualEntityGoalFactory goalFactory = VirtualEntityGoalFactoryCompiler.compile(jsonObject).orElse(null);
+                Location[] checkpoints = null;
+                if(goalFactory!=null) {
+                    List<Location> waypoints = new ArrayList<>();
+                    if (checkpointJson instanceof JsonArray) {
+                        for (JsonElement element : checkpointJson.getAsJsonArray()) {
+                            LocationCompiler.compile(element).ifPresent(waypoints::add);
+                        }
+//Logger.getGlobal().info("Checkpoints loaded: "+checkpoints.size());
+//checkpoints.forEach(check -> Logger.getGlobal().info("- "+check));
+                        if (waypoints.isEmpty()) {
+                            DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Warning while parsing "+VALUE_SPAWN_RELATIVE
+                                                                           +" action. Found empty checkpoint array.");
+                        } else {
+                            checkpoints = waypoints.toArray(new Location[0]);
+                        }
+                    }
+                }
+                goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
                 McmeEntitySelector mcmeEntitySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 //TODO: optional - set Goal
-                action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround);
+                action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround,
+                                                 goalTargetSelector, goalFactory, location, checkpoints);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
@@ -445,8 +464,8 @@ public class ActionCompiler {
                 break;
             case VALUE_TITLE:
                 playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
-                String title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),"");
-                String subtitle = PrimitiveCompiler.compileString(jsonObject.get(KEY_SUBTITLE),"");
+                String title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),"").replace('&','§').replace('#','§');
+                String subtitle = PrimitiveCompiler.compileString(jsonObject.get(KEY_SUBTITLE),"").replace('&','§').replace('#','§');
                 if(title.equals("") && subtitle.equals("")) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_TITLE+" action. Missing title and subtitle.");
                     return Optional.empty();
@@ -455,6 +474,16 @@ public class ActionCompiler {
                 int stay = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_STAY),70);
                 int fadeout = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_FADE_OUT),20);
                 action = new TitleAction(playerSelector,title,subtitle,fadeIn,stay,fadeout);
+                break;
+            case VALUE_ACTION_BAR:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),"").replace('&','§').replace('#','§');
+                if(title.equals("")) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),
+                                       "Can't compile "+VALUE_ACTION_BAR+" action. Missing title.");
+                    return Optional.empty();
+                }
+                action = new ActionBarAction(playerSelector,title);
                 break;
             case VALUE_BOSS_BAR_ADD:
                 playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
@@ -465,7 +494,7 @@ public class ActionCompiler {
                 }
                 NamespacedKey barKey = new NamespacedKey(MCMEScripts.getInstance(),name);
                 BossBar bar = Bukkit.getBossBar(barKey);
-                title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),null);
+                title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),null).replace('&','§').replace('#','§');
                 Boolean fog = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_FOG),null);
                 Boolean dark = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_DARKEN),null);
                 Boolean music = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_MUSIC),null);

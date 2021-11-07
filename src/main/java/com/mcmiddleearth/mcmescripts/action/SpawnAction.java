@@ -43,6 +43,7 @@ public class SpawnAction extends Action  {
                 if(name!=null) factory.withDisplayName(name);
                 McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
                 context.getScript().addEntity(entity);
+                context.withEntity(entity);
                 entities.add(entity);
             } catch (InvalidLocationException | InvalidDataException e) {
                 e.printStackTrace();

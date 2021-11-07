@@ -35,12 +35,13 @@ public class TriggerContext {
     public TriggerContext(TriggerContext context) {
         this.player = context.player;
         this.trigger = context.trigger;
-        this.message = ""+context.message;
+        this.message = context.message;
         this.firstJoin = context.firstJoin;
         this.entity = context.entity;
         this.goal = context.goal;
         this.location = context.location;
         this.entityEvent = context.entityEvent;
+        this.name = context.name;
     }
 
     public Trigger getTrigger() {

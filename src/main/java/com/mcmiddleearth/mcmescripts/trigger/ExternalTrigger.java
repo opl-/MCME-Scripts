@@ -8,6 +8,8 @@ import com.mcmiddleearth.mcmescripts.compiler.LocationCompiler;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Bukkit;
 
+import java.util.logging.Logger;
+
 public class ExternalTrigger extends DecisionTreeTrigger {
 
     private String name;
@@ -52,6 +54,7 @@ public class ExternalTrigger extends DecisionTreeTrigger {
                         context.withName(value);
                         break;
                     case "message":
+Logger.getGlobal().info("Set message: "+value);
                         context.withMessage(value);
                         break;
                 }

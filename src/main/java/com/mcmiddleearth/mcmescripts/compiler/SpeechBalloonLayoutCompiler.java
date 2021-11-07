@@ -4,6 +4,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
+import sun.rmi.runtime.Log;
+
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class SpeechBalloonLayoutCompiler {
 
@@ -22,6 +26,7 @@ public class SpeechBalloonLayoutCompiler {
         }
         JsonElement message = jsonObject.get(KEY_MESSAGE);
         if(message!=null) {
+//Logger.getGlobal().info("found message!");
             layout.withMessage(message.getAsString());
         }
         JsonElement duration = jsonObject.get(KEY_DURATION);
