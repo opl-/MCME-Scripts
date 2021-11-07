@@ -155,7 +155,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 upper = lower;
                 lower = upper.getRelative(BlockFace.DOWN);
             }
-            if(!lower.isPassable()) {
+            if(!lower.isPassable() && upper.isPassable() && upper.getRelative(BlockFace.UP).isPassable()) {
                 return upper.getLocation();
             }
             while(!(lower.isPassable() && upper.isPassable()) && upper.getY() < location.getWorld().getMaxHeight()-1) {

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mcmiddleearth.entities.ai.goal._invalid_GoalEntityTargetFollowWingedFlight;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.effect.Explosion;
@@ -16,7 +17,13 @@ import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -64,6 +71,16 @@ public class ActionCompiler {
                                 KEY_FADE_IN         = "fade_in",
                                 KEY_STAY            = "stay",
                                 KEY_FADE_OUT        = "fade_out",
+                                KEY_ON_GROUND       = "on_ground",
+                                KEY_NAME            = "name",
+                                KEY_VISIBLE         = "visible",
+                                KEY_STYLE           = "style",
+                                KEY_COLOR           = "color",
+                                KEY_FOG             = "fog",
+                                KEY_DARKEN          = "darken",
+                                KEY_MUSIC           = "music",
+                                KEY_PROGRESS        = "progress",
+                                KEY_LOCATION        = "location",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -71,6 +88,7 @@ public class ActionCompiler {
 
                                 VALUE_SET_GOAL              = "set_goal",
                                 VALUE_SPAWN                 = "spawn",
+                                VALUE_SPAWN_RELATIVE        = "spawn_relative",
                                 VALUE_DESPAWN               = "despawn",
                                 VALUE_STOP_TALK             = "stop_talk",
                                 VALUE_TALK                  = "talk",
@@ -91,7 +109,11 @@ public class ActionCompiler {
                                 VALUE_MUSIC_STOP            = "stop_sound",
                                 VALUE_GIVE_CHEST            = "give_chest",
                                 VALUE_RAIN_ITEM             = "rain_item",
-                                VALUE_TITLE                 = "title";
+                                VALUE_TITLE                 = "title",
+                                VALUE_ACTION_BAR            = "action_bar",
+                                VALUE_BOSS_BAR_ADD          = "boss_bar_add",
+                                VALUE_BOSS_BAR_REMOVE       = "boss_bar_remove",
+                                VALUE_BOSS_BAR_EDIT         = "boss_bar_edit";
 
 
     public static Collection<Action> compile(JsonObject jsonData) {
@@ -158,6 +180,22 @@ public class ActionCompiler {
                 int lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
                 //TODO: optional - set Goal
                 action = new SpawnAction(factories, lifespan);
+                break;
+            case VALUE_SPAWN_RELATIVE:
+                factories = VirtualEntityFactoryCompiler.compile(jsonObject);
+                if(factories.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_SPAWN_RELATIVE+" action. Missing entity factory.");
+                    return Optional.empty();
+                }
+                lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
+                Location location = LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null);
+                if(location !=null) {
+                    factories.forEach(factory -> factory.withLocation(location));
+                }
+                boolean onGround = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_ON_GROUND),true);
+                McmeEntitySelector mcmeEntitySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                //TODO: optional - set Goal
+                action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
@@ -318,7 +356,7 @@ public class ActionCompiler {
                 }
                 break;
             case VALUE_FIREWORK:
-                Location location = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
+                location = LocationCompiler.compile(jsonObject.get(KEY_TARGET)).orElse(null);
                 FireworkMeta fireworkMeta = FireworkMetaCompiler.compile(jsonObject);
                 /*if(fireworkMeta == null) {
                     DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_FIREWORK+" action. Missing firework meta.");
@@ -417,6 +455,57 @@ public class ActionCompiler {
                 int stay = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_STAY),70);
                 int fadeout = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_FADE_OUT),20);
                 action = new TitleAction(playerSelector,title,subtitle,fadeIn,stay,fadeout);
+                break;
+            case VALUE_BOSS_BAR_ADD:
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                String name = PrimitiveCompiler.compileString(jsonObject.get(KEY_NAME),null);
+                if(name==null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_BOSS_BAR_ADD+" action. Missing bar name.");
+                    return Optional.empty();
+                }
+                NamespacedKey barKey = new NamespacedKey(MCMEScripts.getInstance(),name);
+                BossBar bar = Bukkit.getBossBar(barKey);
+                title = PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),null);
+                Boolean fog = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_FOG),null);
+                Boolean dark = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_DARKEN),null);
+                Boolean music = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_MUSIC),null);
+                Double progress = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_PROGRESS),null);
+                Boolean visible = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_VISIBLE),null);
+                BarColor color = BossBarCompiler.compileBarColor(jsonObject.get(KEY_COLOR));
+                BarStyle style = BossBarCompiler.compileBarStyle(jsonObject.get(KEY_STYLE));
+                if(bar == null) {
+                    BarFlag[] flags = BossBarCompiler.compileBarFlags(fog,dark,music);
+                    if(color == null) color = BarColor.RED;
+                    if(style == null) style = BarStyle.SOLID;
+                    bar = Bukkit.createBossBar(barKey, title, color, style, flags);
+                }
+                BossBarEditAction.editBar(bar,title,style,color,fog,dark,music,progress,visible);
+                action = new BossBarAddAction(playerSelector, bar);
+                break;
+            case VALUE_BOSS_BAR_EDIT:
+                name = PrimitiveCompiler.compileString(jsonObject.get(KEY_NAME),null);
+                if(name==null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_BOSS_BAR_EDIT+" action. Missing bar name.");
+                    return Optional.empty();
+                }
+                action = new BossBarEditAction(new NamespacedKey(MCMEScripts.getInstance(),name),
+                                                PrimitiveCompiler.compileString(jsonObject.get(KEY_TITLE),null),
+                                                BossBarCompiler.compileBarColor(jsonObject.get(KEY_COLOR)),
+                                                BossBarCompiler.compileBarStyle(jsonObject.get(KEY_STYLE)),
+                                                PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_FOG),null),
+                                                PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_DARKEN),null),
+                                                PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_MUSIC),null),
+                                                PrimitiveCompiler.compileDouble(jsonObject.get(KEY_PROGRESS),null),
+                                                PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_VISIBLE),null));
+                break;
+            case VALUE_BOSS_BAR_REMOVE:
+                name = PrimitiveCompiler.compileString(jsonObject.get(KEY_NAME),null);
+                if(name==null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_BOSS_BAR_REMOVE+" action. Missing bar name.");
+                    return Optional.empty();
+                }
+                playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                action = new BossBarRemoveAction(playerSelector, new NamespacedKey(MCMEScripts.getInstance(),name));
                 break;
             default:
                 return Optional.empty();

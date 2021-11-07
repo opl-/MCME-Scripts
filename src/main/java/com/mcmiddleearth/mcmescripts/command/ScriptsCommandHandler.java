@@ -82,6 +82,12 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                                         .forEach(trigger -> suggestionsBuilder.suggest(trigger.getName()));
                             }
                             return suggestionsBuilder.buildFuture();})))
+                        .executes(context -> {
+                            MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
+                                    context.getArgument("name",String.class),
+                                    new String[0]);
+                            return 0;
+                        })
                         .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
                             .executes(context -> {
                                 MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),

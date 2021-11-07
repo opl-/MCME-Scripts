@@ -4,6 +4,19 @@ import com.google.gson.JsonElement;
 
 public class PrimitiveCompiler {
 
+    public static Double compileDouble(JsonElement element, Double defaultValue) {
+        if(element==null || !element.isJsonPrimitive()) {
+            return defaultValue;
+        } else {
+            try {
+                return Double.parseDouble(element.getAsString());
+            } catch(NumberFormatException ex) {
+                return defaultValue;
+            }
+        }
+
+    }
+
     public static double compileDouble(JsonElement element, double defaultValue) {
         if(element==null || !element.isJsonPrimitive()) {
             return defaultValue;
@@ -29,7 +42,7 @@ public class PrimitiveCompiler {
         }
     }
 
-    public static boolean compileBoolean(JsonElement element, boolean defaultValue) {
+    public static Boolean compileBoolean(JsonElement element, Boolean defaultValue) {
         if(element==null || !element.isJsonPrimitive()) {
             return defaultValue;
         } else {

@@ -23,14 +23,18 @@ public class SpawnAction extends Action  {
 
     private final int lifespan;
 
-    public SpawnAction(List<VirtualEntityFactory> factory, int lifespan) {
-        this.factories = factory;
+    public SpawnAction(List<VirtualEntityFactory> factories, int lifespan) {
+        this.factories = factories;
         this.lifespan = lifespan;
-        DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ factories.size());
+        DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ this.factories.size());
     }
 
     @Override
     protected void handler(TriggerContext context) {
+        spawnEntity(context, factories, lifespan);
+    }
+
+    public static void spawnEntity(TriggerContext context, List<VirtualEntityFactory> factories, int lifespan) {
         Set<McmeEntity> entities = new HashSet<>();
         factories.forEach(factory -> {
             try {
