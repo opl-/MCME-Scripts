@@ -10,6 +10,13 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
@@ -23,28 +30,35 @@ public class SpawnAction extends Action  {
 
     private final int lifespan;
 
-    public SpawnAction(List<VirtualEntityFactory> factories, int lifespan) {
+    private final boolean serverSide;
+
+    public SpawnAction(List<VirtualEntityFactory> factories, int lifespan, boolean serverSide) {
         this.factories = factories;
         this.lifespan = lifespan;
+        this.serverSide = serverSide;
         DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ this.factories.size());
     }
 
     @Override
     protected void handler(TriggerContext context) {
-        spawnEntity(context, factories, lifespan);
+        spawnEntity(context, factories, lifespan, serverSide);
     }
 
-    public static void spawnEntity(TriggerContext context, List<VirtualEntityFactory> factories, int lifespan) {
+    public static void spawnEntity(TriggerContext context, List<VirtualEntityFactory> factories, int lifespan, boolean serverSide) {
         Set<McmeEntity> entities = new HashSet<>();
         factories.forEach(factory -> {
             try {
                 DebugManager.verbose(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
                 String name = context.getName();
                 if(name!=null) factory.withDisplayName(name);
-                McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
-                context.getScript().addEntity(entity);
-                context.withEntity(entity);
-                entities.add(entity);
+                if(serverSide) {
+                    spawnRealEntity(factory);
+                } else {
+                    McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
+                    context.getScript().addEntity(entity);
+                    context.withEntity(entity);
+                    entities.add(entity);
+                }
             } catch (InvalidLocationException | InvalidDataException e) {
                 e.printStackTrace();
             }
@@ -58,5 +72,19 @@ public class SpawnAction extends Action  {
                 }
             }.runTaskLater(MCMEScripts.getInstance(), lifespan);
         }
+    }
+
+    public static void spawnRealEntity(VirtualEntityFactory factory) {
+        EntityType type = factory.getType().getBukkitEntityType();
+        Location loc = factory.getLocation();
+        if(type != null && loc != null && loc.getWorld() !=null) {
+            Entity entity = loc.getWorld().spawnEntity(loc,type, CreatureSpawnEvent.SpawnReason.CUSTOM);
+            if(entity instanceof Horse) {
+                Horse horse = (Horse) entity;
+                horse.setTamed(true);
+                horse.getInventory().setSaddle(new ItemStack(Material.SADDLE));
+            }
+        }
+
     }
 }

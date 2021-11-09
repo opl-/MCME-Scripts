@@ -20,7 +20,7 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
     public SpawnRelativeAction(Selector<McmeEntity> selector, List<VirtualEntityFactory> factories, int lifespan, boolean onGround,
                                McmeEntitySelector goalTargetSelector, VirtualEntityGoalFactory goalFactory,
-                               Location location, Location[] waypoints) {
+                               Location location, Location[] waypoints, boolean serverSide) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRelativeAction.class),"Selected entity: "+entity.getName());
             if (goalFactory !=null) {
@@ -48,7 +48,7 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 //Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                 }
             });
-            SpawnAction.spawnEntity(context,factories,lifespan);
+            SpawnAction.spawnEntity(context,factories,lifespan,serverSide);
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }

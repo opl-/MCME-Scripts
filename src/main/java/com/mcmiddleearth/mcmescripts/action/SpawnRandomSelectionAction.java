@@ -55,8 +55,11 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
         public static final Random random = new Random();
 
-        public RandomSpawnData(List<Choice> choices) {
+        private final boolean serverSide;
+
+        public RandomSpawnData(List<Choice> choices, boolean serverSide) {
             this.choices = choices;
+            this.serverSide = serverSide;
         }
 
         public void spawn(TriggerContext context, Location center, int lifespan) {
@@ -124,10 +127,14 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                                     factory.withLocation(spawnLocations[finalI]);
                                     if(name!=null) factory.withDisplayName(name);
 //Logger.getGlobal().info("Factory type Action: "+factory.getType());
-                                    McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
-//Logger.getGlobal().info("Spawn done!");
-                                    context.getScript().addEntity(entity);
-                                    entities.add(entity);
+                                    if(serverSide) {
+                                        SpawnAction.spawnRealEntity(factory);
+                                    } else {
+                                        McmeEntity entity = EntitiesPlugin.getEntityServer().spawnEntity(factory);
+                                        //Logger.getGlobal().info("Spawn done!");
+                                        context.getScript().addEntity(entity);
+                                        entities.add(entity);
+                                    }
 //Logger.getGlobal().info("Execute spawn: " + factory.getLocation());
                                 } catch (InvalidLocationException | InvalidDataException e) {
                                     e.printStackTrace();

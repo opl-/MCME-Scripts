@@ -82,6 +82,7 @@ public class ActionCompiler {
                                 KEY_PROGRESS        = "progress",
                                 KEY_LOCATION        = "location",
                                 KEY_CHECKPOINTS     = "checkpoints",
+                                KEY_SERVER_SIDE     = "server_side",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
@@ -179,8 +180,9 @@ public class ActionCompiler {
                     return Optional.empty();
                 }
                 int lifespan = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LIFESPAN),-1);
+                boolean serverSide = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_SERVER_SIDE),false);
                 //TODO: optional - set Goal
-                action = new SpawnAction(factories, lifespan);
+                action = new SpawnAction(factories, lifespan, serverSide);
                 break;
             case VALUE_SPAWN_RELATIVE:
                 factories = VirtualEntityFactoryCompiler.compile(jsonObject);
@@ -213,8 +215,9 @@ public class ActionCompiler {
                 goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
                 McmeEntitySelector mcmeEntitySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 //TODO: optional - set Goal
+                serverSide = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_SERVER_SIDE),false);
                 action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround,
-                                                 goalTargetSelector, goalFactory, location, checkpoints);
+                                                 goalTargetSelector, goalFactory, location, checkpoints, serverSide);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
@@ -412,7 +415,8 @@ public class ActionCompiler {
                 int maxRadius = PrimitiveCompiler.compileUpperInt(jsonObject.get(KEY_RADIUS),10);
                 int minQuantity = PrimitiveCompiler.compileLowerInt(jsonObject.get(KEY_QUANTITY),2);
                 int maxQuantity = PrimitiveCompiler.compileUpperInt(jsonObject.get(KEY_QUANTITY),5);
-                SpawnRandomSelectionAction.RandomSpawnData randomSpawnData = new SpawnRandomSelectionAction.RandomSpawnData(choices)
+                serverSide = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_SERVER_SIDE),false);
+                SpawnRandomSelectionAction.RandomSpawnData randomSpawnData = new SpawnRandomSelectionAction.RandomSpawnData(choices, serverSide)
                         .withMinQuantity(minQuantity).withMaxQuantity(maxQuantity)
                         .withMinRadius(minRadius).withMaxRadius(maxRadius)
                         .withProbability(probability).withGroup(group);
