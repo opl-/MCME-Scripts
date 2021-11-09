@@ -19,9 +19,9 @@ public class DebugManager {
 
     public static void open() {
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule()))
-                .forEach(module -> debugModules.put(module.getModule(),Level.WARNING));
+                .forEach(module -> debugModules.put(module.getModule(),Level.INFO));
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule().split("\\.")[0]))
-                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.WARNING));
+                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.INFO));
         if(logFile.exists()) {
             if(!logFile.delete()) {
                 Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Can't delete old log file!");

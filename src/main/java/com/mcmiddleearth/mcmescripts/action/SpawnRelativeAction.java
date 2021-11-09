@@ -68,13 +68,18 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
     private static Vector rotate(Vector vector, McmeEntity entity) {
         float yaw = entity.getYaw();
+        while(yaw < -180) yaw += 360; while(yaw > 180) yaw -= 360;
         if(yaw < -135 || yaw > 135) {
+//Logger.getGlobal().info("North: "+yaw+" "+new Vector(-vector.getX(),vector.getY(),-vector.getZ()));
             return new Vector(-vector.getX(),vector.getY(),-vector.getZ());
         } else if(yaw < -45) {
+//Logger.getGlobal().info("East: "+yaw+" "+new Vector(vector.getZ(),vector.getY(),-vector.getX()));
             return new Vector(vector.getZ(),vector.getY(),-vector.getX());
         } else if(yaw > 45) {
+//Logger.getGlobal().info("West: "+yaw+" "+new Vector(-vector.getZ(),vector.getY(),vector.getX()));
             return new Vector(-vector.getZ(),vector.getY(),vector.getX());
         } else {
+//Logger.getGlobal().info("South: "+yaw+" "+vector);
             return vector;
         }
     }

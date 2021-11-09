@@ -26,6 +26,7 @@ public class PotionEffectCompiler {
         JsonElement typeJson = jsonElement.getAsJsonObject().get(KEY_TYPE);
         if(!(typeJson instanceof JsonPrimitive)) return null;
         PotionEffectType type = PotionEffectType.getByName(typeJson.getAsString().toUpperCase());
+        if(type == null) return null;
 //Logger.getGlobal().info("3: "+typeJson.getAsString()+" "+type);
         JsonElement durationJson = jsonElement.getAsJsonObject().get(KEY_DURATION);
         int duration = 200;

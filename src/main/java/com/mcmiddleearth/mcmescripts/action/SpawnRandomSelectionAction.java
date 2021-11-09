@@ -51,7 +51,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
         private Selector<McmeEntity> goalTargetSelector = null;
 
-        private double probability = 0.1;
+        private double probability = 1;
 
         public static final Random random = new Random();
 
