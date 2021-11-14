@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcmescripts.script;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
@@ -47,8 +48,12 @@ public class Script {
 
     private JsonObject loadJsonData(File dataFile) throws IOException {
         try (FileReader reader = new FileReader(dataFile)) {
-            return new JsonParser().parse(new JsonReader(reader)).getAsJsonObject();
+            JsonElement element =  new JsonParser().parse(new JsonReader(reader));
+            if(element instanceof JsonObject) {
+                return element.getAsJsonObject();
+            }
         }
+        return null;
     }
 
     public void load() throws IOException {

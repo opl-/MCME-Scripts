@@ -96,6 +96,7 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                                 return 0;
                             })))))
             .then(HelpfulLiteralBuilder.literal("import")
+                .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulRequiredArgumentBuilder.argument("type",word())
                     .suggests((commandContext, suggestionsBuilder) -> suggestionsBuilder.suggest("animations").suggest("entities").suggest("scripts").buildFuture())
                     .then(HelpfulRequiredArgumentBuilder.argument("file",word())
@@ -110,6 +111,7 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                             return 0;
                         }))))
             .then(HelpfulLiteralBuilder.literal("export")
+                .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulRequiredArgumentBuilder.argument("type",word())
                     .suggests((commandContext, suggestionsBuilder) -> suggestionsBuilder.suggest("animations").suggest("entities").suggest("scripts").buildFuture())
                     .then(HelpfulRequiredArgumentBuilder.argument("file",word())
@@ -122,7 +124,16 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                                 e.printStackTrace();
                             }
                             return 0;
-                        }))));
+                        }))
+                .then(HelpfulLiteralBuilder.literal("debug"))
+                    .executes(context -> {
+                        try {
+                            DriveUtil.exportFile(context.getSource(),"scripts","debug.txt");
+                        } catch (IOException | GeneralSecurityException e) {
+                            e.printStackTrace();
+                        }
+                        return 0;
+                    })));
         return commandNodeBuilder;
     }
 

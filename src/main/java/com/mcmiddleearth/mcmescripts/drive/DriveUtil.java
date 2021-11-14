@@ -197,7 +197,7 @@ public class DriveUtil {
         String parentId = getParentId(parent);
         java.io.File localFile = getLocalFile(parent, filename);
         if(parentId == null || localFile == null) {
-            sender.sendMessage(new ComponentBuilder().append("Import Failed.").color(ChatColor.RED).create());
+            sender.sendMessage(new ComponentBuilder().append("Export Failed.").color(ChatColor.RED).create());
             return;
         }
         // Build a new authorized API client service.
@@ -235,8 +235,9 @@ public class DriveUtil {
                             .build();
 
                     File fileMetadata = new File();
-                    fileMetadata.setName(filename+".json")
-                            .setParents(Collections.singletonList(parentId)); //animations
+                    if(filename.equals("debug.txt")) fileMetadata.setName(filename);
+                    else fileMetadata.setName(filename+".json");
+                    fileMetadata.setParents(Collections.singletonList(parentId)); //animations
                     //java.io.File filePath = new java.io.File(MCMEScripts.getInstance().getDataFolder(),filename+".json");
                     if(!localFile.exists()) {
                         localFile.createNewFile();
@@ -334,6 +335,7 @@ public class DriveUtil {
             case "entities":
                 return new java.io.File(EntitiesPlugin.getEntitiesFolder(),filename + ".json");
             case "scripts":
+                if(filename.equals("debug.txt")) return new java.io.File(MCMEScripts.getInstance().getDataFolder(), filename);
                 return new java.io.File(ScriptManager.getScriptFolder(),filename + ".json");
         }
         return null;
