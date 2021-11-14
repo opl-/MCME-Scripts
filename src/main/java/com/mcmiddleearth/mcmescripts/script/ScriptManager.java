@@ -32,7 +32,7 @@ public class ScriptManager {
         for(File file : scriptFolder.listFiles(((dir, name) -> name.endsWith(".json")))) {
             try {
                 addScript(file);
-            } catch (IOException | IllegalStateException | JsonSyntaxException e) {
+            } catch (NullPointerException | IOException | IllegalStateException | JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }

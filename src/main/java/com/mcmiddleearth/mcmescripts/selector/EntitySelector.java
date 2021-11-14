@@ -263,7 +263,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
                     Location finalLoc = loc;
                     sort = sort.stream()
                             .filter(element -> {
-                                if(!finalLoc.getWorld().equals(element.getContent().getWorld())) return false;
+                                if(finalLoc.getWorld()==null
+                                        || !finalLoc.getWorld().equals(element.getContent().getWorld())) return false;
                                 element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
 //DebugManager.log(Modules.Selector.select(this.getClass()),"Element distance: " + element.getValue());
                                 return minDistanceSquared <= element.getValue()

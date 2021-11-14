@@ -3,6 +3,7 @@ package com.mcmiddleearth.mcmescripts.action;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.McmeEntity;
+import com.mcmiddleearth.entities.events.events.goal.GoalFinishedEvent;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
@@ -23,28 +24,40 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                                Location location, Location[] waypoints, boolean serverSide) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRelativeAction.class),"Selected entity: "+entity.getName());
-            if (goalFactory !=null) {
-                List<McmeEntity> goalTargets = goalTargetSelector.select(context);
-                if(!goalTargets.isEmpty()) {
+            McmeEntity tempGoalTarget = null;
+            List<McmeEntity> goalTargets = goalTargetSelector.select(context);
+            if(!goalTargets.isEmpty()) {
+                tempGoalTarget = goalTargets.get(0);
 //DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget entity: "+goalTargets.get(0));
-                    goalFactory.withTargetEntity(goalTargets.get(0));
-                }
+                //goalFactory.withTargetEntity(goalTargets.get(0));
             }
+            McmeEntity goalTarget = tempGoalTarget;
+            /*if(tempFactory==null) {
+                tempfactory = entity.
+            }
+            if (goalFactory !=null) {
+            }*/
             factories.forEach(factory -> {
                 if(location!=null) {
                     Location loc = entity.getLocation().clone().add(rotate(location.toVector(),entity));
                     factory.withLocation(findSafe(loc,onGround));
                 }
-                if(goalFactory!=null) {
-                    factory.withGoalFactory(goalFactory);
+                VirtualEntityGoalFactory tempGoalFactory = goalFactory;
+                if(tempGoalFactory!=null) {
+                    factory.withGoalFactory(tempGoalFactory);
+                } else {
+                    tempGoalFactory = factory.getGoalFactory();
                 }
-                if(factory.getGoalFactory()!=null && waypoints != null) {
+                if(tempGoalFactory != null && goalTarget!=null) {
+                    tempGoalFactory.withTargetEntity(goalTarget);
+                }
+                if(tempGoalFactory!=null && waypoints != null) {
                     Location[] checkpoints = new Location[waypoints.length];
                     for (int i = 0; i < waypoints.length; i++) {
                         checkpoints[i] = findSafe(entity.getLocation().clone()
                                                         .add(rotate(waypoints[i].toVector(),entity)),onGround);
                     }
-                    factory.getGoalFactory().withCheckpoints(checkpoints);
+                    tempGoalFactory.withCheckpoints(checkpoints);
 //Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                 }
             });
