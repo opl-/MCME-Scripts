@@ -214,10 +214,11 @@ public class ActionCompiler {
                 }
                 goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
                 McmeEntitySelector mcmeEntitySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
-                //TODO: optional - set Goal
+                int quantity = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_QUANTITY),1);
                 serverSide = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_SERVER_SIDE),false);
+
                 action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround,
-                                                 goalTargetSelector, goalFactory, location, checkpoints, serverSide);
+                                                 goalTargetSelector, goalFactory, location, checkpoints, serverSide, quantity);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
