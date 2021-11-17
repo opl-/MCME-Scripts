@@ -74,15 +74,19 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
     private static Location findSafe(Location location, boolean onGround) {
         Block block = location.getBlock();
-        while(!(block.isPassable() && block.getRelative(BlockFace.UP).isPassable()) && block.getY()-location.getBlockY()<10) {
+        while(!(isSafe(block) && isSafe(block.getRelative(BlockFace.UP))) && block.getY()-location.getBlockY()<10) {
             block = block.getRelative(BlockFace.UP);
         }
         if(onGround) {
-            while ((block.isPassable() && block.getRelative(BlockFace.DOWN).isPassable()) && block.getY() - location.getBlockY() > -10) {
+            while ((isSafe(block) && isSafe(block.getRelative(BlockFace.DOWN))) && block.getY() - location.getBlockY() > -10) {
                 block = block.getRelative(BlockFace.DOWN);
             }
         }
         return block.getLocation().add(new Vector(0.5,0,0.5));
+    }
+
+    private static boolean isSafe(Block block) {
+        return block.isPassable() && !block.isLiquid();
     }
 
     private static Vector rotate(Vector vector, McmeEntity entity) {
