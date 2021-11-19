@@ -10,11 +10,13 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.Permission;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.drive.DriveUtil;
+import com.mcmiddleearth.mcmescripts.listener.WandItemListener;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import com.mcmiddleearth.mcmescripts.trigger.ExternalTrigger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,12 +70,13 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                 .executes(context -> {
                     MCMEScripts.getInstance().enableScripts();
                     return 0; }))
-            .then(HelpfulLiteralBuilder.literal("external")
+            .then(HelpfulLiteralBuilder.literal("wand")
+                .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender() instanceof Player)
                 .then(HelpfulRequiredArgumentBuilder.argument("script",word())
                     .suggests(((commandContext, suggestionsBuilder) -> {
-                            MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
-                                       .forEach(script -> suggestionsBuilder.suggest(script.getName()));
-                            return suggestionsBuilder.buildFuture();}))
+                        MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
+                                .forEach(script -> suggestionsBuilder.suggest(script.getName()));
+                        return suggestionsBuilder.buildFuture();}))
                     .then(HelpfulRequiredArgumentBuilder.argument("name",word())
                         .suggests((((commandContext, suggestionsBuilder) -> {
                             Script script = MCMEScripts.getScriptManager().getScript(commandContext.getArgument("script",String.class));
@@ -83,18 +86,48 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                             }
                             return suggestionsBuilder.buildFuture();})))
                         .executes(context -> {
-                            MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
-                                    context.getArgument("name",String.class),
-                                    new String[0]);
+                            Player player = (Player) ((ScriptsCommandSender)context.getSource()).getCommandSender();
+                            WandItemListener.addScript(player.getInventory().getItemInMainHand(),
+                                    context.getArgument("script", String.class) + " "
+                                            + context.getArgument("name", String.class));
                             return 0;
                         })
                         .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
                             .executes(context -> {
-                                MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
-                                                                             context.getArgument("name",String.class),
-                                                                             context.getArgument("arguments",String.class).split(" "));
+                                Player player = (Player) ((ScriptsCommandSender)context.getSource()).getCommandSender();
+                                WandItemListener.addScript(player.getInventory().getItemInMainHand(),
+                                        context.getArgument("script", String.class) + " "
+                                               + context.getArgument("name", String.class) + " "
+                                               + context.getArgument("arguments", String.class));
                                 return 0;
                             })))))
+            .then(HelpfulLiteralBuilder.literal("external")
+                    .then(HelpfulRequiredArgumentBuilder.argument("script",word())
+                            .suggests(((commandContext, suggestionsBuilder) -> {
+                                MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
+                                        .forEach(script -> suggestionsBuilder.suggest(script.getName()));
+                                return suggestionsBuilder.buildFuture();}))
+                            .then(HelpfulRequiredArgumentBuilder.argument("name",word())
+                                    .suggests((((commandContext, suggestionsBuilder) -> {
+                                        Script script = MCMEScripts.getScriptManager().getScript(commandContext.getArgument("script",String.class));
+                                        if(script!=null) {
+                                            script.getTriggers().stream().filter(trigger->trigger instanceof ExternalTrigger)
+                                                    .forEach(trigger -> suggestionsBuilder.suggest(trigger.getName()));
+                                        }
+                                        return suggestionsBuilder.buildFuture();})))
+                                    .executes(context -> {
+                                        MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
+                                                context.getArgument("name",String.class),
+                                                new String[0]);
+                                        return 0;
+                                    })
+                                    .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
+                                            .executes(context -> {
+                                                MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
+                                                        context.getArgument("name",String.class),
+                                                        context.getArgument("arguments",String.class).split(" "));
+                                                return 0;
+                                            })))))
             .then(HelpfulLiteralBuilder.literal("import")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulRequiredArgumentBuilder.argument("type",word())

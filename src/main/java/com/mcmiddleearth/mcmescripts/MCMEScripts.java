@@ -3,6 +3,7 @@ package com.mcmiddleearth.mcmescripts;
 import com.mcmiddleearth.mcmescripts.command.ScriptsCommandHandler;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.listener.PlayerListener;
+import com.mcmiddleearth.mcmescripts.listener.WandItemListener;
 import com.mcmiddleearth.mcmescripts.script.ScriptManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ public final class MCMEScripts extends JavaPlugin {
         timedTriggerManager = new TimedTriggerManager();
         externalTriggerManager = new ExternalTriggerManager();
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
+        Bukkit.getPluginManager().registerEvents(new WandItemListener(),this);
         enableScripts();
         //BukkitAudiences.create(this);
         setExecutor("scripts", new ScriptsCommandHandler("scripts"));
