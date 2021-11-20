@@ -2,7 +2,6 @@ package com.mcmiddleearth.mcmescripts.compiler;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
 import com.mcmiddleearth.mcmescripts.condition.*;
@@ -11,15 +10,11 @@ import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityConditio
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
-import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
-import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 
 import java.util.HashSet;
 import java.util.Optional;

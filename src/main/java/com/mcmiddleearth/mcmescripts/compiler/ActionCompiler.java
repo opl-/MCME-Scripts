@@ -13,6 +13,7 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.looting.ItemChoice;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
 
 public class ActionCompiler {
 
-    private static final String KEY_ACTION          = "action",
+    public static final String  KEY_ACTION          = "action",
                                 KEY_ACTION_ARRAY    = "actions",
 
                                 KEY_ACTION_TYPE     = "type",
@@ -314,7 +315,7 @@ public class ActionCompiler {
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 Set<ItemStack> items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                Set<ItemGiveAction.ItemChoice> itemChoices = compileItemChoices(jsonObject).orElse(new HashSet<>());
+                Set<ItemChoice> itemChoices = LootTableCompiler.compileItemChoices(jsonObject).orElse(new HashSet<>());
                 if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
                 EquipmentSlot slot = null;
                 JsonElement slotJson = jsonObject.get(KEY_SLOT);
@@ -569,20 +570,4 @@ public class ActionCompiler {
         return Collections.emptySet();
     }
 
-    private static Optional<Set<ItemGiveAction.ItemChoice>> compileItemChoices(JsonObject jsonObject) {
-        Set<ItemGiveAction.ItemChoice> itemChoices = new HashSet<>();
-        JsonElement itemChoicesJson = jsonObject.get(KEY_CHOICES);
-        if(itemChoicesJson instanceof JsonArray) {
-            itemChoicesJson.getAsJsonArray().forEach(element -> {
-                if(element instanceof JsonObject) {
-                    int weight = PrimitiveCompiler.compileInteger(element.getAsJsonObject().get(KEY_WEIGHT),10);
-                    Set<ItemStack> choiceItems = ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEM));
-                    choiceItems.addAll(ItemCompiler.compile(element.getAsJsonObject().get(KEY_ITEMS)));
-                    itemChoices.add(new ItemGiveAction.ItemChoice(weight,choiceItems));
-                }
-            });
-        }
-        if(itemChoices.isEmpty()) return Optional.empty();
-        return Optional.of(itemChoices);
-    }
 }

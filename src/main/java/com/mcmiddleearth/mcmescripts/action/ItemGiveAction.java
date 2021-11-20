@@ -7,6 +7,8 @@ import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.compiler.ItemCompiler;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.looting.ItemChoice;
+import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.NamespacedKey;
@@ -30,7 +32,9 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
                     + " Items: "+items.size()+ " Choices: "+choices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
             items.forEach(item -> giveItem(entity, context, item, slot, slotId, duration));
 
-            int weightSum = 0;
+            LootTable lootTable = new LootTable(choices);
+            lootTable.selectItems().forEach(item->giveItem(entity, context, item, slot, slotId, duration));
+            /*int weightSum = 0;
             for(ItemChoice choice: choices) {
                 weightSum+=choice.getWeight();
             }
@@ -42,7 +46,7 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
                     choice.getItems().forEach(item->giveItem(entity, context, item, slot, slotId, duration));
                     break;
                 }
-            }
+            }*/
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
                 + " item: "+items.size()+" Choices: "+choices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
@@ -76,23 +80,4 @@ Logger.getGlobal().info("has cmd: "+meta.hasCustomModelData());*/
         entity.addItem(item,slot,slotId);
     }
 
-    public static class ItemChoice {
-
-        private final int weight;
-
-        private final Set<ItemStack> items;
-
-        public ItemChoice(int weight, Set<ItemStack> items) {
-            this.weight = weight;
-            this.items = items;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public Set<ItemStack> getItems() {
-            return items;
-        }
-    }
 }

@@ -14,6 +14,7 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
+import com.mcmiddleearth.mcmescripts.utils.JsonUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -38,7 +39,7 @@ public class Script {
 
     public Script(File file) throws IOException {
         dataFile = file;
-        JsonObject jsonData = loadJsonData(dataFile);
+        JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
         name = ScriptCompiler.getName(jsonData).orElse(System.currentTimeMillis()+"_"+Math.random());
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
@@ -46,21 +47,11 @@ public class Script {
                 "Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
     }
 
-    private JsonObject loadJsonData(File dataFile) throws IOException {
-        try (FileReader reader = new FileReader(dataFile)) {
-            JsonElement element =  new JsonParser().parse(new JsonReader(reader));
-            if(element instanceof JsonObject) {
-                return element.getAsJsonObject();
-            }
-        }
-        return null;
-    }
-
     public void load() throws IOException {
         if(!active) {
             DebugManager.info(Modules.Script.load(this.getClass()),
                     "Name: "+name);
-            JsonObject jsonData = loadJsonData(dataFile);
+            JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
             active = true;
         }
