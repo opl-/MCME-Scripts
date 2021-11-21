@@ -1,8 +1,11 @@
 package com.mcmiddleearth.mcmescripts.action;
 
+import com.mcmiddleearth.entities.ai.goal.GoalJockey;
+import com.mcmiddleearth.entities.ai.goal.GoalType;
 import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.entities.api.VirtualEntityGoalFactory;
 import com.mcmiddleearth.entities.entities.McmeEntity;
+import com.mcmiddleearth.entities.entities.Placeholder;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
@@ -12,7 +15,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import java.util.List;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
@@ -48,12 +52,16 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         factory.withLocation(findSafe(loc, onGround));
                     }
                     VirtualEntityGoalFactory tempGoalFactory = goalFactory;
-                    if (tempGoalFactory != null) {
+Logger.getGlobal().info("Entity: "+entity.getName()+" spawn: "+factory.getType());
+                    if (tempGoalFactory != null && !factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY)) {
+Logger.getGlobal().info("use script GoalFactory");
                         factory.withGoalFactory(tempGoalFactory);
                     } else {
+Logger.getGlobal().info("use saved GoalFactory");
                         tempGoalFactory = factory.getGoalFactory();
                     }
-                    if (tempGoalFactory != null && goalTarget != null) {
+                    if (tempGoalFactory != null && goalTarget != null && !tempGoalFactory.getGoalType().equals(GoalType.JOCKEY)) {
+Logger.getGlobal().info("use script goal target: "+goalTarget.getName());
                         tempGoalFactory.withTargetEntity(goalTarget);
                     }
                     if (tempGoalFactory != null && waypoints != null) {
@@ -66,7 +74,22 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         //Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                     }
                 });
-                SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
+                Set<McmeEntity> entities = SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
+                new HashSet<McmeEntity>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
+                        .forEach(jockey -> {
+Logger.getGlobal().info("Found jockey!");
+                            GoalJockey goal = (GoalJockey)jockey.getGoal();
+                            McmeEntity placeholder = goal.getSteed();
+                            if(placeholder instanceof Placeholder) {
+Logger.getGlobal().info("Is Placeholder: "+placeholder.getUniqueId());
+                                UUID uuid = placeholder.getUniqueId();
+                                entities.stream().filter(steed -> steed.getUniqueId().equals(uuid)).findFirst()
+                                        .ifPresent(steed -> {
+Logger.getGlobal().info("Set Steed: "+steed.getName());
+                                            goal.setSteed(steed);
+                                        });
+                            }
+                        });
             }
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());

@@ -44,7 +44,7 @@ public class SpawnAction extends Action  {
         spawnEntity(context, factories, lifespan, serverSide);
     }
 
-    public static void spawnEntity(TriggerContext context, List<VirtualEntityFactory> factories, int lifespan, boolean serverSide) {
+    public static Set<McmeEntity> spawnEntity(TriggerContext context, List<VirtualEntityFactory> factories, int lifespan, boolean serverSide) {
         Set<McmeEntity> entities = new HashSet<>();
         factories.forEach(factory -> {
             try {
@@ -72,6 +72,7 @@ public class SpawnAction extends Action  {
                 }
             }.runTaskLater(MCMEScripts.getInstance(), lifespan);
         }
+        return entities;
     }
 
     public static void spawnRealEntity(VirtualEntityFactory factory) {
