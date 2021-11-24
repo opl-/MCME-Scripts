@@ -22,7 +22,7 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
     public SpawnRelativeAction(Selector<McmeEntity> selector, List<VirtualEntityFactory> factories, int lifespan, boolean onGround,
                                McmeEntitySelector goalTargetSelector, VirtualEntityGoalFactory goalFactory,
-                               Location location, Location[] waypoints, boolean serverSide, int quantity) {
+                               Location location, Location[] waypoints, boolean serverSide, int quantity, int xEdge, int spread) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRelativeAction.class),"Selected entity: "+entity.getName());
             McmeEntity tempGoalTarget = null;
@@ -38,11 +38,11 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
             }
             if (goalFactory !=null) {
             }*/
-            int edge = (int) Math.sqrt(quantity);
+            //int edge = (int) quantity/2;//Math.sqrt(quantity);
             for(int j = 0; j< quantity; j++) {
                 Location finalLocation;
                 if(location!=null) {
-                    finalLocation =location.clone().add(j % edge,0, j/edge);
+                    finalLocation =location.clone().add((j % xEdge)*spread,0, (j/xEdge)*spread);
                 } else {
                     finalLocation = null;
                 }
@@ -52,16 +52,13 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         factory.withLocation(findSafe(loc, onGround));
                     }
                     VirtualEntityGoalFactory tempGoalFactory = goalFactory;
-Logger.getGlobal().info("Entity: "+entity.getName()+" spawn: "+factory.getType());
+//Logger.getGlobal().info("Entity: "+entity.getName()+" spawn: "+factory.getType());
                     if (tempGoalFactory != null && !factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY)) {
-Logger.getGlobal().info("use script GoalFactory");
-                        factory.withGoalFactory(tempGoalFactory);
-                    } else {
-Logger.getGlobal().info("use saved GoalFactory");
+////Logger.getGlobal().info("use saved GoalFactory");
                         tempGoalFactory = factory.getGoalFactory();
                     }
                     if (tempGoalFactory != null && goalTarget != null && !tempGoalFactory.getGoalType().equals(GoalType.JOCKEY)) {
-Logger.getGlobal().info("use script goal target: "+goalTarget.getName());
+//Logger.getGlobal().info("use script goal target: "+goalTarget.getName());
                         tempGoalFactory.withTargetEntity(goalTarget);
                     }
                     if (tempGoalFactory != null && waypoints != null) {
@@ -77,15 +74,15 @@ Logger.getGlobal().info("use script goal target: "+goalTarget.getName());
                 Set<McmeEntity> entities = SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
                 new HashSet<McmeEntity>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
                         .forEach(jockey -> {
-Logger.getGlobal().info("Found jockey!");
+//Logger.getGlobal().info("Found jockey!");
                             GoalJockey goal = (GoalJockey)jockey.getGoal();
                             McmeEntity placeholder = goal.getSteed();
                             if(placeholder instanceof Placeholder) {
-Logger.getGlobal().info("Is Placeholder: "+placeholder.getUniqueId());
+//Logger.getGlobal().info("Is Placeholder: "+placeholder.getUniqueId());
                                 UUID uuid = placeholder.getUniqueId();
                                 entities.stream().filter(steed -> steed.getUniqueId().equals(uuid)).findFirst()
                                         .ifPresent(steed -> {
-Logger.getGlobal().info("Set Steed: "+steed.getName());
+//Logger.getGlobal().info("Set Steed: "+steed.getName());
                                             goal.setSteed(steed);
                                         });
                             }

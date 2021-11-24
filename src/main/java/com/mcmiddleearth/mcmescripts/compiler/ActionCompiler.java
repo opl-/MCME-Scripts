@@ -84,12 +84,16 @@ public class ActionCompiler {
                                 KEY_LOCATION        = "location",
                                 KEY_CHECKPOINTS     = "checkpoints",
                                 KEY_SERVER_SIDE     = "server_side",
+                                KEY_ENEMIES         = "enemies",
+                                KEY_X_EDGE          = "x_edge",
+                                KEY_SPREAD          = "spread",
 
 
                                 VALUE_REGISTER_TRIGGER      = "register_event",
                                 VALUE_UNREGISTER_TRIGGER    = "unregister_event",
 
                                 VALUE_SET_GOAL              = "set_goal",
+                                VALUE_SET_ENEMIES           = "set_enemies",
                                 VALUE_SPAWN                 = "spawn",
                                 VALUE_SPAWN_RELATIVE        = "spawn_relative",
                                 VALUE_DESPAWN               = "despawn",
@@ -174,6 +178,11 @@ public class ActionCompiler {
                 McmeEntitySelector goalTargetSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_GOAL_TARGET);
                 action = new SetGoalAction(goalFactoryOpt.get(), selector, goalTargetSelector);
                 break;
+            case VALUE_SET_ENEMIES:
+                selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
+                McmeEntitySelector enemySelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject, KEY_ENEMIES);
+                action = new SetEnemyAction(selector, enemySelector);
+                break;
             case VALUE_SPAWN:
                 List<VirtualEntityFactory> factories = VirtualEntityFactoryCompiler.compile(jsonObject);
                 if(factories.isEmpty()) {
@@ -218,8 +227,11 @@ public class ActionCompiler {
                 int quantity = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_QUANTITY),1);
                 serverSide = PrimitiveCompiler.compileBoolean(jsonObject.get(KEY_SERVER_SIDE),false);
 
+                int spreading = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_SPREAD),1);
+                int xEdge = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_X_EDGE),(int) Math.sqrt(quantity));
                 action = new SpawnRelativeAction(mcmeEntitySelector, factories, lifespan, onGround,
-                                                 goalTargetSelector, goalFactory, location, checkpoints, serverSide, quantity);
+                                                 goalTargetSelector, goalFactory, location, checkpoints, serverSide,
+                                                 quantity,xEdge, spreading);
                 break;
             case VALUE_DESPAWN:
                 selector = SelectorCompiler.compileVirtualEntitySelector(jsonObject);
