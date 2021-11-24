@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class ChestListener implements Listener {
 
-    private final Set<Location> openedChests = new HashSet<>();
+    private static final Set<Location> openedChests = new HashSet<>();
 
     private final LootTable lootTable;
 
@@ -44,17 +44,23 @@ public class ChestListener implements Listener {
             if(!openedChests.contains(((Chest)chestInventory.getHolder()).getLocation())) {
                 chestInventory.clear();
                 chestInventory.addItem(getLoot());
+                addChest(((Chest)chestInventory.getHolder()).getLocation());
                 openedChests.add(((Chest)chestInventory.getHolder()).getLocation());
                 saveOpenedChests();
             }
         }
     }
 
+    public static void addChest(Location location) {
+        openedChests.add(location);
+        saveOpenedChests();
+    }
+
     private ItemStack[] getLoot() {
         return lootTable.selectItems().toArray(new ItemStack[0]);
     }
 
-    private void saveOpenedChests() {
+    private static void saveOpenedChests() {
         try(PrintWriter writer = new PrintWriter(new FileOutputStream(openedChestFile))) {
             for(Location location: openedChests) {
                 writer.println(location.getWorld().getName()+","+location.getX()+","+location.getY()+","+location.getZ());

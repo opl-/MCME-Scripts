@@ -455,7 +455,9 @@ public class ActionCompiler {
                 duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),1200);
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                action = new GiveChestAction(mcmeSelector,items,duration);
+                itemChoices = LootTableCompiler.compileItemChoices(jsonObject).orElse(new HashSet<>());
+                if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
+                action = new GiveChestAction(mcmeSelector,items,itemChoices,duration);
                 break;
             case VALUE_RAIN_ITEM:
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
