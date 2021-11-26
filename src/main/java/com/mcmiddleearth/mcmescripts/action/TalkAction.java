@@ -16,11 +16,12 @@ public class TalkAction extends SelectingAction<VirtualEntity> {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(TalkAction.class),"Target entity: "+entity.getName());
 //Logger.getGlobal().info("layout line: "+ Arrays.toString(layout.getLines()));
+            SpeechBalloonLayout tempLayout = layout.clone();
             if(context.getMessage()!=null) {
-                layout.withMessage(context.getMessage());
+                tempLayout.withMessage(context.getMessage());
 //Logger.getGlobal().info("layout line message: "+ Arrays.toString(layout.getLines()));
             }
-            entity.say(layout);
+            entity.say(tempLayout);
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Message: "+ Joiner.on("/").join(layout.getLines()));
     }

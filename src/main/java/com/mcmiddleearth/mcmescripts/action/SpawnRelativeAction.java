@@ -52,9 +52,9 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         factory.withLocation(findSafe(loc, onGround));
                     }
                     VirtualEntityGoalFactory tempGoalFactory = goalFactory;
-//Logger.getGlobal().info("Entity: "+entity.getName()+" spawn: "+factory.getType());
-                    if (tempGoalFactory != null && !factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY)) {
-////Logger.getGlobal().info("use saved GoalFactory");
+//Logger.getGlobal().info("Action goal: "+(goalFactory==null?"null":goalFactory.getGoalType().name()));
+                    if (tempGoalFactory == null || factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY)) {
+//Logger.getGlobal().info("use saved GoalFactory: "+factory.getGoalFactory().getGoalType().name());
                         tempGoalFactory = factory.getGoalFactory();
                     }
                     if (tempGoalFactory != null && goalTarget != null && !tempGoalFactory.getGoalType().equals(GoalType.JOCKEY)) {
@@ -70,6 +70,7 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         tempGoalFactory.withCheckpoints(checkpoints);
                         //Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                     }
+                    factory.withGoalFactory(tempGoalFactory);
                 });
                 Set<McmeEntity> entities = SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
                 new HashSet<McmeEntity>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
