@@ -13,7 +13,7 @@ public class AnimationAction extends SelectingAction<VirtualEntity> {
             DebugManager.verbose(Modules.Action.execute(AnimationAction.class),"Selector: "+selector.getSelector()
                     + " Animation: "+animation);
             if(entity instanceof BakedAnimationEntity) {
-                ((BakedAnimationEntity)entity).setAnimation(animation, override);
+                ((BakedAnimationEntity)entity).setAnimation(animation, override,null,0);
             }
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()

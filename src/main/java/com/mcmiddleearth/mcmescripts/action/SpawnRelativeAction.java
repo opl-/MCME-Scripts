@@ -53,7 +53,7 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                     }
                     VirtualEntityGoalFactory tempGoalFactory = goalFactory;
 //Logger.getGlobal().info("Action goal: "+(goalFactory==null?"null":goalFactory.getGoalType().name()));
-                    if (tempGoalFactory == null || factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY)) {
+                    if (tempGoalFactory == null || (factory.getGoalFactory()!=null && factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY))) {
 //Logger.getGlobal().info("use saved GoalFactory: "+factory.getGoalFactory().getGoalType().name());
                         tempGoalFactory = factory.getGoalFactory();
                     }

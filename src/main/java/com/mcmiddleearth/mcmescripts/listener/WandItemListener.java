@@ -20,7 +20,7 @@ public class WandItemListener implements Listener {
 
     public static String SCRIPT_WAND = "script_wand";
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = false)
     public void onWandInteract(PlayerInteractEvent event) {
 //Logger.getGlobal().info("onWand");
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -52,7 +52,7 @@ public class WandItemListener implements Listener {
     public static boolean hasScript(ItemStack wand) {
         if(wand == null) return false;
         ItemMeta meta = wand.getItemMeta();
-        return meta.getPersistentDataContainer().has(new NamespacedKey(MCMEScripts.getInstance(),SCRIPT_WAND),
+        return meta !=null && meta.getPersistentDataContainer().has(new NamespacedKey(MCMEScripts.getInstance(),SCRIPT_WAND),
                 PersistentDataType.STRING);
     }
 
