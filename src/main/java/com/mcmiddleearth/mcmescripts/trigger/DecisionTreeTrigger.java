@@ -150,7 +150,13 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
     }
 
+    @Override
     public String toString() {
         return " CallOnce: "+isCallOnce()+"\nDecision node: \n"+decisionNode.toString();
+    }
+
+    @Override
+    public String print(String indent) {
+        return super.print(indent);
     }
 }

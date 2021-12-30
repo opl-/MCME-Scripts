@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmescripts.action;
 
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -24,5 +25,10 @@ public class SelectingAction<T> extends Action {
         List<T> selected = selector.select(context);
         DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
         selected.forEach(element -> executor.accept(element,context));
+    }
+
+    @Override
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Selector: "+selector.getSelector());
     }
 }

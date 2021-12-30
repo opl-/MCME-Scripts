@@ -11,6 +11,7 @@ import com.mcmiddleearth.mcmescripts.compiler.ScriptCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.TriggerCompiler;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.Trigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -44,7 +45,8 @@ public class Script {
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
         DebugManager.info(Modules.Script.create(this.getClass()),
-                "Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
+                //"Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
+                print(""));
     }
 
     public void load() throws IOException {
@@ -132,5 +134,39 @@ public class Script {
 
     public Set<Entity> getEntities() {
         return entities;
+    }
+
+    public Descriptor getDescriptor() {
+        return new Descriptor(this.getClass().getSimpleName())
+                               .addLine("Data file: "+dataFile.getName())
+                               .addLine("Met all conditions: "+metAllConditions)
+                               .addLine("Active: "+active);
+    }
+
+    public String print(String indent) {
+        String subIndent = DebugManager.INDENT;
+        StringBuilder builder = new StringBuilder();
+        builder.append(getDescriptor().print(indent));
+        if(!conditions.isEmpty()) {
+            builder.append(indent).append(subIndent).append("Conditions:").append("\n");
+            conditions.forEach(condition -> builder.append(condition.getDescriptor().print(indent+subIndent+subIndent)));
+        } else {
+            builder.append(indent).append(subIndent).append("Conditions: --none--").append("\n");
+        }
+        if(!triggers.isEmpty()) {
+            builder.append(indent).append(subIndent).append("Triggers:").append("\n");
+            triggers.forEach(trigger -> builder.append(trigger.print(indent+subIndent+subIndent)));
+        } else {
+            builder.append(indent).append(subIndent).append("Triggers: --none--").append("\n");
+        }
+        if(!entities.isEmpty()) {
+            builder.append(indent).append(subIndent).append("Triggers:").append("\n");
+            entities.forEach(entity -> builder.append(indent).append(subIndent).append(subIndent)
+                                              .append(entity.getName())
+                                              .append(" at ").append(entity.getLocation().toString()));
+        } else {
+            builder.append(indent).append(subIndent).append("Entities: --none--").append("\n");
+        }
+        return builder.toString();
     }
 }

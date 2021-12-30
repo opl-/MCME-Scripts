@@ -7,7 +7,7 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 import java.util.function.Function;
 
-public class SelectingCondition<T> implements Condition {
+public class SelectingCondition<T> extends Condition {
 
     private boolean matchAllSelected = false;
 

@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 public class DebugManager {
 
+    public static final String INDENT = "  ";
+
     private static Map<String,Level> debugModules = new HashMap<>();
 
     private static final File logFile = new File(MCMEScripts.getInstance().getDataFolder(),"debug.txt");
@@ -19,9 +21,9 @@ public class DebugManager {
 
     public static void open() {
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule()))
-                .forEach(module -> debugModules.put(module.getModule(),Level.INFO));
+                .forEach(module -> debugModules.put(module.getModule(),Level.SEVERE));
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule().split("\\.")[0]))
-                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.INFO));
+                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.SEVERE));
         if(logFile.exists()) {
             if(!logFile.delete()) {
                 Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Can't delete old log file!");

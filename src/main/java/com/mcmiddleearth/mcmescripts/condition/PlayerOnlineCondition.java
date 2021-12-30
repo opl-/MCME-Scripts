@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.function.Function;
 
-public class PlayerOnlineCondition implements Condition {
+public class PlayerOnlineCondition extends Condition {
 
     private final Function<Integer,Boolean> test;
     private final Selector<Player> selector;

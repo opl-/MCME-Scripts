@@ -4,7 +4,7 @@ import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-public class ServerDaytimeCondition implements Condition{
+public class ServerDaytimeCondition extends Condition{
 
     private final long startTick, endTick;
 

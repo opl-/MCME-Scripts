@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 @SuppressWarnings("rawtypes")
-public class VirtualEntityProximityCondition implements Condition {
+public class VirtualEntityProximityCondition extends Condition {
 
     private final Function<Integer,Boolean> test;
     private final String entityName;

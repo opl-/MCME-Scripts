@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.function.Function;
 
 @SuppressWarnings("rawtypes")
-public class PlayerProximityCondition implements Condition {
+public class PlayerProximityCondition extends Condition {
 
     private final Function<Integer,Boolean> test;
     private final String playerName;

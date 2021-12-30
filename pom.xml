@@ -6,7 +6,7 @@
 
     <groupId>com.mcmiddleearth</groupId>
     <artifactId>MCME-Scripts</artifactId>
-    <version>1.0-SNAPSHOT-200</version>
+    <version>1.0-SNAPSHOT-300</version>
     <packaging>jar</packaging>
 
     <name>MCME Scripts</name>

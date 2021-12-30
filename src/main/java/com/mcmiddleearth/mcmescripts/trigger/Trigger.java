@@ -3,6 +3,7 @@ package com.mcmiddleearth.mcmescripts.trigger;
 
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Location;
@@ -86,4 +87,18 @@ public abstract class Trigger {
     public void setName(String name) {
         this.name = name;
     }
+
+    public Descriptor getDescriptor() {
+        return new Descriptor(this.getClass().getSimpleName())
+                .addLine("Name: "+name)
+                .addLine("Call once: "+callOnce)
+                .addLine("Trigger entity: "+(entity!=null?entity.getName()+" at "+entity.getLocation().toString():"--none--"))
+                .addLine("Trigger player: "+(entity!=null?player.getName()+" at "+player.getLocation().toString():"--none--"))
+                .addLine("Trigger location: "+(entity!=null?location.toString():"--none--"));
+    }
+
+    public String print(String indent) {
+        return getDescriptor().print(indent);
+    }
+
 }

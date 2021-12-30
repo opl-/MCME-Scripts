@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 @SuppressWarnings("rawtypes")
-public class LocationProximityCondition implements Condition {
+public class LocationProximityCondition extends Condition {
 
     private final Function<Integer,Boolean> test;
     private final Location location;
