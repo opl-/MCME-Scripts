@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -10,11 +11,11 @@ import java.util.function.Function;
 
 public class PlayerOnlineCondition extends Condition {
 
-    private final Function<Integer,Boolean> test;
+    private final Criterion test;
     private final Selector<Player> selector;
 
     @SuppressWarnings({"unchecked","rawtypes"})
-    public PlayerOnlineCondition(Selector selector, Function<Integer,Boolean> test) {
+    public PlayerOnlineCondition(Selector selector, Criterion test) {
         this.selector = selector;
         this.test = test;
         DebugManager.info(Modules.Condition.create(this.getClass()),
@@ -31,6 +32,11 @@ public class PlayerOnlineCondition extends Condition {
     @Override
     public String toString() {
         return this.getClass().getSimpleName()+" Selector: "+selector.getSelector();
+    }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Selector: "+selector.getSelector())
+                                    .addLine("Criterion: "+test.getComparator()+test.getLimit());
     }
 
 }

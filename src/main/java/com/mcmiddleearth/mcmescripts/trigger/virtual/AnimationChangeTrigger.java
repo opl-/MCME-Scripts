@@ -5,6 +5,7 @@ import com.mcmiddleearth.entities.events.events.virtual.composite.BakedAnimation
 import com.mcmiddleearth.entities.events.handler.EntityEventHandler;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.EntitiesEventTrigger;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -36,5 +37,11 @@ public class AnimationChangeTrigger extends EntitiesEventTrigger {
                     "Entity: " + context.getEntity() + " Current: " + event.getCurrentAnimation()
                             + " Next: " + event.getNextAnimation());
         }
+    }
+
+    @Override
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Current animation: "+current)
+                                    .addLine("Next animation: "+next);
     }
 }

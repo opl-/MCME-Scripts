@@ -4,7 +4,9 @@ import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.condition.Criterion;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -15,11 +17,11 @@ import java.util.logging.Logger;
 @SuppressWarnings("rawtypes")
 public class VirtualEntityProximityCondition extends Condition {
 
-    private final Function<Integer,Boolean> test;
+    private final Criterion test;
     private final String entityName;
     private final Selector selector;
 
-    public VirtualEntityProximityCondition(String entityName, Selector selector, Function<Integer,Boolean> test) {
+    public VirtualEntityProximityCondition(String entityName, Selector selector, Criterion test) {
         this.selector = selector;
         this.entityName = entityName;
         this.test = test;
@@ -42,4 +44,9 @@ public class VirtualEntityProximityCondition extends Condition {
     public String toString() {
         return this.getClass().getSimpleName()+" Entity: "+entityName+" Selector: "+selector.getSelector();
     }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Criterion: "+test.getComparator()+test.getLimit());
+    }
+
 }

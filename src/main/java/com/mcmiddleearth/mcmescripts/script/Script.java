@@ -46,15 +46,16 @@ public class Script {
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
         DebugManager.info(Modules.Script.create(this.getClass()),
                 //"Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
-                print(""));
+                "Creating script: \n"+print(""));
     }
 
     public void load() throws IOException {
         if(!active) {
-            DebugManager.info(Modules.Script.load(this.getClass()),
-                    "Name: "+name);
             JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
+            DebugManager.info(Modules.Script.load(this.getClass()),
+                    //"Name: "+name);
+                    "Loading script ... \n"+getDescriptor().print(""));
             active = true;
         }
     }

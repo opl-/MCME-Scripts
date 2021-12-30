@@ -44,7 +44,9 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
     @Override
     public void call(TriggerContext context) {
+        context.getDescriptor().add(getDescriptor()).indent();
         decisionNode.call(context);
+        context.getDescriptor().outdent();
         super.call(context);
     }
 
@@ -75,16 +77,24 @@ public abstract class DecisionTreeTrigger extends Trigger {
         public void call(TriggerContext context) {
             DebugManager.info(Modules.Trigger.call(this.getClass()),
                     "Conditions: "+conditions.size()+" actions: "+actions.size()+" met all: "+metAllConditions);
+            context.getDescriptor().addLine("Checking conditions ...").indent();
             if(checkConditions(context)) {
+                context.getDescriptor().outdent().addLine("Condition check success! Executing actions: ").indent();
                 if(actions!=null) {
                     actions.forEach(action -> action.execute(context));
                 }
+                context.getDescriptor().outdent();
                 if(conditionSuccessTrigger!=null) {
+                    context.getDescriptor().addLine("Then: ").indent();
                     conditionSuccessTrigger.call(context);
+                    context.getDescriptor().outdent();
                 }
             } else {
+                context.getDescriptor().outdent().addLine("Condition check failed!");
                 if(conditionFailTrigger!=null) {
+                    context.getDescriptor().addLine("Else: ").indent();
                     conditionFailTrigger.call(context);
+                    context.getDescriptor().outdent();
                 }
             }
         }
@@ -157,6 +167,6 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
     @Override
     public String print(String indent) {
-        return super.print(indent);
+        //return super.print(indent);
     }
 }

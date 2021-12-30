@@ -4,6 +4,7 @@ import com.mcmiddleearth.entities.ai.goal.Goal;
 import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.entities.events.events.McmeEntityEvent;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -27,9 +28,12 @@ public class TriggerContext {
 
     private McmeEntityEvent entityEvent;
 
+    private final Descriptor descriptor;
+
     public TriggerContext(Trigger trigger) {//Script script) {
         //this.script = script;
         this.trigger = trigger;
+        descriptor = new Descriptor("Event Log:");
     }
 
     public TriggerContext(TriggerContext context) {
@@ -42,6 +46,7 @@ public class TriggerContext {
         this.location = context.location;
         this.entityEvent = context.entityEvent;
         this.name = context.name;
+        this.descriptor = context.descriptor;
     }
 
     public Trigger getTrigger() {
@@ -136,5 +141,13 @@ public class TriggerContext {
     public TriggerContext withGoal(Goal goal) {
         this.goal = goal;
         return this;
+    }
+
+    public String print(String indent) {
+        return descriptor.print(indent);
+    }
+
+    public Descriptor getDescriptor() {
+        return descriptor;
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
+import com.mcmiddleearth.entities.util.Constrain;
 import com.mcmiddleearth.mcmescripts.condition.*;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
@@ -179,7 +180,7 @@ public class ConditionCompiler {
         return Optional.of(selectorJson.getAsBoolean());
     }
 
-    private static Function<Integer,Boolean> compileFunction(JsonObject jsonObject) {
+    private static Criterion compileFunction(JsonObject jsonObject) {
         JsonElement constrainData = jsonObject.get(KEY_CONSTRAIN);
         if(constrainData!=null) {
             try {
@@ -193,24 +194,11 @@ public class ConditionCompiler {
                     comparator = constrain.substring(0, 1);
                     limit = Integer.parseInt(constrain.substring(1));
                 }
-                switch(comparator) {
-                    case "<":
-                        return a -> a < limit;
-                    case ">":
-                        return a -> a > limit;
-                    case "<=":
-                        return a -> a <= limit;
-                    case ">=":
-                        return a -> a >= limit;
-                    case "=":
-                        return a -> a == limit;
-                    case "<>":
-                    case "!=":
-                        return a -> a != limit;
-                }
+                return new Criterion(comparator,limit);
+
             } catch(NumberFormatException ignore) {}
         }
         DebugManager.warn(Modules.CONDITION_CREATE.getModule(), "Invalid criterion! Condition will always be true!");
-        return a -> true;
+        return new Criterion("true",0);//a -> true;
     }
 }

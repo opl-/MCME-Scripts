@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.trigger.timed;
 
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 
 public class OnceRealTimeTrigger extends OnceTrigger {
@@ -15,5 +16,4 @@ public class OnceRealTimeTrigger extends OnceTrigger {
     public long getCurrentTime() {
         return System.currentTimeMillis();
     }
-
 }

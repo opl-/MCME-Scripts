@@ -1,7 +1,9 @@
 package com.mcmiddleearth.mcmescripts.condition.proximity;
 
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.condition.Criterion;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -13,11 +15,11 @@ import java.util.function.Function;
 @SuppressWarnings("rawtypes")
 public class PlayerProximityCondition extends Condition {
 
-    private final Function<Integer,Boolean> test;
+    private final Criterion test;
     private final String playerName;
     private final Selector selector;
 
-    public PlayerProximityCondition(String playerName, Selector selector, Function<Integer,Boolean> test) {
+    public PlayerProximityCondition(String playerName, Selector selector, Criterion test) {
         this.selector = selector;
         this.playerName = playerName;
         this.test = test;
@@ -39,6 +41,10 @@ public class PlayerProximityCondition extends Condition {
     @Override
     public String toString() {
         return this.getClass().getSimpleName()+" Player: "+playerName+" Selector: "+selector.getSelector();
+    }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Criterion: "+test.getComparator()+test.getLimit());
     }
 
 }

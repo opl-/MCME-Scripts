@@ -75,6 +75,7 @@ public abstract class Trigger {
     }
 
     public void call(TriggerContext context) {
+        DebugManager.info(Modules.Trigger.call(this.getClass()),context.print(""));
         if(callOnce) {
             unregister();
         }

@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -39,6 +40,11 @@ public class SelectingCondition<T> extends Condition {
 
     public void setMatchAllSelected(boolean matchAllSelected) {
         this.matchAllSelected = matchAllSelected;
+    }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Selector: "+selector.getSelector())
+                .addLine("Match All: "+matchAllSelected);
     }
 
 }

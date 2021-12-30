@@ -169,7 +169,7 @@ public class TriggerCompiler {
                 if (currentJson instanceof JsonPrimitive) {
                     current = currentJson.getAsString();
                 }
-                JsonElement nextJson = jsonObject.get(KEY_CURRENT_ANIMATION);
+                JsonElement nextJson = jsonObject.get(KEY_NEXT_ANIMATION);
                 String next = null;
                 if (nextJson instanceof JsonPrimitive) {
                     next = nextJson.getAsString();

@@ -12,16 +12,16 @@ import java.util.logging.Logger;
 
 public class ExternalTrigger extends DecisionTreeTrigger {
 
-    private String name;
+    //private String name;
 
     public ExternalTrigger(Action action, String name) {
         super(action);
-        this.name = name;
+        setName(name);
     }
 
-    public String getName() {
+    /*public String getName() {
         return name;
-    }
+    }*/
 
     @Override
     public void register(Script script) {

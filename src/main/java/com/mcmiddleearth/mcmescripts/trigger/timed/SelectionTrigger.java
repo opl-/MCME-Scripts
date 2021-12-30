@@ -4,6 +4,7 @@ import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.entities.RealPlayer;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -71,5 +72,11 @@ public class SelectionTrigger extends PeriodicServerTimeTrigger {
 
     public enum Process {
         ENTER, LEAVE;
+    }
+
+    @Override
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Process: "+process)
+                                    .addLine("Selector: "+selector.getSelector());
     }
 }

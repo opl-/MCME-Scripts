@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -28,4 +29,12 @@ public class ServerDaytimeCondition extends Condition{
             return startTick < time && time < endTick;
         }
     }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("World: "+world)
+                .addLine("Negate: "+negate)
+                .addLine("Start: "+startTick)
+                .addLine("End: "+endTick);
+    }
+
 }

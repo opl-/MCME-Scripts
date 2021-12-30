@@ -1,7 +1,9 @@
 package com.mcmiddleearth.mcmescripts.condition.proximity;
 
 import com.mcmiddleearth.mcmescripts.condition.Condition;
+import com.mcmiddleearth.mcmescripts.condition.Criterion;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -14,11 +16,11 @@ import java.util.logging.Logger;
 @SuppressWarnings("rawtypes")
 public class LocationProximityCondition extends Condition {
 
-    private final Function<Integer,Boolean> test;
+    private final Criterion test;
     private final Location location;
     private final Selector selector;
 
-    public LocationProximityCondition(Location center, Selector selector, Function<Integer,Boolean> test) {
+    public LocationProximityCondition(Location center, Selector selector, Criterion test) {
         this.selector = selector;
         this.location = center;
         this.test = test;
@@ -42,4 +44,9 @@ public class LocationProximityCondition extends Condition {
     public String toString() {
         return this.getClass().getSimpleName()+" Loc: "+location+" Selector: "+selector.getSelector();
     }
+
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Criterion: "+test.getComparator()+test.getLimit());
+    }
+
 }

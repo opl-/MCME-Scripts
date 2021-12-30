@@ -7,6 +7,7 @@ import com.mcmiddleearth.entities.api.VirtualEntityFactory;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
+import com.mcmiddleearth.mcmescripts.condition.Criterion;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
@@ -86,7 +87,7 @@ public class EntityCompiler {
         spawnActions.add(new TriggerUnregisterAction(spawnTrigger));
         DecisionTreeTrigger.DecisionNode spawnNode = new DecisionTreeTrigger.DecisionNode(spawnActions);
         spawnNode.addCondition(new LocationProximityCondition(factories.get(0).getLocation(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
-                count -> count > 0));
+                new Criterion(">",0)));//count -> count > 0));
         spawnTrigger.setDecisionNode(spawnNode);
 
 
@@ -97,7 +98,7 @@ public class EntityCompiler {
         despawnActions.add(new TriggerUnregisterAction(despawnTrigger));
         DecisionTreeTrigger.DecisionNode despawnNode = new DecisionTreeTrigger.DecisionNode(despawnActions);
         despawnNode.addCondition(new LocationProximityCondition(factories.get(0).getLocation(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
-                                                                     count -> count == 0));
+                                                                     new Criterion("==",0)));//count -> count == 0));
         despawnTrigger.setDecisionNode(despawnNode);
 
         return Optional.of(spawnTrigger);

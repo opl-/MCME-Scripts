@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.trigger.timed;
 
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
@@ -43,4 +44,10 @@ public abstract class PeriodicTrigger extends TimedTrigger {
     }
 
     public abstract long getCurrentTime();
+
+    @Override
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().addLine("Period: "+periodMillis);
+    }
+
 }
