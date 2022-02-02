@@ -34,19 +34,6 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
 
             LootTable lootTable = new LootTable(choices);
             lootTable.selectItems().forEach(item->giveItem(entity, context, item, slot, slotId, duration));
-            /*int weightSum = 0;
-            for(ItemChoice choice: choices) {
-                weightSum+=choice.getWeight();
-            }
-            int weightRandom = random.nextInt(weightSum+1);
-            weightSum = 0;
-            for(ItemChoice choice: choices) {
-                weightSum+=choice.getWeight();
-                if(weightSum>=weightRandom) {
-                    choice.getItems().forEach(item->giveItem(entity, context, item, slot, slotId, duration));
-                    break;
-                }
-            }*/
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
                 + " item: "+items.size()+" Choices: "+choices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
@@ -65,15 +52,10 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
             } else {
                 ItemCompiler.addLore(meta, new JsonPrimitive(context.getMessage()));
             }
-            /*if (meta.hasLore()) {
-                Objects.requireNonNull(meta.lore()).add(Component.text(context.getMessage()));
-            } else {
-                meta.lore(new ArrayList<Component>(Collections.singletonList(Component.text(context.getMessage()))));
-            }*/
-/*Logger.getGlobal().info("type: "+item.getType());
-Logger.getGlobal().info("Lore: "+meta.lore().size());
-Logger.getGlobal().info("Enchant: "+meta.getEnchants().size());
-Logger.getGlobal().info("has cmd: "+meta.hasCustomModelData());*/
+            /*Logger.getGlobal().info("type: "+item.getType());
+            Logger.getGlobal().info("Lore: "+meta.lore().size());
+            Logger.getGlobal().info("Enchant: "+meta.getEnchants().size());
+            Logger.getGlobal().info("has cmd: "+meta.hasCustomModelData());*/
         }
         item.setItemMeta(meta);
 

@@ -22,16 +22,12 @@ public class WandItemListener implements Listener {
 
     @EventHandler(ignoreCancelled = false)
     public void onWandInteract(PlayerInteractEvent event) {
-//Logger.getGlobal().info("onWand");
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-//Logger.getGlobal().info("right click");
             Player player = event.getPlayer();
             ItemStack wand = player.getInventory().getItemInMainHand();
             if(hasScript(wand)) {
-//Logger.getGlobal().info("has script");
                 String[] split = getScript(wand).split(" ");
                 if(split.length>=2) {
-//Logger.getGlobal().info("valid: "+split[0]+" "+split[1]);
                     MCMEScripts.getExternalTriggerManager().call(split[0], split[1], Arrays.copyOfRange(split, 2, split.length));
                     event.setCancelled(true);
                     player.sendMessage(Component.text("[Scripts] ").color(NamedTextColor.AQUA)
@@ -42,7 +38,6 @@ public class WandItemListener implements Listener {
     }
 
     public static void addScript(ItemStack wand, String script) {
-//Logger.getGlobal().info("add: "+script);
         NamespacedKey key = new NamespacedKey(MCMEScripts.getInstance(),SCRIPT_WAND);
         ItemMeta meta = wand.getItemMeta();
         meta.getPersistentDataContainer().set(key, PersistentDataType.PrimitivePersistentDataType.STRING, script);

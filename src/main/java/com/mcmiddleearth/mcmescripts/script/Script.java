@@ -45,7 +45,6 @@ public class Script {
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
         DebugManager.info(Modules.Script.create(this.getClass()),
-                //"Name: "+name+" Conditions: "+conditions.size()+" met all: "+metAllConditions);
                 "Creating script: \n"+print(""));
     }
 
@@ -54,7 +53,6 @@ public class Script {
             JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
             DebugManager.info(Modules.Script.load(this.getClass()),
-                    //"Name: "+name);
                     "Loading script ... \n"+getDescriptor().print(""));
             active = true;
         }
@@ -89,11 +87,9 @@ public class Script {
             if(metAllConditions && !testResult) {
                 return false;
             } else if(!metAllConditions && testResult) {
-//Logger.getGlobal().info("trigger!");
                 return true;
             }
         }
-//Logger.getGlobal().info("isTriggered: "+getName()+" "+metAllConditions);
         return metAllConditions;
     }
 

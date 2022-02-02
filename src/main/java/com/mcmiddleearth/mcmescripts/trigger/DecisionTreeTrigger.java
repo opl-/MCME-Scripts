@@ -167,6 +167,6 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
     @Override
     public String print(String indent) {
-        //return super.print(indent);
+        return super.print(indent);
     }
 }

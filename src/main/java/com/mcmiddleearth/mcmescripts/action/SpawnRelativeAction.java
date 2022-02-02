@@ -29,16 +29,8 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
             List<McmeEntity> goalTargets = goalTargetSelector.select(context);
             if(!goalTargets.isEmpty()) {
                 tempGoalTarget = goalTargets.get(0);
-//DebugManager.log(Modules.Action.execute(SetGoalAction.class),"GoalTarget entity: "+goalTargets.get(0));
-                //goalFactory.withTargetEntity(goalTargets.get(0));
             }
             McmeEntity goalTarget = tempGoalTarget;
-            /*if(tempFactory==null) {
-                tempfactory = entity.
-            }
-            if (goalFactory !=null) {
-            }*/
-            //int edge = (int) quantity/2;//Math.sqrt(quantity);
             for(int j = 0; j< quantity; j++) {
                 Location finalLocation;
                 if(location!=null) {
@@ -52,13 +44,10 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         factory.withLocation(findSafe(loc, onGround));
                     }
                     VirtualEntityGoalFactory tempGoalFactory = goalFactory;
-//Logger.getGlobal().info("Action goal: "+(goalFactory==null?"null":goalFactory.getGoalType().name()));
                     if (tempGoalFactory == null || (factory.getGoalFactory()!=null && factory.getGoalFactory().getGoalType().equals(GoalType.JOCKEY))) {
-//Logger.getGlobal().info("use saved GoalFactory: "+factory.getGoalFactory().getGoalType().name());
                         tempGoalFactory = factory.getGoalFactory();
                     }
                     if (tempGoalFactory != null && goalTarget != null && !tempGoalFactory.getGoalType().equals(GoalType.JOCKEY)) {
-//Logger.getGlobal().info("use script goal target: "+goalTarget.getName());
                         tempGoalFactory.withTargetEntity(goalTarget);
                     }
                     if (tempGoalFactory != null && waypoints != null) {
@@ -68,22 +57,18 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                                     .add(rotate(waypoints[i].toVector(), entity)), onGround);
                         }
                         tempGoalFactory.withCheckpoints(checkpoints);
-                        //Arrays.stream(factory.getGoalFactory().getCheckpoints()).forEach(check -> Logger.getGlobal().info("+ "+check));
                     }
                     factory.withGoalFactory(tempGoalFactory);
                 });
                 Set<McmeEntity> entities = SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
                 new HashSet<McmeEntity>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
                         .forEach(jockey -> {
-//Logger.getGlobal().info("Found jockey!");
                             GoalJockey goal = (GoalJockey)jockey.getGoal();
                             McmeEntity placeholder = goal.getSteed();
                             if(placeholder instanceof Placeholder) {
-//Logger.getGlobal().info("Is Placeholder: "+placeholder.getUniqueId());
                                 UUID uuid = placeholder.getUniqueId();
                                 entities.stream().filter(steed -> steed.getUniqueId().equals(uuid)).findFirst()
                                         .ifPresent(steed -> {
-//Logger.getGlobal().info("Set Steed: "+steed.getName());
                                             goal.setSteed(steed);
                                         });
                             }
@@ -114,16 +99,12 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
         float yaw = entity.getYaw();
         while(yaw < -180) yaw += 360; while(yaw > 180) yaw -= 360;
         if(yaw < -135 || yaw > 135) {
-//Logger.getGlobal().info("North: "+yaw+" "+new Vector(-vector.getX(),vector.getY(),-vector.getZ()));
             return new Vector(-vector.getX(),vector.getY(),-vector.getZ());
         } else if(yaw < -45) {
-//Logger.getGlobal().info("East: "+yaw+" "+new Vector(vector.getZ(),vector.getY(),-vector.getX()));
             return new Vector(vector.getZ(),vector.getY(),-vector.getX());
         } else if(yaw > 45) {
-//Logger.getGlobal().info("West: "+yaw+" "+new Vector(-vector.getZ(),vector.getY(),vector.getX()));
             return new Vector(-vector.getZ(),vector.getY(),vector.getX());
         } else {
-//Logger.getGlobal().info("South: "+yaw+" "+vector);
             return vector;
         }
     }

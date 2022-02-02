@@ -19,7 +19,6 @@ public class ItemRainAction extends SelectingAction<McmeEntity> {
 
     public ItemRainAction(Selector<McmeEntity> selector, Set<ItemStack> items, int size, int drop_height, double probability, int duration) {
         super(selector, ((entity, context) -> {
-            //Logger.getGlobal().info("Rain "+item.getType());
             List<Item> spawnedItems = new ArrayList<>();
             List<ItemStack> itemList = new ArrayList<>(items);
             int stop = duration * 2;
@@ -28,7 +27,6 @@ public class ItemRainAction extends SelectingAction<McmeEntity> {
                     int counter = 0;
                     @Override
                     public void run() {
-//Logger.getGlobal().info("Step "+counter);
                         if(counter<duration) {
                             Location location = entity.getLocation().add(0,drop_height,0);
                             for(int i = -size; i<size; i++) {

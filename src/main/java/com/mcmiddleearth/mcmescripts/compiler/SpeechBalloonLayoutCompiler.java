@@ -26,7 +26,6 @@ public class SpeechBalloonLayoutCompiler {
         }
         JsonElement message = jsonObject.get(KEY_MESSAGE);
         if(message!=null) {
-//Logger.getGlobal().info("found message!");
             layout.withMessage(message.getAsString());
         }
         JsonElement duration = jsonObject.get(KEY_DURATION);

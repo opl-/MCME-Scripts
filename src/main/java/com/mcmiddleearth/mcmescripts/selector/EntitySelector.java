@@ -45,7 +45,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
     protected String talking;
 
     public EntitySelector(String selector) throws IndexOutOfBoundsException {
-//DebugManager.log(Modules.Selector.create(this.getClass()),"Selector: "+selector);
         this.selector = selector;
         selector = selector.replace(" ","");
         switch(selector.charAt(1)) {
@@ -73,7 +72,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
             String[] arguments = selector.substring(3,selector.length()-1).split(",");
             for(String argument : arguments) {
                 String[] split = argument.split("=");
-//DebugManager.log(Modules.Selector.create(this.getClass()),"split: "+ Joiner.on("_").join(split));
                 switch(split[0]) {
                     case "limit":
                         limit = Integer.parseInt(split[1]);
@@ -119,7 +117,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         break;
                     case "distance":
                         String[] minMax = split[1].split("\\.\\.");
-//DebugManager.log(Modules.Selector.create(this.getClass()),"minMax "+Joiner.on("_").join(minMax));
                         double minDistance = Double.parseDouble(minMax[0]);
                         minDistanceSquared = minDistance * minDistance;
                         if(minMax.length > 1) {
@@ -128,7 +125,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
                         } else {
                             maxDistanceSquared = minDistanceSquared;
                         }
-//DebugManager.log(Modules.Selector.create(this.getClass()),"Set Distances: "+minDistanceSquared+" "+maxDistanceSquared);
                         break;
                     case "type":
                         if(split[1].startsWith("!")) {
@@ -211,7 +207,7 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 }
                 if (hasAreaLimit() && loc != null) {
                     World world = loc.getWorld();
-                    //Logger.getGlobal().info("Location: "+loc.toString() + " Players: "+players.size());
+//Logger.getGlobal().info("Location: "+loc.toString() + " Players: "+players.size());
                     double xMin = (dx < 0 ? Integer.MIN_VALUE : loc.getX() - dx);
                     double xMax = (dx < 0 ? Integer.MAX_VALUE : loc.getX() + dx);
                     double yMin = (dy < 0 ? Integer.MIN_VALUE : loc.getY() - dy);

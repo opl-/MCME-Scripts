@@ -11,7 +11,7 @@ import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 public class DriveUtil {
     private static final String APPLICATION_NAME = "MCME Scripts";
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     /**
@@ -88,7 +88,7 @@ public class DriveUtil {
                 .fromStream(new FileInputStream(new java.io.File(MCMEScripts.getInstance().getDataFolder(),
                         "key.json")))
                 .createScoped(SCOPES);
-        //.createDelegated("user@example.com");
+                //.createDelegated("user@example.com");
     }
 
     private static Credential getTokenCredential() throws IOException {
@@ -128,7 +128,7 @@ public class DriveUtil {
                     +"&client_secret="+MCMEScripts.getConfigString(ConfigKeys.DRIVE_CLIENT_SECRET,"")
                     +"&grant_type=refresh_token"
                     +"&refresh_token="+MCMEScripts.getConfigString(ConfigKeys.DRIVE_REFRESH_TOKEN,"");
-//System.out.println(fields);
+            //System.out.println(fields);
             byte[] out = fields.getBytes(StandardCharsets.UTF_8);
             int length = out.length;
             http.setFixedLengthStreamingMode(length);

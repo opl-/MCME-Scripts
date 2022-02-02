@@ -33,17 +33,5 @@ public class SelectorCompiler {
     public static McmeEntitySelector compileMcmeEntitySelector(JsonObject jsonObject, String key) {
         String selectorData = getSelectorData(jsonObject, key);
         return new McmeEntitySelector(selectorData);
-        /*String selectorData = getSelectorData(jsonObject);
-        switch(selectorData.charAt(1)) {
-            case 'p':
-            case 'a':
-            case 'r':
-                return Optional.of(compilePlayerSelector(jsonObject));
-            case 'e':
-            case 's':
-            case 'v':
-                return Optional.of(compileVirtualEntitySelector(jsonObject));
-        }
-        return Optional.empty();*/
     }
 }

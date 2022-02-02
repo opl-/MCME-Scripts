@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 
 public class TriggerContext {
 
-    //private Script script;
     private final Trigger trigger;
 
     private Player player;
@@ -30,8 +29,7 @@ public class TriggerContext {
 
     private final Descriptor descriptor;
 
-    public TriggerContext(Trigger trigger) {//Script script) {
-        //this.script = script;
+    public TriggerContext(Trigger trigger) {
         this.trigger = trigger;
         descriptor = new Descriptor("Event Log:");
     }

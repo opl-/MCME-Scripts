@@ -73,17 +73,13 @@ public class TriggerCompiler {
     }
 
     private static Set<Trigger> compileTriggers(JsonElement triggerData) {
-//Logger.getGlobal().info("TriggerData: "+triggerData);
         Set<Trigger> triggers = new HashSet<>();
         if(triggerData == null) return triggers;
         if(triggerData.isJsonArray()) {
-//Logger.getGlobal().info("ArraySize: "+triggerData.getAsJsonArray().size());
             for(int i = 0; i< triggerData.getAsJsonArray().size(); i++) {
                 compileTrigger(triggerData.getAsJsonArray().get(i).getAsJsonObject()).ifPresent(triggers::add);
-//Logger.getGlobal().info("add: "+triggers.size());
             }
         } else {
-//Logger.getGlobal().info("Single!");
             compileTrigger(triggerData.getAsJsonObject()).ifPresent(triggers::add);
         }
         return triggers;
@@ -91,7 +87,6 @@ public class TriggerCompiler {
 
     private static Optional<Trigger> compileTrigger(JsonObject jsonObject) {
         JsonElement type = jsonObject.get(KEY_TYPE);
-//Logger.getGlobal().info("Type: "+type);
         if(type==null) {
             DebugManager.warn(Modules.Trigger.create(TriggerCompiler.class),"Can't compile trigger. Missing trigger type.");
             return Optional.empty();
@@ -101,7 +96,6 @@ public class TriggerCompiler {
         switch(type.getAsString()) {
             case VALUE_REAL_TIMED_TRIGGER:
                 JsonElement time = jsonObject.get(KEY_TIME);
-//Logger.getGlobal().info("RealTime: "+time);
                 if (time != null && time.isJsonPrimitive()) {
                     LocalDateTime localDateTime = LocalDateTime.parse(time.getAsString());
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
@@ -115,7 +109,6 @@ public class TriggerCompiler {
                 break;
             case VALUE_REAL_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
-//Logger.getGlobal().info("Periodic RealTime: "+time);
                 if (time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicRealTimeTrigger(null, time.getAsInt());
                 } else {
@@ -125,7 +118,6 @@ public class TriggerCompiler {
                 break;
             case VALUE_SERVER_TIMED_TRIGGER:
                 time = jsonObject.get(KEY_TIME);
-//Logger.getGlobal().info("ServerTime: "+time);
                 if (time != null && time.isJsonPrimitive()) {
                     trigger = new OnceServerTimeTrigger(null, time.getAsInt());
                 } else {
@@ -135,7 +127,6 @@ public class TriggerCompiler {
                 break;
             case VALUE_SERVER_PERIODIC_TRIGGER:
                 time = jsonObject.get(KEY_PERIOD);
-//Logger.getGlobal().info("Periodic RealTime: "+time);
                 if (time != null && time.isJsonPrimitive()) {
                     trigger = new PeriodicServerTimeTrigger(null, time.getAsInt());
                 } else {
@@ -179,7 +170,6 @@ public class TriggerCompiler {
             case VALUE_SELECTION_TRIGGER:
                 JsonElement timeJson = jsonObject.get(KEY_PERIOD);
                 int period = TimedTriggerManager.MIN_TRIGGER_CHECK_PERIOD;
-//Logger.getGlobal().info("Periodic RealTime: "+time);
                 if (timeJson != null && timeJson.isJsonPrimitive()) {
                     try {
                         period = timeJson.getAsInt();
@@ -229,7 +219,6 @@ public class TriggerCompiler {
         }
         trigger.setCallOnce(callOnce);
 
-//Logger.getGlobal().info("Return: "+trigger);
         return Optional.of(trigger);
     }
 

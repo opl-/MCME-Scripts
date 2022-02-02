@@ -40,7 +40,6 @@ public class ScriptManager {
 
     public void addScript(File file) throws IOException {
         Script script = new Script(file);
-        //DebugManager.info(Modules.Script.create(this.getClass()),"Creating script: "+script.getName());
         scripts.put(script.getName(), script);
     }
 
@@ -68,14 +67,14 @@ public class ScriptManager {
                     if (isTriggered && !script.isActive()) {
                         try {
 //Logger.getGlobal().info("LoadScript: "+script.getName());
-                            //DebugManager.info(Modules.Script.load(this.getClass()),"Loading script: "+script.getName());
+//DebugManager.info(Modules.Script.load(this.getClass()),"Loading script: "+script.getName());
                             script.load();
                         } catch (IOException | IllegalStateException | JsonSyntaxException e) {
                             e.printStackTrace();
                         }
                     } else if(!isTriggered && script.isActive()) {
 //Logger.getGlobal().info("UnloadScript: "+script.getName());
-                        //DebugManager.info(Modules.Script.load(this.getClass()),"Unloading script: "+script.getName());
+//DebugManager.info(Modules.Script.load(this.getClass()),"Unloading script: "+script.getName());
                         script.unload();
                     }
                 });

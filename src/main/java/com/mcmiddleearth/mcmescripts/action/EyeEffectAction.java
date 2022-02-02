@@ -37,48 +37,30 @@ public class EyeEffectAction extends SelectingAction<Player> {
             blockChanges.add(block.getState());
             BlockState tempState = block.getState();
             tempState.setType(Material.NETHER_PORTAL);
-            //block.setType(Material.NETHER_PORTAL,false);
             block.setBlockData(tempState.getBlockData(),false);
-            //player.sendBlockChange(block.getLocation(),tempState.getBlockData());
             for(Block ad: adjacent) {
                 if(ad.isPassable()) {
                     blockChanges.add(ad.getState());
                     tempState = ad.getState();
                     tempState.setType(Material.BARRIER);
                     ad.setBlockData(tempState.getBlockData(),false);
-                    //player.sendBlockChange(ad.getLocation(),tempState.getBlockData());
                 }
             }
-            /*AttributeModifier modifier = new AttributeModifier("PortalEffect",-1, AttributeModifier.Operation.ADD_NUMBER);
-            AttributeInstance attrib = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-            if(attrib != null) {
-                //attrib.getModifiers().forEach(attrib::removeModifier);
-                attrib.addModifier(modifier);
-            }*/
-            //Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_FLYING_SPEED)).addModifier(modifier);
             float walkSpeed = player.getWalkSpeed();
             float flySpeed = player.getFlySpeed();
             Listener blockJump = new PlayerEyeEffectBlockListener(player,blockChanges);
             Bukkit.getPluginManager().registerEvents(blockJump,MCMEScripts.getInstance());
-//Logger.getGlobal().info("walk: "+walkSpeed+" fly: "+flySpeed);
             player.setFlySpeed(0);
             player.setWalkSpeed(0);
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    //saveState.update(true, false);
-                    /*player.sendBlockChange(block.getLocation(),block.getBlockData());
-                    for(Block ad: adjacent) {
-                        player.sendBlockChange(ad.getLocation(),ad.getBlockData());
-                    }*/
                     for(BlockState state: blockChanges) {
                         state.update(true,false);
                     }
                     player.setFlySpeed(flySpeed);
                     player.setWalkSpeed(walkSpeed);
                     HandlerList.unregisterAll(blockJump);
-                    //Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).removeModifier(modifier);
-                    //Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_FLYING_SPEED)).removeModifier(modifier);
                 }
             }.runTaskLater(MCMEScripts.getInstance(),duration);
         });

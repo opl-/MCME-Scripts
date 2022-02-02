@@ -210,8 +210,6 @@ public class ActionCompiler {
                         for (JsonElement element : checkpointJson.getAsJsonArray()) {
                             LocationCompiler.compile(element).ifPresent(waypoints::add);
                         }
-//Logger.getGlobal().info("Checkpoints loaded: "+checkpoints.size());
-//checkpoints.forEach(check -> Logger.getGlobal().info("- "+check));
                         if (waypoints.isEmpty()) {
                             DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Warning while parsing "+VALUE_SPAWN_RELATIVE
                                                                            +" action. Found empty checkpoint array.");
@@ -369,13 +367,11 @@ public class ActionCompiler {
                     return Optional.empty();
                 }
                 String command = commandJson.getAsString();
-//Logger.getGlobal().info("Command: "+command);
                 List<String> whitelist = MCMEScripts.getInstance().getConfig().getStringList("commandWhitelist");
                 boolean done = false;
-//Logger.getGlobal().info("Whitelist:");
                 action = null;
                 for(String search: whitelist) {
-//Logger.getGlobal().info("- "+search + " equal: "+search.equalsIgnoreCase(command)+" wildcard: "+(search.charAt(search.length()-1)=='*') + " similar: "+command.toLowerCase().startsWith(search.substring(0,search.length()-1).toLowerCase()));
+                    //Logger.getGlobal().info("- "+search + " equal: "+search.equalsIgnoreCase(command)+" wildcard: "+(search.charAt(search.length()-1)=='*') + " similar: "+command.toLowerCase().startsWith(search.substring(0,search.length()-1).toLowerCase()));
                     if(search.equalsIgnoreCase(command)
                             || search.charAt(search.length()-1)=='*'
                                 && command.toLowerCase().startsWith(search.substring(0,search.length()-1).toLowerCase())) {

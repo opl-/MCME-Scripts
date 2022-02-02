@@ -68,7 +68,6 @@ public class ConditionCompiler {
             }
         } else {
             compileCondition(conditionData.getAsJsonObject()).ifPresent(result::add);
-            //if(condition!=null) result.add(condition);
         }
         return result;
     }

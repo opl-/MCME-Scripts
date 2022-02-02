@@ -15,11 +15,9 @@ public class TalkAction extends SelectingAction<VirtualEntity> {
     public TalkAction(SpeechBalloonLayout layout, Selector<VirtualEntity> selector) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(TalkAction.class),"Target entity: "+entity.getName());
-//Logger.getGlobal().info("layout line: "+ Arrays.toString(layout.getLines()));
             SpeechBalloonLayout tempLayout = layout.clone();
             if(context.getMessage()!=null) {
                 tempLayout.withMessage(context.getMessage());
-//Logger.getGlobal().info("layout line message: "+ Arrays.toString(layout.getLines()));
             }
             entity.say(tempLayout);
         });

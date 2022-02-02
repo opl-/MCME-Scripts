@@ -87,21 +87,6 @@ public class VirtualEntityFactoryCompiler {
         VirtualEntityFactory factory
             = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityFactory.class);
         return Optional.of(factory);
-        /*return VirtualEntityFactory.getDefaults();
-        VirtualEntityFactory factory = VirtualEntityFactory.getDefaults();
-        Gson gson = EntitiesPlugin.getEntitiesGsonBuilder().create();
-        if(element.isJsonPrimitive()) {
-            File file = new File(EntitiesPlugin.getEntitiesFolder(),element.getAsString()+".json");
-            try (JsonReader reader = gson.newJsonReader(new FileReader(file))) {
-                reader.beginArray();
-                factory = gson.fromJson(reader, VirtualEntityFactory.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            factory = gson.fromJson(new JsonReader(new StringReader(element.toString())),VirtualEntityFactory.class);
-        }
-        return factory;*/
     }
 
     public static String getGroupName(List<VirtualEntityFactory> factories) {

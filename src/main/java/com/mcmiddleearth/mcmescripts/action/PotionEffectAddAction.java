@@ -29,7 +29,6 @@ public class PotionEffectAddAction extends SelectingAction<McmeEntity> {
             for(PotionEffectChoice choice: choices) {
                 weightSum+=choice.getWeight();
                 if(weightSum>=weightRandom) {
-//Logger.getGlobal().info("Potion effect: "+choice.getEffect());
                     entity.addPotionEffect(choice.getEffect());
                     DebugManager.verbose(Modules.Action.execute(SetGoalAction.class), "Random Effect: " + choice.getEffect().getType());
                     break;
@@ -37,7 +36,6 @@ public class PotionEffectAddAction extends SelectingAction<McmeEntity> {
             }
 
         });
-        //this.effect = effect;
         DebugManager.info(Modules.Action.create(this.getClass()),"Effect: "+effect+" Choices: "+choices.size());
     }
 

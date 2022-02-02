@@ -11,10 +11,7 @@ import java.util.Optional;
 
 public class LocationCompiler {
 
-    //private static final String KEY_LOCATION  = "location";
-
     public static Optional<Location> compile(JsonElement element) {
-        //JsonElement element = jsonObject.get(KEY_LOCATION);
         if(element == null) {
             DebugManager.info(Modules.Location.create(LocationCompiler.class),"Can't compile location. Missing json element.");
             return Optional.empty();

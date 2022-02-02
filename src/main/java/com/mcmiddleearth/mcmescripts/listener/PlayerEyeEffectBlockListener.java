@@ -24,20 +24,10 @@ public class PlayerEyeEffectBlockListener implements Listener {
         this.blockChanges = blockChanges;
     }
 
-    /*@EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(event.getPlayer().equals(player)) {
-Logger.getGlobal().info("Block move!");
-            event.setCancelled(true);
-        }
-    }*/
-
     @EventHandler
     public void onPlayerJump(PlayerJumpEvent event) {
         if(event.getPlayer().equals(player)) {
-Logger.getGlobal().info("Block jump 1!");
             event.setCancelled(true);
-            //player.teleport(cage);
         }
     }
 
@@ -45,10 +35,6 @@ Logger.getGlobal().info("Block jump 1!");
     public void onPlayerInteract(PlayerInteractEvent event) {
         if(event.getPlayer().equals(player)) {
             event.setCancelled(true);
-            /*for(BlockState state: blockChanges) {
-                player.sendBlockChange(state.getLocation(),state.getBlockData());
-            }*/
-Logger.getGlobal().info("Block interact and block change send!");
         }
     }
 }

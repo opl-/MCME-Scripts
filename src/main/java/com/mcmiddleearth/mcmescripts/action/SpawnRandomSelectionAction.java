@@ -28,15 +28,8 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
     public SpawnRandomSelectionAction(Selector<McmeEntity> selector, RandomSpawnData data, int lifespan) {
         super(selector, (entity,context) -> {
             DebugManager.verbose(Modules.Action.execute(SpawnRandomSelectionAction.class),"Selected entity: "+entity.getName());
-//data.getChoices().forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("6: "+factory.getType())));
             data.spawn(context, entity.getLocation(), lifespan);
         });
-/*new BukkitRunnable() {
-    @Override
-    public void run() {
-        data.getChoices().forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("5: "+factory.getType())));
-    }
-}.runTaskTimer(MCMEScripts.getInstance(),20,20);*/
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
     }
 
@@ -63,21 +56,15 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
         }
 
         public void spawn(TriggerContext context, Location center, int lifespan) {
-//choices.forEach(choice -> choice.getFactories().forEach(factory -> Logger.getGlobal().info("Factory random Spawn: "+factory.getType())));
             Set<McmeEntity> entities = new HashSet<>();
             float rand = random.nextFloat();
-//Logger.getGlobal().info("probability: "+probability+ " > "+rand+" "+(probability>rand));
             if(probability > rand) {
                 int quantity = getQuantity();
-//Logger.getGlobal().info("spawn: "+quantity);
-//Logger.getGlobal().info("choices: "+choices.size());
-//choices.forEach(choice -> Logger.getGlobal().info("choice: "+choice.getFactories().size()));
                 Choice selectedChoice = getSelectedChoice();
                 if(quantity > 0 && selectedChoice.getFactories().size()>0) {
                     updateGoal(context, selectedChoice);
                     Location[] spawnLocations = new Location[quantity];
                     if(group) {
-//Logger.getGlobal().info("group: "+group);
                         Location direction = center.clone();
                         direction.setYaw(random.nextFloat()*360-180);
                         int radius = getRadius();
@@ -88,18 +75,15 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                         while(i < spawnLocations.length && tries < 1000) {
                             Location location = groupCenter.clone().add(random.nextInt(edge*2+1)-edge,
                                                                         random.nextInt(edge*2+1)-edge, 0);
-//Logger.getGlobal().info("try spawn location: "+location);
                             if(notContains(spawnLocations, location)) {
                                 location = findSafe(location).add(0.5,0,0.5);;
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
-//Logger.getGlobal().info("add spawn location: "+location);
                                 i++;
                             }
                             tries++;
                         }
                     } else {
-//Logger.getGlobal().info("group: "+group);
                         int i = 0;
                         int tries = 0;
                         while(i < spawnLocations.length && tries < 1000) {
@@ -107,12 +91,10 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                             direction.setYaw(random.nextFloat()*360-180);
                             int radius = getRadius();
                             Location location = center.clone().add(direction.getDirection().multiply(radius));
-//Logger.getGlobal().info("try spawn location: "+location);
                             if(notContains(spawnLocations, location)) {
                                 location = findSafe(location).add(0.5,0,0.5);
                                 location.setDirection(center.clone().subtract(location).toVector());
                                 spawnLocations[i] = location;
-//Logger.getGlobal().info("try spawn location: "+location);
                                 i++;
                             }
                             tries++;
@@ -126,7 +108,6 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                                 try {
                                     factory.withLocation(spawnLocations[finalI]);
                                     if(name!=null) factory.withDisplayName(name);
-//Logger.getGlobal().info("Factory type Action: "+factory.getType());
                                     if(serverSide) {
                                         SpawnAction.spawnRealEntity(factory);
                                     } else {
@@ -135,7 +116,6 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                                         context.getScript().addEntity(entity);
                                         entities.add(entity);
                                     }
-//Logger.getGlobal().info("Execute spawn: " + factory.getLocation());
                                 } catch (InvalidLocationException | InvalidDataException e) {
                                     e.printStackTrace();
                                 }
@@ -196,7 +176,6 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 weightSum += choice.getWeight();
             }
             int randomWeight = random.nextInt(weightSum+1);
-//Logger.getGlobal().info("weightsum: "+weightSum+" rand: "+randomWeight);
             Choice selectedChoice;
             int i = -1;
             int currentWeight = 0;
@@ -205,7 +184,6 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 currentWeight = currentWeight + choices.get(i).weight;
             }
             while(randomWeight > currentWeight);
-//Logger.getGlobal().info("i: "+i);
             return choices.get(i);
         }
 

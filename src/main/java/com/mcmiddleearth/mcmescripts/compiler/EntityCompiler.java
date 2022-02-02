@@ -82,12 +82,11 @@ public class EntityCompiler {
         Set<Action> spawnActions = new HashSet<>();
         spawnActions.add(new SpawnAction(factories, -1,false));
         triggers.forEach(trigger -> spawnActions.add(new TriggerRegisterAction(trigger)));
-//Logger.getGlobal().info("trigggers: "+ triggers.size());
         spawnActions.add(new TriggerRegisterAction(despawnTrigger));
         spawnActions.add(new TriggerUnregisterAction(spawnTrigger));
         DecisionTreeTrigger.DecisionNode spawnNode = new DecisionTreeTrigger.DecisionNode(spawnActions);
         spawnNode.addCondition(new LocationProximityCondition(factories.get(0).getLocation(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
-                new Criterion(">",0)));//count -> count > 0));
+                new Criterion(">",0)));
         spawnTrigger.setDecisionNode(spawnNode);
 
 
@@ -98,7 +97,7 @@ public class EntityCompiler {
         despawnActions.add(new TriggerUnregisterAction(despawnTrigger));
         DecisionTreeTrigger.DecisionNode despawnNode = new DecisionTreeTrigger.DecisionNode(despawnActions);
         despawnNode.addCondition(new LocationProximityCondition(factories.get(0).getLocation(),new PlayerSelector("@a[distance=0.."+spawnDistance+"]"),
-                                                                     new Criterion("==",0)));//count -> count == 0));
+                                                                     new Criterion("==",0)));
         despawnTrigger.setDecisionNode(despawnNode);
 
         return Optional.of(spawnTrigger);

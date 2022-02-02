@@ -30,13 +30,10 @@ public class LocationProximityCondition extends Condition {
 
     @Override
     public boolean test(TriggerContext context) {
-//Logger.getGlobal().info("TEST");
         context = new TriggerContext(context).withLocation(location);
         DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
         List selectorResult = selector.select(context);
-//Logger.getGlobal().info("Selected entities: "+selectorResult.size());
-        //Logger.getGlobal().info("Result: "+result);
         return test.apply(selectorResult.size());
     }
 

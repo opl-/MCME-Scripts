@@ -12,16 +12,10 @@ import java.util.logging.Logger;
 
 public class ExternalTrigger extends DecisionTreeTrigger {
 
-    //private String name;
-
     public ExternalTrigger(Action action, String name) {
         super(action);
         setName(name);
     }
-
-    /*public String getName() {
-        return name;
-    }*/
 
     @Override
     public void register(Script script) {
@@ -54,7 +48,6 @@ public class ExternalTrigger extends DecisionTreeTrigger {
                         context.withName(value);
                         break;
                     case "message":
-Logger.getGlobal().info("Set message: "+value);
                         context.withMessage(value);
                         break;
                 }

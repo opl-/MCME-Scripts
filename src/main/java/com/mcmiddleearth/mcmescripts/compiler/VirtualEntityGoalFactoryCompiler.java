@@ -53,10 +53,8 @@ public class VirtualEntityGoalFactoryCompiler {
     }
 
     private static VirtualEntityGoalFactory compileObject(Gson gson, JsonObject jsonObject) {
-//Logger.getGlobal().info(jsonObject.toString());
         VirtualEntityGoalFactory factory
                 = gson.fromJson(new JsonReader(new StringReader(jsonObject.toString())),VirtualEntityGoalFactory.class);
-//Logger.getGlobal().info("Goal: "+(factory!=null?factory.getGoalType():"null"));
-        return factory;//.getGoalFactory();
+        return factory;
     }
 }

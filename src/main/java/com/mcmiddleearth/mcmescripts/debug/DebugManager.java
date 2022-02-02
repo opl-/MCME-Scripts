@@ -116,16 +116,12 @@ public class DebugManager {
         int lastDot = module.lastIndexOf('.');
         do {
             module = module.substring(0,lastDot);
-            //log(module);
             if(isActive(module, debugLevel)) {
-                //log("Found: "+module);
                 break;
             }
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
-        //log("Final module: "+module);
         if(isActive(module,debugLevel) || isActive(module.split("\\.")[0],debugLevel)) {
-            //log("found final module.");
             log(initialModule + " -> " + message);
         }
     }
