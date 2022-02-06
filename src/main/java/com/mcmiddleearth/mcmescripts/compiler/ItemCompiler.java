@@ -142,7 +142,6 @@ public class ItemCompiler {
             int level = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_LEVEL),1);
             NamespacedKey key = NamespacedKey.minecraft(jsonObject.get(KEY_TYPE).getAsString());
             meta.addEnchant(Objects.requireNonNull(Enchantment.getByKey(key)),level,true);
-//Logger.getGlobal().info("add enchant: "+Enchantment.getByKey(key));
         } catch(IllegalStateException | ClassCastException | NullPointerException ex) {
             DebugManager.warn(Modules.Item.create(ItemCompiler.class), "Can't compile Enchantment: "+ex.getMessage());
         }

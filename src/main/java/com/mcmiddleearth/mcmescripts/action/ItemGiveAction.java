@@ -25,18 +25,18 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
 
     private static final Random random = new Random();
 
-    public ItemGiveAction(Selector<McmeEntity> selector, Set<ItemStack> items, Set<ItemChoice> choices,
+    public ItemGiveAction(Selector<McmeEntity> selector, Set<ItemStack> items, Set<ItemChoice> weightChoices,
                           @Nullable EquipmentSlot slot, int slotId, int duration) {
         super(selector, (entity, context) -> {
             DebugManager.verbose(Modules.Action.execute(ItemGiveAction.class),"Selector: "+selector.getSelector()
-                    + " Items: "+items.size()+ " Choices: "+choices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
+                    + " Items: "+items.size()+ " Choices: "+ weightChoices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
             items.forEach(item -> giveItem(entity, context, item, slot, slotId, duration));
 
-            LootTable lootTable = new LootTable(choices);
+            LootTable lootTable = new LootTable(weightChoices);
             lootTable.selectItems().forEach(item->giveItem(entity, context, item, slot, slotId, duration));
         });
         DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
-                + " item: "+items.size()+" Choices: "+choices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
+                + " item: "+items.size()+" Choices: "+ weightChoices.size()+" Slot: "+(slot!=null?slot.name():"null")+" "+slotId);
     }
 
     private static void giveItem(McmeEntity entity, TriggerContext context, ItemStack item, EquipmentSlot slot, int slotId, int duration) {

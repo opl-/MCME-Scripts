@@ -22,7 +22,7 @@ import java.util.Set;
 
 public class GiveChestAction extends SelectingAction<McmeEntity> {
 
-    public GiveChestAction(Selector<McmeEntity> selector, Set<ItemStack> items, Set<ItemChoice> choices, int duration) {
+    public GiveChestAction(Selector<McmeEntity> selector, Set<ItemStack> items, Set<ItemChoice> weightChoices, int duration) {
         super(selector, (entity, context) -> {
             Location loc = entity.getLocation().clone();
             BlockFace face = null;
@@ -52,8 +52,8 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
                     org.bukkit.block.Chest chest = ((org.bukkit.block.Chest) finalBlock.getState());
                     int size = chest.getInventory().getContents().length;
                     chest.getInventory().setContents(Arrays.copyOfRange(items.toArray(new ItemStack[0]),0,size));
-                    LootTable lootTable = new LootTable(choices);
-                    lootTable.selectItems().forEach(item->chest.getInventory().addItem(item));
+                    LootTable lootTable = new LootTable(weightChoices);
+                    lootTable.selectItems().forEach(item->chest.getInventory().addItem((ItemStack) item));
                 }
             }.runTaskLater(MCMEScripts.getInstance(),1);
             new BukkitRunnable() {

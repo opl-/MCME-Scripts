@@ -1,11 +1,8 @@
 package com.mcmiddleearth.mcmescripts.script;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 import com.mcmiddleearth.entities.EntitiesPlugin;
-import com.mcmiddleearth.entities.api.Entity;
+import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.compiler.ConditionCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.ScriptCompiler;
 import com.mcmiddleearth.mcmescripts.compiler.TriggerCompiler;
@@ -29,7 +26,7 @@ public class Script {
     private final String name;
 
     private final Set<Trigger> triggers = new HashSet<>();
-    private final Set<Entity> entities = new HashSet<>();
+    private final Set<McmeEntity> entities = new HashSet<>();
 
     private final Set<Condition> conditions;
     private boolean metAllConditions = true;
@@ -93,11 +90,11 @@ public class Script {
         return metAllConditions;
     }
 
-    public void addEntity(Entity entity) {
+    public void addEntity(McmeEntity entity) {
         entities.add(entity);
     }
 
-    public void removeEntity(Entity entity) {
+    public void removeEntity(McmeEntity entity) {
         entities.remove(entity);
     }
 
@@ -129,7 +126,7 @@ public class Script {
         return triggers;
     }
 
-    public Set<Entity> getEntities() {
+    public Set<McmeEntity> getEntities() {
         return entities;
     }
 
