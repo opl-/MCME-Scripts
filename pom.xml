@@ -81,7 +81,7 @@
         <dependency>
             <groupId>com.mcmiddleearth</groupId>
             <artifactId>MCME-Entities</artifactId>
-            <version>1.0-SNAPSHOT-200</version>
+            <version>1.0-SNAPSHOT-400</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -115,7 +115,7 @@
             <groupId>com.craftmend.openaudiomc</groupId>
             <artifactId>OpenAudioMc</artifactId>
             <version>6.5.7</version>
-            <systemPath>D:/MCME/Plugins/Downloads/OpenAudioMc-6.5.7.jar</systemPath>
+            <systemPath>${basedir}/dependencies/OpenAudioMc-6.5.7.jar</systemPath>
             <scope>system</scope>
         </dependency>
         <dependency>

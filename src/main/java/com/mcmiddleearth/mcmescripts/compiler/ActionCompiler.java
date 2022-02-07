@@ -10,6 +10,9 @@ import com.mcmiddleearth.entities.effect.Explosion;
 import com.mcmiddleearth.entities.entities.composite.bones.SpeechBalloonLayout;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.*;
+import com.mcmiddleearth.mcmescripts.component.EnchantmentChoice;
+import com.mcmiddleearth.mcmescripts.component.ItemFilter;
+import com.mcmiddleearth.mcmescripts.component.WrappedEnchantment;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.ItemChoice;
@@ -50,6 +53,10 @@ public class ActionCompiler {
                                 KEY_OVERRIDE        = "override",
                                 KEY_ITEM            = "item",
                                 KEY_ITEMS           = "items",
+                                KEY_ITEM_FILTER     = "item_filter",
+                                KEY_ITEM_FILTERS    = "item_filters",
+                                KEY_ENCHANTMENT     = "enchantment",
+                                KEY_ENCHANTMENTS    = "enchantments",
                                 KEY_SLOT            = "slot",
                                 KEY_SLOT_ID         = "slot_id",
                                 KEY_DURATION        = "duration",
@@ -116,6 +123,8 @@ public class ActionCompiler {
                                 VALUE_RAIN_ITEM             = "rain_item",
                                 VALUE_TITLE                 = "title",
                                 VALUE_ACTION_BAR            = "action_bar",
+                                VALUE_ADD_ENCHANTMENT       = "add_enchantment",
+                                VALUE_REMOVE_ENCHANTMENT    = "remove_enchantment",
                                 VALUE_BOSS_BAR_ADD          = "boss_bar_add",
                                 VALUE_BOSS_BAR_REMOVE       = "boss_bar_remove",
                                 VALUE_BOSS_BAR_EDIT         = "boss_bar_edit";
@@ -347,6 +356,34 @@ public class ActionCompiler {
                 int duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),-1);
                 action = new ItemGiveAction(mcmeSelector, items, itemChoices, slot, slotId, duration);
                 break;
+            case VALUE_ADD_ENCHANTMENT:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                Set<WrappedEnchantment> enchantments = EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENT));
+                enchantments.addAll(EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENTS)));
+                Set<EnchantmentChoice> enchantmentChoices = LootTableCompiler.compileEnchantmentChoices(jsonObject).orElse(new HashSet<>());
+                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) return Optional.empty();
+
+                Set<ItemFilter> itemFilters = ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTER));
+                itemFilters.addAll(ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTERS)));
+
+                quantity = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_QUANTITY),-1);
+                duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),-1);
+
+                action = new EnchantmentAddAction(mcmeSelector, itemFilters, enchantments, enchantmentChoices, quantity, duration);
+                break;
+            case VALUE_REMOVE_ENCHANTMENT:
+                mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                enchantments = EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENT));
+                enchantments.addAll(EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENTS)));
+                enchantmentChoices = LootTableCompiler.compileEnchantmentChoices(jsonObject).orElse(new HashSet<>());
+                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) return Optional.empty();
+
+                itemFilters = ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTER));
+                itemFilters.addAll(ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTERS)));
+
+                quantity = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_QUANTITY),-1);
+                action = new EnchantmentRemoveAction(mcmeSelector, itemFilters, enchantments, enchantmentChoices, quantity);
+                break;
             case VALUE_REMOVE_ITEM:
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
@@ -463,7 +500,7 @@ public class ActionCompiler {
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
                 itemChoices = LootTableCompiler.compileItemChoices(jsonObject).orElse(new HashSet<>());
                 if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
-                action = new GiveChestAction(mcmeSelector,items,itemChoices,duration);
+                action = new GiveChestAction(mcmeSelector,items, itemChoices,duration);
                 break;
             case VALUE_RAIN_ITEM:
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
