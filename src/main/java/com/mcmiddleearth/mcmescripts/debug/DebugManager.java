@@ -1,6 +1,8 @@
 package com.mcmiddleearth.mcmescripts.debug;
 
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,11 +15,14 @@ public class DebugManager {
 
     public static final String INDENT = "  ";
 
-    private static Map<String,Level> debugModules = new HashMap<>();
+    private static final Map<String,Level> debugModules = new HashMap<>();
 
     private static final File logFile = new File(MCMEScripts.getInstance().getDataFolder(),"debug.txt");
 
     private static PrintWriter writer;
+
+    private static final Map<UUID, ScriptFilter> playerDebugScripts = new HashMap<>();
+    private static ScriptFilter consoleDebugScript = ScriptFilter.AllScriptFilter();
 
     public static void open() {
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule()))
@@ -39,6 +44,26 @@ public class DebugManager {
         }
     }
 
+    public static void setConsoleDebugScript(String scriptName) {
+        if(scriptName == null || scriptName.equalsIgnoreCase("none")) {
+            consoleDebugScript = ScriptFilter.NoScriptFilter();
+        } else if(scriptName.equals("*") || scriptName.equalsIgnoreCase("all")) {
+            consoleDebugScript = ScriptFilter.AllScriptFilter();
+        } else {
+            consoleDebugScript = ScriptFilter.OneScriptFilter(scriptName);
+        }
+    }
+
+    public static void setPlayerDebugScript(Player player, String scriptName) {
+        if(scriptName == null || scriptName.equalsIgnoreCase("none")) {
+            playerDebugScripts.remove(player.getUniqueId());
+        } else if(scriptName.equals("*") || scriptName.equalsIgnoreCase("all")) {
+            playerDebugScripts.put(player.getUniqueId(), ScriptFilter.AllScriptFilter());
+        } else {
+            playerDebugScripts.put(player.getUniqueId(), ScriptFilter.OneScriptFilter(scriptName));
+        }
+    }
+
     public static void close() {
         writer.close();
     }
@@ -51,16 +76,16 @@ public class DebugManager {
         } else {
             debug(module, Level.next(debugModules.get(module)));
         }
-        log("Debug Modules: ");
-        debugModules.forEach((key, value) -> log(key+" - "+value.name()));
+        log("Debug Modules: ",null);
+        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
     }
 
     public static void debug(String module, String debugLevel) {
         try {
             debug(module, Level.valueOf(debugLevel.toUpperCase()));
         } catch(IllegalArgumentException ignore) {}
-        log("Debug Modules: ");
-        debugModules.forEach((key, value) -> log(key+" - "+value.name()));
+        log("Debug Modules: ",null);
+        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
     }
 
     public static void debug(String module, Level debugLevel) {
@@ -73,44 +98,64 @@ public class DebugManager {
 
     public static void list(String module) {
         String[] split = module.split("\\.");
-        log("List of registered "+split[0]+"s:");
+        log("List of registered "+split[0]+"s:",null);
         if(split[0].equalsIgnoreCase("script")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length < 2 || entry.getKey().toLowerCase().startsWith(split[1].toLowerCase())))
                        .forEach(entry -> log(entry.getKey()+(entry.getValue().isActive()?"(active)":"")+": "
                                                                +entry.getValue().getTriggers().size()+" Triggers, "
-                                                               +entry.getValue().getEntities().size()+" Entities."));
+                                                               +entry.getValue().getEntities().size()+" Entities.",null));
         } else if(split[0].equalsIgnoreCase("trigger")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length<2 || entry.getKey().startsWith(split[1])))
                        .forEach(entry -> entry.getValue().getTriggers().stream()
                             .filter(trigger -> split.length < 3
                                     || trigger.getClass().getSimpleName().toLowerCase().startsWith(split[2].toLowerCase()))
-                            .forEach(trigger -> log(trigger.getClass().getSimpleName()+" "+trigger.toString())));
+                            .forEach(trigger -> log(trigger.getClass().getSimpleName()+" "+trigger,null)));
         }
     }
 
     public static void verbose(String module, String message) {
-        log(module, message, Level.VERBOSE);
+        log(module, message, Level.VERBOSE, null);
     }
 
     public static void info(String module, String message) {
-        log(module, message, Level.INFO);
+        log(module, message, Level.INFO, null);
     }
 
     public static void warn(String module, String message) {
-        log(module, message, Level.WARNING);
+        log(module, message, Level.WARNING, null);
     }
 
     public static void severe(String module, String message) {
-        log(module, message, Level.SEVERE);
+        log(module, message, Level.SEVERE, null);
     }
 
     public static void critical(String module, String message) {
-        log(module, message, Level.CRITICAL);
+        log(module, message, Level.CRITICAL,null);
     }
 
-    public static void log(String module, String message, Level debugLevel) {
+    public static void verbose(String module, String message, String script) {
+        log(module, message, Level.VERBOSE, script);
+    }
+
+    public static void info(String module, String message, String script) {
+        log(module, message, Level.INFO, script);
+    }
+
+    public static void warn(String module, String message, String script) {
+        log(module, message, Level.WARNING, script);
+    }
+
+    public static void severe(String module, String message, String script) {
+        log(module, message, Level.SEVERE, script);
+    }
+
+    public static void critical(String module, String message, String script) {
+        log(module, message, Level.CRITICAL,script);
+    }
+
+    public static void log(String module, String message, Level debugLevel, String scriptName) {
         String initialModule = ""+module;
         module = module + ".";
         int lastDot = module.lastIndexOf('.');
@@ -122,7 +167,7 @@ public class DebugManager {
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
         if(isActive(module,debugLevel) || isActive(module.split("\\.")[0],debugLevel)) {
-            log(initialModule + " -> " + message);
+            log(initialModule + " -> " + message, scriptName);
         }
     }
 
@@ -130,9 +175,15 @@ public class DebugManager {
         return debugModules.get(module)!=null && debugModules.get(module).getDebugLevel()<=debugLevel.getDebugLevel();
     }
 
-    public static void log(String message) {
-        Logger.getLogger(MCMEScripts.class.getSimpleName()).info(message);
-        writer.println(message);
+    public static void log(String message, String scriptName) {
+        if(consoleDebugScript.filter(scriptName)) {
+            Logger.getLogger(MCMEScripts.class.getSimpleName()).info(message);
+            writer.println(message);
+        }
+        Bukkit.getOnlinePlayers().stream().filter(player -> {
+            ScriptFilter playerScriptFilter = playerDebugScripts.get(player.getUniqueId());
+            return playerScriptFilter.filter(scriptName);
+            }).forEach(player -> player.sendMessage(message));
     }
 
 }

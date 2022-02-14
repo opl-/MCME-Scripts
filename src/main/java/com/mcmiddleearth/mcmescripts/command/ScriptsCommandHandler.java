@@ -2,6 +2,7 @@ package com.mcmiddleearth.mcmescripts.command;
 
 import com.google.common.base.Joiner;
 import com.mcmiddleearth.command.AbstractCommandHandler;
+import com.mcmiddleearth.command.McmeCommandSender;
 import com.mcmiddleearth.command.SimpleTabCompleteRequest;
 import com.mcmiddleearth.command.TabCompleteRequest;
 import com.mcmiddleearth.command.builder.HelpfulLiteralBuilder;
@@ -13,10 +14,12 @@ import com.mcmiddleearth.mcmescripts.drive.DriveUtil;
 import com.mcmiddleearth.mcmescripts.listener.WandItemListener;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import com.mcmiddleearth.mcmescripts.trigger.ExternalTrigger;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,15 +42,23 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
             .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.USER.getNode()))
             .then(HelpfulLiteralBuilder.literal("debug")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
-                .then(HelpfulRequiredArgumentBuilder.argument("module",word())
-                    .executes(context -> {
-                        DebugManager.cycleDebug(context.getArgument("module",String.class));
-                        return 0; })
-                    .then(HelpfulRequiredArgumentBuilder.argument("level",word())
+                .then(HelpfulLiteralBuilder.literal("modules")
+                    .then(HelpfulRequiredArgumentBuilder.argument("module",word())
                         .executes(context -> {
-                            DebugManager.debug(context.getArgument("module",String.class),
-                                    context.getArgument("level",String.class));
-                            return 0; }))))
+                            DebugManager.cycleDebug(context.getArgument("module",String.class));
+                            return 0; })
+                        .then(HelpfulRequiredArgumentBuilder.argument("level",word())
+                            .executes(context -> {
+                                DebugManager.debug(context.getArgument("module",String.class),
+                                        context.getArgument("level",String.class));
+                                return 0; }))))
+                .then(HelpfulLiteralBuilder.literal("filter")
+                    .then(HelpfulRequiredArgumentBuilder.argument("player", word())
+                        .then(HelpfulRequiredArgumentBuilder.argument("script", word())
+                                .executes(context -> {
+                                    setFilter(context.getSource(), context.getArgument("player",String.class),
+                                                                context.getArgument("script",String.class));
+                                    return 0; })))))
             .then(HelpfulLiteralBuilder.literal("list")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulRequiredArgumentBuilder.argument("module",word())
@@ -168,6 +179,17 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                         return 0;
                     })));
         return commandNodeBuilder;
+    }
+
+    private void setFilter(McmeCommandSender sender, String playerName, String script) {
+        if("console".equalsIgnoreCase(playerName)) {
+            DebugManager.setConsoleDebugScript(script);
+        } else {
+            Player player = Bukkit.getPlayer(playerName);
+            if(player!=null) {
+                DebugManager.setPlayerDebugScript(player, script);
+            }
+        }
     }
 
     @Override
