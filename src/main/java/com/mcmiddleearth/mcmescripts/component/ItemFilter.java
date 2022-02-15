@@ -5,7 +5,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.examination.Examinable;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,7 +41,10 @@ public class ItemFilter {
         this.equipmentSlot = equipmentSlot;
     }
 
-    public boolean match(ItemStack itemCheck, McmeInventory inventory) {
+    public boolean match(ItemStack itemCheck, Inventory inventory) {
+        if(itemCheck==null) {
+            return false;
+        }
         if (material != null) {
             if (material.getKey() == ItemPropertyState.PRESENT) {
                 if (material.getValue() != itemCheck.getType()) {
@@ -146,12 +151,12 @@ public class ItemFilter {
             }
         }
 
-        if (equipmentSlot != null) {
+        if (equipmentSlot != null && inventory instanceof EntityEquipment) {
             if (equipmentSlot.getKey() == ItemPropertyState.PRESENT) {
-                return inventory.getItem(equipmentSlot.getValue()) == itemCheck;
+                return ((EntityEquipment)inventory).getItem(equipmentSlot.getValue()) == itemCheck;
             }
             else if (equipmentSlot.getKey() == ItemPropertyState.NOT_PRESENT) {
-                return inventory.getItem(equipmentSlot.getValue()) != itemCheck;
+                return ((EntityEquipment)inventory).getItem(equipmentSlot.getValue()) != itemCheck;
             }
         }
 

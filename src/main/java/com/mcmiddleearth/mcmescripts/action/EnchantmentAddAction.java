@@ -12,6 +12,7 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -28,7 +29,7 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
             Set<ItemStack> applyItems = new HashSet<>();
             LootTable lootTable = new LootTable(enchantmentChoices);
 
-            McmeInventory entityInventory = (McmeInventory) entity.getInventory(); // I believe this cast can be removed though I have not found anywhere to get the mcmeinventory directly from the entity
+            Inventory entityInventory = entity.getInventory();
             for (ItemStack entityItem : entityInventory) {
                 if (itemFilters.isEmpty()) {
                     applyItems.add(entityItem);

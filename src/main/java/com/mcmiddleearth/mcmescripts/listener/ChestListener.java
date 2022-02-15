@@ -86,9 +86,11 @@ public class ChestListener implements Listener {
     private LootTable loadLootTable() {
         Set<ItemChoice> choices = null;
         try {
-            JsonObject jsonObject = JsonUtils.loadJsonData(lootTableFile);
-            if(jsonObject!=null) {
-                choices = LootTableCompiler.compileItemChoices(jsonObject).orElse(null);
+            if(lootTableFile.exists()) {
+                JsonObject jsonObject = JsonUtils.loadJsonData(lootTableFile);
+                if (jsonObject != null) {
+                    choices = LootTableCompiler.compileItemChoices(jsonObject).orElse(null);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

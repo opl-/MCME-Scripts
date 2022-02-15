@@ -19,14 +19,15 @@ public class LootTable {
     public LootTable(Set<?> choices) {
         itemChoices = new HashSet<>();
         enchantmentChoices = new HashSet<>();
-        choices.forEach(choice -> {
-            if (choice instanceof ItemChoice) {
-                itemChoices.add((ItemChoice) choice);
-            }
-            else if (choice instanceof EnchantmentChoice) {
-                enchantmentChoices.add((EnchantmentChoice) choice);
-            }
-        });
+        if(choices != null) {
+            choices.forEach(choice -> {
+                if (choice instanceof ItemChoice) {
+                    itemChoices.add((ItemChoice) choice);
+                } else if (choice instanceof EnchantmentChoice) {
+                    enchantmentChoices.add((EnchantmentChoice) choice);
+                }
+            });
+        }
     }
 
     public Set<ItemStack> selectItems() {
