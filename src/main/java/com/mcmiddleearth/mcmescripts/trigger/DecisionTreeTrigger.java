@@ -3,6 +3,7 @@ package com.mcmiddleearth.mcmescripts.trigger;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 
 import java.util.Collection;
@@ -44,10 +45,16 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
     @Override
     public void call(TriggerContext context) {
-        context.getDescriptor().add(getDescriptor()).indent();
+        //context.getDescriptor().add(getDescriptor()).indent();
+        context.getDescriptor().add(super.getDescriptor()).indent();
         decisionNode.call(context);
         context.getDescriptor().outdent();
         super.call(context);
+    }
+
+    @Override
+    public Descriptor getDescriptor() {
+        return super.getDescriptor().add(decisionNode.getDescriptor());
     }
 
     public static class DecisionNode {
@@ -75,8 +82,8 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         public void call(TriggerContext context) {
-            DebugManager.info(Modules.Trigger.call(this.getClass()),
-                    "Conditions: "+conditions.size()+" actions: "+actions.size()+" met all: "+metAllConditions);
+            //DebugManager.info(Modules.Trigger.call(this.getClass()),
+            //        "Conditions: "+conditions.size()+" actions: "+actions.size()+" met all: "+metAllConditions);
             context.getDescriptor().addLine("Checking conditions ...").indent();
             if(checkConditions(context)) {
                 context.getDescriptor().outdent().addLine("Condition check success! Executing actions: ").indent();
@@ -100,8 +107,12 @@ public abstract class DecisionTreeTrigger extends Trigger {
         }
 
         private boolean checkConditions(TriggerContext context) {
-            if(conditions == null || conditions.isEmpty()) return true;
+            if(conditions == null || conditions.isEmpty()) {
+                context.getDescriptor().addLine("Conditions: --none--");
+                return true;
+            }
             for(Condition condition: conditions) {
+                context.getDescriptor().addLine("Met all: "+metAllConditions);
                 if(metAllConditions && !condition.test(context)) {
                     return false;
                 } else if(!metAllConditions && condition.test(context)) {
@@ -152,6 +163,33 @@ public abstract class DecisionTreeTrigger extends Trigger {
                  +" Conditions: "+(conditions==null?"null":conditions.size()+"\n"+collectionToString(conditions))+" metAll: "+metAllConditions;
         }
 
+        public Descriptor getDescriptor() {
+            Descriptor descriptor = new Descriptor();
+            if(conditions.isEmpty()) {
+                descriptor.addLine("Conditions: --none--");
+            } else {
+                descriptor.addLine("Conditions:").indent();
+                conditions.forEach(condition -> descriptor.add(condition.getDescriptor()));
+                descriptor.outdent();
+            }
+            if(actions.isEmpty()) {
+                descriptor.addLine("Actions: --none--");
+            } else {
+                descriptor.addLine("Actions:").indent();
+                actions.forEach(action -> descriptor.add(action.getDescriptor()));
+                descriptor.outdent();
+            }
+            if(conditionSuccessTrigger != null) {
+                descriptor.addLine("Then:").indent()
+                        .add(conditionSuccessTrigger.getDescriptor()).outdent();
+            }
+            if(conditionFailTrigger != null) {
+                descriptor.addLine("Else:").indent()
+                        .add(conditionSuccessTrigger.getDescriptor()).outdent();
+            }
+            return descriptor;
+        }
+
         @SuppressWarnings({"rawtypes","unchecked"})
         private String collectionToString(Collection collection) {
             StringBuilder builder = new StringBuilder();
@@ -165,8 +203,8 @@ public abstract class DecisionTreeTrigger extends Trigger {
         return " CallOnce: "+isCallOnce()+"\nDecision node: \n"+decisionNode.toString();
     }
 
-    @Override
+    /*@Override
     public String print(String indent) {
         return super.print(indent);
-    }
+    }*/
 }

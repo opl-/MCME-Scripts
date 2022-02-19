@@ -1,17 +1,15 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
-import com.mcmiddleearth.mcmescripts.debug.DebugManager;
-import com.mcmiddleearth.mcmescripts.debug.Descriptor;
-import com.mcmiddleearth.mcmescripts.debug.Modules;
-import com.mcmiddleearth.mcmescripts.selector.Selector;
-import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
+import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import org.bukkit.entity.Player;
 
-import java.util.function.Function;
+public class OnlinePlayerCondition extends CriterionCondition<Player> {
 
-public class PlayerOnlineCondition extends Condition {
+    public OnlinePlayerCondition(PlayerSelector selector, Criterion test) {
+        super(selector, test);
+    }
 
-    private final Criterion test;
+    /*private final Criterion test;
     private final Selector<Player> selector;
 
     @SuppressWarnings({"unchecked","rawtypes"})
@@ -24,19 +22,23 @@ public class PlayerOnlineCondition extends Condition {
 
     @Override
     public boolean test(TriggerContext context) {
-        DebugManager.verbose(Modules.Condition.test(this.getClass()),
-                "Selector: "+selector.getSelector());
-        return test.apply(selector.select(context).size());
-    }
+        //DebugManager.verbose(Modules.Condition.test(this.getClass()),
+        //        "Selector: "+selector.getSelector());
+        int size = selector.select(context).size();
+        context.getDescriptor().add(getDescriptor())
+               .addLine("Selected players: "+size);
+        return test.apply(size);
+    }*/
 
-    @Override
+    /*@Override
     public String toString() {
         return this.getClass().getSimpleName()+" Selector: "+selector.getSelector();
-    }
+    }*/
 
+    /*@Override
     public Descriptor getDescriptor() {
         return super.getDescriptor().addLine("Selector: "+selector.getSelector())
-                                    .addLine("Criterion: "+test.getComparator()+test.getLimit());
-    }
+                .addLine("Criterion: "+test.getComparator()+test.getLimit());
+    }*/
 
 }

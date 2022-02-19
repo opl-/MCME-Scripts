@@ -15,6 +15,8 @@ public class Descriptor {
         lines.add(title);
     }
 
+    public Descriptor() {}
+
     public Descriptor addLine(String line) {
         StringBuilder builder = new StringBuilder();
         for(int i = 0; i<indentLevel; i++) { builder.append(DebugManager.INDENT);}

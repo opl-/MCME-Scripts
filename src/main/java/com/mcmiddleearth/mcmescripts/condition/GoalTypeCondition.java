@@ -6,6 +6,7 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.EntitySelector;
+import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 public class GoalTypeCondition extends SelectingCondition<VirtualEntity> {
 
@@ -22,7 +23,9 @@ public class GoalTypeCondition extends SelectingCondition<VirtualEntity> {
     }
 
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("Goal Type: "+goalType.name()).addLine("Negate: "+exclude);
+        return super.getDescriptor().indent()
+                .addLine("Goal Type: "+goalType.name()).addLine("Negate: "+exclude)
+                .outdent();
     }
 
 }

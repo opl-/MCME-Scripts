@@ -185,7 +185,7 @@ public class DebugManager {
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
         if(isActive(module,debugLevel) || isActive(module.split("\\.")[0],debugLevel)) {
-            log(initialModule + " -> " + message, scriptName);
+            log("["+initialModule+"] -> " + message, scriptName);
         }
     }
 

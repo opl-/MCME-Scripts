@@ -1,10 +1,12 @@
 package com.mcmiddleearth.mcmescripts.action;
 
+import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -24,11 +26,21 @@ public class SelectingAction<T> extends Action {
     protected void handler(TriggerContext context) {
         List<T> selected = selector.select(context);
         DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
-        selected.forEach(element -> executor.accept(element,context));
+        context.getDescriptor().add(getDescriptor()).indent();
+        selected.forEach(element -> {
+            if(element instanceof Player) {
+                context.getDescriptor().addLine("Targeting: " + ((Player) element).getName());
+            } else if(element instanceof McmeEntity) {
+                context.getDescriptor().addLine("Targeting: " + ((McmeEntity) element).getName());
+            }
+            executor.accept(element,context);
+        });
+        context.getDescriptor().outdent();
     }
 
     @Override
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("Selector: "+selector.getSelector());
+        return super.getDescriptor().indent()
+                .addLine("Selector: "+selector.getSelector()).outdent();
     }
 }

@@ -23,6 +23,8 @@ public class ServerDaytimeCondition extends Condition{
     @Override
     public boolean test(TriggerContext context) {
         long time = world.getTime();
+        context.getDescriptor().add(getDescriptor()).indent()
+               .addLine("Now: "+time).outdent();
         if(negate) {
             return !(startTick < time && time < endTick);
         } else {
@@ -31,10 +33,12 @@ public class ServerDaytimeCondition extends Condition{
     }
 
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("World: "+world)
+        return super.getDescriptor().indent()
+                .addLine("World: "+world)
                 .addLine("Negate: "+negate)
                 .addLine("Start: "+startTick)
-                .addLine("End: "+endTick);
+                .addLine("End: "+endTick)
+                .outdent();
     }
 
 }

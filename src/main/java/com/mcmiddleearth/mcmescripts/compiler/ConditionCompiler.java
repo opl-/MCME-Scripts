@@ -4,13 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
-import com.mcmiddleearth.entities.util.Constrain;
 import com.mcmiddleearth.mcmescripts.condition.*;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import org.bukkit.Bukkit;
@@ -20,7 +20,6 @@ import org.bukkit.World;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 public class ConditionCompiler {
 
@@ -156,8 +155,8 @@ public class ConditionCompiler {
                     }
                     return Optional.of(new ServerDaytimeCondition(world, startTick, endTick, exclude));
                 case VALUE_PLAYER_ONLINE:
-                    selector = SelectorCompiler.compilePlayerSelector(jsonObject);
-                    return Optional.of(new PlayerOnlineCondition(selector, compileFunction(jsonObject)));
+                    PlayerSelector playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
+                    return Optional.of(new OnlinePlayerCondition(playerSelector, compileFunction(jsonObject)));
             }
         } catch(NullPointerException ignore) {}
         return Optional.empty();

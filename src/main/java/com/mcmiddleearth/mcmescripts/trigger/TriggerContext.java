@@ -27,7 +27,7 @@ public class TriggerContext {
 
     private McmeEntityEvent entityEvent;
 
-    private final Descriptor descriptor;
+    private Descriptor descriptor;
 
     public TriggerContext(Trigger trigger) {
         this.trigger = trigger;
@@ -141,11 +141,11 @@ public class TriggerContext {
         return this;
     }
 
-    public String print(String indent) {
-        return descriptor.print(indent);
-    }
-
     public Descriptor getDescriptor() {
         return descriptor;
+    }
+
+    public void setDescriptor(Descriptor descriptor) {
+        this.descriptor = descriptor;
     }
 }

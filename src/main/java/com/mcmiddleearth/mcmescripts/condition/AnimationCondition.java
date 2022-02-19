@@ -34,10 +34,12 @@ public class AnimationCondition extends SelectingCondition<VirtualEntity> {
     }
 
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("Current Animation: "+(currentAnimation!=null?currentAnimation:"--ignore--"))
-                                    .addLine("Manual Animation: "+(manualAnimationControl!=null?manualAnimationControl:"--ignore--"))
-                                    .addLine("Manual Override: "+(manualOverride!=null?manualOverride:"--ignore--"))
-                                    .addLine("Instant Switching: "+(instantAnimationSwitching!=null?instantAnimationSwitching:"--ignore--"));
+        return super.getDescriptor().indent()
+                .addLine("Current Animation: "+(currentAnimation!=null?currentAnimation:"--ignore--"))
+                .addLine("Manual Animation: "+(manualAnimationControl!=null?manualAnimationControl:"--ignore--"))
+                .addLine("Manual Override: "+(manualOverride!=null?manualOverride:"--ignore--"))
+                .addLine("Instant Switching: "+(instantAnimationSwitching!=null?instantAnimationSwitching:"--ignore--"))
+                .outdent();
     }
 
 }

@@ -38,19 +38,18 @@ public class Script {
     public Script(File file) throws IOException {
         dataFile = file;
         JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
+        assert jsonData != null;
         name = ScriptCompiler.getName(jsonData).orElse(System.currentTimeMillis()+"_"+Math.random());
         conditions = ConditionCompiler.compile(jsonData);
         if(!conditions.isEmpty()) metAllConditions = TriggerCompiler.getMetAllConditions(jsonData);
-        DebugManager.info(Modules.Script.create(this.getClass()),
-                "Creating script: \n"+print(""));
+        DebugManager.info(Modules.Script.create(this.getClass()), getDescriptor().print(""));
     }
 
     public void load() throws IOException {
         if(!active) {
             JsonObject jsonData = JsonUtils.loadJsonData(dataFile);
             ScriptCompiler.load(jsonData,this);
-            DebugManager.info(Modules.Script.load(this.getClass()),
-                    "Loading script ... \n"+getDescriptor().print(""));
+            DebugManager.info(Modules.Script.load(this.getClass()), getDescriptor().print(""));
             active = true;
         }
     }
@@ -60,8 +59,7 @@ public class Script {
         entities.forEach(entity -> EntitiesPlugin.getEntityServer().removeEntity(entity));
         entities.clear();
         active = false;
-        DebugManager.info(Modules.Script.unload(this.getClass()),
-                "Name: "+name);
+        DebugManager.info(Modules.Script.unload(this.getClass()), name);
     }
 
     public boolean isActive() {
@@ -131,13 +129,35 @@ public class Script {
     }
 
     public Descriptor getDescriptor() {
-        return new Descriptor(this.getClass().getSimpleName())
-                               .addLine("Data file: "+dataFile.getName())
-                               .addLine("Met all conditions: "+metAllConditions)
-                               .addLine("Active: "+active);
+        Descriptor descriptor = new Descriptor("Script: "+name)
+                .indent()
+                .addLine("Data file: "+dataFile.getName())
+                .addLine("Met all conditions: "+metAllConditions)
+                .addLine("Active: "+active);
+        if(!conditions.isEmpty()) {
+            descriptor.addLine("Conditions:").indent();
+            conditions.forEach(condition -> descriptor.add(condition.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Conditions: --none--");
+        }
+        if(!triggers.isEmpty()) {
+            descriptor.addLine("Triggers:").indent();
+            triggers.forEach(trigger -> descriptor.add(trigger.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Triggers: --none--");
+        }
+        if(!entities.isEmpty()) {
+            descriptor.addLine("Entities:").indent();
+            entities.forEach(entity -> descriptor.addLine(entity.getName()+" at "+entity.getLocation()));
+        } else {
+            descriptor.addLine("Entities: --none--");
+        }
+        return descriptor;
     }
 
-    public String print(String indent) {
+    /*public String print(String indent) {
         String subIndent = DebugManager.INDENT;
         StringBuilder builder = new StringBuilder();
         builder.append(getDescriptor().print(indent));
@@ -162,5 +182,5 @@ public class Script {
             builder.append(indent).append(subIndent).append("Entities: --none--").append("\n");
         }
         return builder.toString();
-    }
+    }*/
 }

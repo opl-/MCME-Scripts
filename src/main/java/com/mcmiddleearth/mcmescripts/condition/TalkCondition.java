@@ -5,6 +5,7 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.EntitySelector;
+import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
 public class TalkCondition extends SelectingCondition<VirtualEntity> {
 

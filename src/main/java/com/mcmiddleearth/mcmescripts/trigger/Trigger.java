@@ -75,7 +75,7 @@ public abstract class Trigger {
     }
 
     public void call(TriggerContext context) {
-        DebugManager.info(Modules.Trigger.call(this.getClass()),context.print(""));
+        DebugManager.info(Modules.Trigger.call(this.getClass()),context.getDescriptor().print(""));
         if(callOnce) {
             unregister();
         }
@@ -90,16 +90,15 @@ public abstract class Trigger {
     }
 
     public Descriptor getDescriptor() {
-        return new Descriptor(this.getClass().getSimpleName())
-                .addLine("Name: "+name)
+        return new Descriptor(this.getClass().getSimpleName() + ": "+name)
                 .addLine("Call once: "+callOnce)
                 .addLine("Trigger entity: "+(entity!=null?entity.getName()+" at "+entity.getLocation().toString():"--none--"))
                 .addLine("Trigger player: "+(entity!=null?player.getName()+" at "+player.getLocation().toString():"--none--"))
                 .addLine("Trigger location: "+(entity!=null?location.toString():"--none--"));
     }
 
-    public String print(String indent) {
+    /*public String print(String indent) {
         return getDescriptor().print(indent);
-    }
+    }*/
 
 }

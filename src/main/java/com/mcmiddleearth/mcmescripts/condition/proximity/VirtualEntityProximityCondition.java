@@ -3,28 +3,26 @@ package com.mcmiddleearth.mcmescripts.condition.proximity;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.entities.entities.VirtualEntity;
-import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.condition.Criterion;
+import com.mcmiddleearth.mcmescripts.condition.CriterionCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 
-import java.util.function.Function;
-import java.util.logging.Logger;
+@SuppressWarnings({"rawtypes","unchecked"})
+public class VirtualEntityProximityCondition extends CriterionCondition {
 
-@SuppressWarnings("rawtypes")
-public class VirtualEntityProximityCondition extends Condition {
-
-    private final Criterion test;
+    //private final Criterion test;
     private final String entityName;
-    private final Selector selector;
+    //private final Selector selector;
 
     public VirtualEntityProximityCondition(String entityName, Selector selector, Criterion test) {
-        this.selector = selector;
+        super(selector,test);
+        //this.selector = selector;
         this.entityName = entityName;
-        this.test = test;
+        //this.test = test;
         DebugManager.info(Modules.Condition.create(this.getClass()),
                 "Selector: "+selector.getSelector()+" Entity: "+entityName);
     }
@@ -32,21 +30,38 @@ public class VirtualEntityProximityCondition extends Condition {
     @Override
     public boolean test(TriggerContext context) {
         McmeEntity entity = EntitiesPlugin.getEntityServer().getEntity(entityName);
+        TriggerContext virtualEntityContext = new TriggerContext(context);
         if(entity instanceof VirtualEntity) {
-            context = new TriggerContext(context).withEntity((VirtualEntity) entity);
+            virtualEntityContext.withEntity(entity);
         }
-        DebugManager.verbose(Modules.Condition.test(this.getClass()),
-                "Selector: "+selector.getSelector()+" Entity: "+(entity!=null?entity.getName():"null"));
-        return test.apply(selector.select(context).size());
+        boolean result = super.test(virtualEntityContext);
+        context.setDescriptor(virtualEntityContext.getDescriptor());
+        if(entity instanceof VirtualEntity) {
+            context.getDescriptor().indent()
+                    .addLine("Found center entity: "+entity.getName()).outdent();
+        } else {
+            context.getDescriptor().indent()
+                    .addLine("Found center entity: --none--").outdent();
+        }
+        return result;
+        //DebugManager.verbose(Modules.Condition.test(this.getClass()),
+        //        "Selector: "+selector.getSelector()+" Entity: "+(entity!=null?entity.getName():"null"));
+        /*int size = selector.select(context).size();
+        context.getDescriptor().add(getDescriptor())
+                .addLine("Selected entities: "+size);
+        return test.apply(size);*/
     }
 
-    @Override
+    /*@Override
     public String toString() {
         return this.getClass().getSimpleName()+" Entity: "+entityName+" Selector: "+selector.getSelector();
-    }
+    }*/
 
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("Criterion: "+test.getComparator()+test.getLimit());
+        return super.getDescriptor()
+                .addLine("Entity: "+entityName);
+                //.addLine("Selector: "+selector.getSelector())
+                //.addLine("Criterion: "+test.getComparator()+test.getLimit());
     }
 
 }

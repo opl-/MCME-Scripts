@@ -12,12 +12,15 @@ public abstract class Action {
     private int delay = 0;
 
     public void execute(TriggerContext context) {
-        DebugManager.info(Modules.Action.execute(this.getClass()),
-                "Delay: "+delay);
+        //DebugManager.info(Modules.Action.execute(this.getClass()),
+        //        "Delay: "+delay);
+        context.getDescriptor().add(getDescriptor()).indent()
+                               .addLine("Delay: "+delay);
         new BukkitRunnable() {
             @Override
             public void run() {
                 handler(context);
+                context.getDescriptor().outdent();
             }
         }.runTaskLater(MCMEScripts.getInstance(),delay);
     }
