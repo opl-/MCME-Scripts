@@ -22,13 +22,14 @@ public class DebugManager {
     private static PrintWriter writer;
 
     private static final Map<UUID, ScriptFilter> playerDebugScripts = new HashMap<>();
-    private static ScriptFilter consoleDebugScript = ScriptFilter.AllScriptFilter();
+    private static ScriptFilter consoleDebugScript = ScriptFilter.NoScriptFilter();
+    private static ScriptFilter fileDebugScript = ScriptFilter.AllScriptFilter();
 
     public static void open() {
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule()))
-                .forEach(module -> debugModules.put(module.getModule(),Level.SEVERE));
+                .forEach(module -> debugModules.put(module.getModule(),Level.VERBOSE));
         Arrays.stream(Modules.values()).filter(module -> !debugModules.containsKey(module.getModule().split("\\.")[0]))
-                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.SEVERE));
+                .forEach(module -> debugModules.put(module.getModule().split("\\.")[0],Level.VERBOSE));
         if(logFile.exists()) {
             if(!logFile.delete()) {
                 Logger.getLogger(MCMEScripts.class.getSimpleName()).info("Can't delete old log file!");
@@ -54,6 +55,16 @@ public class DebugManager {
         }
     }
 
+    public static void setFileDebugScript(String scriptName) {
+        if(scriptName == null || scriptName.equalsIgnoreCase("none")) {
+            fileDebugScript = ScriptFilter.NoScriptFilter();
+        } else if(scriptName.equals("*") || scriptName.equalsIgnoreCase("all")) {
+            fileDebugScript = ScriptFilter.AllScriptFilter();
+        } else {
+            fileDebugScript = ScriptFilter.OneScriptFilter(scriptName);
+        }
+    }
+
     public static void setPlayerDebugScript(Player player, String scriptName) {
         if(scriptName == null || scriptName.equalsIgnoreCase("none")) {
             playerDebugScripts.remove(player.getUniqueId());
@@ -68,32 +79,39 @@ public class DebugManager {
         writer.close();
     }
 
-    public static void cycleDebug(String module) {
+    public static Level cycleDebugLevel(String module) {
+        Level level;
         if(module.equals("all")) {
-            debug("all", Level.VERBOSE);
+            setDebugLevel("all", Level.VERBOSE);
+            level = Level.VERBOSE;
         } else if(module.equals("none")) {
-            debug("all", Level.CRITICAL);
+            setDebugLevel("all", Level.CRITICAL);
+            level = Level.CRITICAL;
         } else {
-            debug(module, Level.next(debugModules.get(module)));
+            level = Level.next(debugModules.get(module));
+            setDebugLevel(module, level);
         }
         log("Debug Modules: ",null);
         debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
+        return level;
     }
 
-    public static void debug(String module, String debugLevel) {
+    public static Level setDebugLevel(String module, String debugLevel) {
         try {
-            debug(module, Level.valueOf(debugLevel.toUpperCase()));
+            return setDebugLevel(module, Level.valueOf(debugLevel.toUpperCase()));
         } catch(IllegalArgumentException ignore) {}
         log("Debug Modules: ",null);
         debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
+        return null;
     }
 
-    public static void debug(String module, Level debugLevel) {
+    public static Level setDebugLevel(String module, Level debugLevel) {
         if(module.equalsIgnoreCase("all")) {
-            new HashSet<>(debugModules.keySet()).forEach(mod -> debug(mod, debugLevel));
+            new HashSet<>(debugModules.keySet()).forEach(mod -> setDebugLevel(mod, debugLevel));
         } else {
             debugModules.put(module, debugLevel);
         }
+        return debugLevel;
     }
 
     public static void list(String module) {
@@ -176,13 +194,15 @@ public class DebugManager {
     }
 
     public static void log(String message, String scriptName) {
+        if(fileDebugScript.filter(scriptName)) {
+            writer.println(message);
+        }
         if(consoleDebugScript.filter(scriptName)) {
             Logger.getLogger(MCMEScripts.class.getSimpleName()).info(message);
-            writer.println(message);
         }
         Bukkit.getOnlinePlayers().stream().filter(player -> {
             ScriptFilter playerScriptFilter = playerDebugScripts.get(player.getUniqueId());
-            return playerScriptFilter.filter(scriptName);
+            return playerScriptFilter != null && playerScriptFilter.filter(scriptName);
             }).forEach(player -> player.sendMessage(message));
     }
 

@@ -80,6 +80,11 @@
         </dependency>
         <dependency>
             <groupId>com.mcmiddleearth</groupId>
+            <artifactId>MCME-CommandParser</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mcmiddleearth</groupId>
             <artifactId>MCME-Entities</artifactId>
             <version>1.0-SNAPSHOT-400</version>
             <scope>provided</scope>
@@ -99,7 +104,7 @@
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>1.33.1</version>
+            <version>1.33.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>

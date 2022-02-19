@@ -7,24 +7,29 @@ import com.mcmiddleearth.command.SimpleTabCompleteRequest;
 import com.mcmiddleearth.command.TabCompleteRequest;
 import com.mcmiddleearth.command.builder.HelpfulLiteralBuilder;
 import com.mcmiddleearth.command.builder.HelpfulRequiredArgumentBuilder;
+import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.Permission;
+import com.mcmiddleearth.mcmescripts.command.arguments.ModuleArgument;
+import com.mcmiddleearth.mcmescripts.command.arguments.ScriptArgument;
+import com.mcmiddleearth.mcmescripts.command.arguments.TriggerArgument;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Level;
 import com.mcmiddleearth.mcmescripts.drive.DriveUtil;
 import com.mcmiddleearth.mcmescripts.listener.WandItemListener;
-import com.mcmiddleearth.mcmescripts.script.Script;
-import com.mcmiddleearth.mcmescripts.trigger.ExternalTrigger;
+import com.mojang.brigadier.context.CommandContext;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
@@ -43,102 +48,98 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
             .then(HelpfulLiteralBuilder.literal("debug")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulLiteralBuilder.literal("modules")
-                    .then(HelpfulRequiredArgumentBuilder.argument("module",word())
+                    .then(HelpfulRequiredArgumentBuilder.argument("module", new ModuleArgument(true, true))
                         .executes(context -> {
-                            DebugManager.cycleDebug(context.getArgument("module",String.class));
+                            String module = context.getArgument("module",String.class);
+                            Level level = DebugManager.cycleDebugLevel(module);
+                            context.getSource().sendMessage("Setting debug module "+module+" to level "+level.name());
                             return 0; })
                         .then(HelpfulRequiredArgumentBuilder.argument("level",word())
+                            .suggests(((commandContext, suggestionsBuilder) -> {
+                                Arrays.stream(Level.values()).forEach(level -> suggestionsBuilder.suggest(level.name().toLowerCase()));
+                                return suggestionsBuilder.buildFuture();}))
                             .executes(context -> {
-                                DebugManager.debug(context.getArgument("module",String.class),
+                                String module = context.getArgument("module",String.class);
+                                Level level = DebugManager.setDebugLevel(module,
                                         context.getArgument("level",String.class));
+                                if(level == null) {
+                                    context.getSource().sendError("Invalid debug level!");
+                                } else {
+                                    context.getSource().sendMessage("Setting debug module " + module + " to level " + level.name());
+                                }
                                 return 0; }))))
                 .then(HelpfulLiteralBuilder.literal("filter")
                     .then(HelpfulRequiredArgumentBuilder.argument("player", word())
-                        .then(HelpfulRequiredArgumentBuilder.argument("script", word())
-                                .executes(context -> {
-                                    setFilter(context.getSource(), context.getArgument("player",String.class),
-                                                                context.getArgument("script",String.class));
-                                    return 0; })))))
+                        .then(HelpfulRequiredArgumentBuilder.argument("script", new ScriptArgument(false,true))
+                            .executes(context -> {
+                                String player = context.getArgument("player",String.class);
+                                String script = context.getArgument("script",String.class);
+                                setFilter(player, script);
+                                context.getSource().sendMessage("Setting debug filter for "+player+" to script "+script);
+                                return 0; })))))
             .then(HelpfulLiteralBuilder.literal("list")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
-                .then(HelpfulRequiredArgumentBuilder.argument("module",word())
+                .then(HelpfulRequiredArgumentBuilder.argument("module", new ModuleArgument(true,false))
                     .executes(context -> {
-                        DebugManager.list(context.getArgument("module",String.class));
+                        String module = context.getArgument("module",String.class);
+                        context.getSource().sendMessage("Creating debug list for module "+module);
+                        DebugManager.list(module);
                         return 0; })))
             .then(HelpfulLiteralBuilder.literal("reload")
                 .executes(context -> {
+                    context.getSource().sendMessage("Reloading scripts ....");
                     MCMEScripts.getInstance().disableScripts();
                     MCMEScripts.getInstance().reloadConfig();
                     MCMEScripts.getInstance().enableScripts();
+                    Bukkit.getScheduler().runTaskLater(MCMEScripts.getInstance(), () -> context.getSource().sendMessage("... scripts reloaded!"),
+                            MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,95));
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("disable")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .executes(context -> {
                     MCMEScripts.getInstance().disableScripts();
+                    context.getSource().sendMessage("All scripts disabled!");
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("enable")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .executes(context -> {
+                    context.getSource().sendMessage("Enabling scripts ....");
                     MCMEScripts.getInstance().enableScripts();
+                    Bukkit.getScheduler().runTaskLater(MCMEScripts.getInstance(), () -> context.getSource().sendMessage("... scripts enabled!"),
+                            MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,95));
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("wand")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender() instanceof Player)
-                .then(HelpfulRequiredArgumentBuilder.argument("script",word())
-                    .suggests(((commandContext, suggestionsBuilder) -> {
-                        MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
-                                .forEach(script -> suggestionsBuilder.suggest(script.getName()));
-                        return suggestionsBuilder.buildFuture();}))
-                    .then(HelpfulRequiredArgumentBuilder.argument("name",word())
-                        .suggests((((commandContext, suggestionsBuilder) -> {
-                            Script script = MCMEScripts.getScriptManager().getScript(commandContext.getArgument("script",String.class));
-                            if(script!=null) {
-                                script.getTriggers().stream().filter(trigger->trigger instanceof ExternalTrigger)
-                                        .forEach(trigger -> suggestionsBuilder.suggest(trigger.getName()));
-                            }
-                            return suggestionsBuilder.buildFuture();})))
+                .then(HelpfulRequiredArgumentBuilder.argument("script", new ScriptArgument(true, false))
+                    .then(HelpfulRequiredArgumentBuilder.argument("name", new TriggerArgument())
                         .executes(context -> {
-                            Player player = (Player) ((ScriptsCommandSender)context.getSource()).getCommandSender();
-                            WandItemListener.addScript(player.getInventory().getItemInMainHand(),
-                                    context.getArgument("script", String.class) + " "
-                                            + context.getArgument("name", String.class));
+                            bindWand(context);
                             return 0;
                         })
                         .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
                             .executes(context -> {
-                                Player player = (Player) ((ScriptsCommandSender)context.getSource()).getCommandSender();
-                                WandItemListener.addScript(player.getInventory().getItemInMainHand(),
-                                        context.getArgument("script", String.class) + " "
-                                               + context.getArgument("name", String.class) + " "
-                                               + context.getArgument("arguments", String.class));
+                                bindWand(context);
                                 return 0;
                             })))))
             .then(HelpfulLiteralBuilder.literal("external")
-                    .then(HelpfulRequiredArgumentBuilder.argument("script",word())
-                            .suggests(((commandContext, suggestionsBuilder) -> {
-                                MCMEScripts.getScriptManager().getScripts().values().stream().filter(Script::isActive)
-                                        .forEach(script -> suggestionsBuilder.suggest(script.getName()));
-                                return suggestionsBuilder.buildFuture();}))
-                            .then(HelpfulRequiredArgumentBuilder.argument("name",word())
-                                    .suggests((((commandContext, suggestionsBuilder) -> {
-                                        Script script = MCMEScripts.getScriptManager().getScript(commandContext.getArgument("script",String.class));
-                                        if(script!=null) {
-                                            script.getTriggers().stream().filter(trigger->trigger instanceof ExternalTrigger)
-                                                    .forEach(trigger -> suggestionsBuilder.suggest(trigger.getName()));
-                                        }
-                                        return suggestionsBuilder.buildFuture();})))
-                                    .executes(context -> {
-                                        MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
-                                                context.getArgument("name",String.class),
-                                                new String[0]);
-                                        return 0;
-                                    })
-                                    .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
-                                            .executes(context -> {
-                                                MCMEScripts.getExternalTriggerManager().call(context.getArgument("script",String.class),
-                                                        context.getArgument("name",String.class),
-                                                        context.getArgument("arguments",String.class).split(" "));
-                                                return 0;
-                                            })))))
+                .then(HelpfulRequiredArgumentBuilder.argument("script", new ScriptArgument(true, false))
+                    .then(HelpfulRequiredArgumentBuilder.argument("name", new TriggerArgument())
+                        .executes(context -> {
+                            String script = context.getArgument("script",String.class);
+                            String name = context.getArgument("name",String.class);
+                            MCMEScripts.getExternalTriggerManager().call(script, name, new String[0]);
+                            context.getSource().sendMessage("Calling event "+script+"."+name+".");
+                            return 0;
+                        })
+                        .then(HelpfulRequiredArgumentBuilder.argument("arguments",greedyString())
+                            .executes(context -> {
+                                String script = context.getArgument("script",String.class);
+                                String name = context.getArgument("name",String.class);
+                                String arguments = context.getArgument("arguments", String.class);
+                                MCMEScripts.getExternalTriggerManager().call(script, name, arguments.split(" "));
+                                context.getSource().sendMessage("Calling event "+script+"."+name+"("+arguments+")");
+                                return 0;
+                            })))))
             .then(HelpfulLiteralBuilder.literal("import")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .then(HelpfulRequiredArgumentBuilder.argument("type",word())
@@ -146,10 +147,12 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                     .then(HelpfulRequiredArgumentBuilder.argument("file",word())
                         .executes(context -> {
                             try {
-                                DriveUtil.importFile(context.getSource(),
-                                        context.getArgument("type",String.class),
-                                        context.getArgument("file",String.class));
+                                String type = context.getArgument("type",String.class);
+                                String file = context.getArgument("file",String.class);
+                                DriveUtil.importFile(context.getSource(),type, file);
+                                context.getSource().sendMessage("Imported "+type+" file "+file+".json from Google drive.");
                             } catch (IOException | GeneralSecurityException e) {
+                                context.getSource().sendError("Error while accessing Google drive.");
                                 e.printStackTrace();
                             }
                             return 0;
@@ -161,10 +164,12 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                     .then(HelpfulRequiredArgumentBuilder.argument("file",word())
                         .executes(context -> {
                             try {
-                                DriveUtil.exportFile(context.getSource(),
-                                                     context.getArgument("type",String.class),
-                                                     context.getArgument("file",String.class));
+                                String type = context.getArgument("type",String.class);
+                                String file = context.getArgument("file",String.class);
+                                DriveUtil.exportFile(context.getSource(),type, file);
+                                context.getSource().sendMessage("Exported "+type+" file "+file+".json to Google drive.");
                             } catch (IOException | GeneralSecurityException e) {
+                                context.getSource().sendError("Error while accessing Google drive.");
                                 e.printStackTrace();
                             }
                             return 0;
@@ -173,7 +178,9 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
                     .executes(context -> {
                         try {
                             DriveUtil.exportFile(context.getSource(),"scripts","debug.txt");
+                            context.getSource().sendMessage("Exported debug.txt to Google drive.");
                         } catch (IOException | GeneralSecurityException e) {
+                            context.getSource().sendError("Error while accessing Google drive.");
                             e.printStackTrace();
                         }
                         return 0;
@@ -181,14 +188,32 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
         return commandNodeBuilder;
     }
 
-    private void setFilter(McmeCommandSender sender, String playerName, String script) {
+    private void setFilter(String playerName, String script) {
         if("console".equalsIgnoreCase(playerName)) {
+            DebugManager.setConsoleDebugScript(script);
+        } else if("file".equalsIgnoreCase(playerName)) {
             DebugManager.setConsoleDebugScript(script);
         } else {
             Player player = Bukkit.getPlayer(playerName);
             if(player!=null) {
                 DebugManager.setPlayerDebugScript(player, script);
             }
+        }
+    }
+
+    private void bindWand(CommandContext<McmeCommandSender> context) {
+        Player player = (Player) ((ScriptsCommandSender)context.getSource()).getCommandSender();
+        String script = context.getArgument("script", String.class);
+        String name = context.getArgument("name",String.class);
+        String arguments = ".";
+        try {
+            arguments = "."+context.getArgument("arguments", String.class)+".";
+        } catch (IllegalArgumentException ignore) {}
+        if(!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
+            WandItemListener.addScript(player.getInventory().getItemInMainHand(), script + " " + name + arguments);
+            context.getSource().sendMessage("Binding your hand item to event " + script + "." + name + arguments);
+        } else {
+            context.getSource().sendError("You need to hold an item in main hand.");
         }
     }
 
@@ -202,7 +227,7 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         TabCompleteRequest request = new SimpleTabCompleteRequest(new ScriptsCommandSender(sender),
-                                                                  String.format("/%s %s", alias, Joiner.on(' ').join(args)).trim());
+                                                                  String.format("/%s %s", alias, Joiner.on(' ').join(args)));
         onTabComplete(request);
         return request.getSuggestions();
     }
