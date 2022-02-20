@@ -23,11 +23,16 @@ public class TeleportAction extends SelectingAction<Player> {
             if(spread == 0) {
                 player.teleport(loc);
             } else {
-                player.teleport(randomClose(loc, spread));
+                Location randomLoc = randomClose(loc, spread);
+                player.teleport(randomLoc);
+                context.getDescriptor().addLine("Target location: "+randomLoc);
             }
-            DebugManager.verbose(Modules.Action.execute(TeleportAction.class),"Teleport player: "+player.getName());
+            //DebugManager.verbose(Modules.Action.execute(TeleportAction.class),"Teleport player: "+player.getName());
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        getDescriptor().indent()
+                .addLine("Target location: "+location)
+                .addLine("Spread: "+spread).outdent();
     }
 
     private static Location randomClose(Location location, double spread) {

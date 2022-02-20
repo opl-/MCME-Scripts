@@ -16,8 +16,16 @@ public class ItemRemoveAction extends SelectingAction<McmeEntity> {
                     + " Items: "+items.size());
             items.forEach(entity::removeItem);
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
-                + " item: "+items.size());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
+        //        + " item: "+items.size());
+        getDescriptor().indent();
+        if(!items.isEmpty()) {
+            getDescriptor().addLine("Items: ").indent();
+            items.forEach(item -> getDescriptor().addLine(item.getType().name()));
+            getDescriptor().outdent();
+        } else {
+            getDescriptor().addLine("Items: --none--");
+        }
     }
 
 }

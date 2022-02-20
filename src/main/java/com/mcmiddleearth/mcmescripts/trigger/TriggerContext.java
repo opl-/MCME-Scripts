@@ -31,7 +31,7 @@ public class TriggerContext {
 
     public TriggerContext(Trigger trigger) {
         this.trigger = trigger;
-        descriptor = new Descriptor("Event Log:");
+        descriptor = new Descriptor("Event Log:").indent();
     }
 
     public TriggerContext(TriggerContext context) {

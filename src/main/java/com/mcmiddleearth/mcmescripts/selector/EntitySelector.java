@@ -191,14 +191,13 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case TRIGGER_ENTITY:
                 if (context.getPlayer() != null)
                     players.add(context.getPlayer());
-                DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                        "Selector: " + getSelector() + " Selected: " + (context.getPlayer() != null ? context.getPlayer().getName() : null));
+                //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                //        "Selector: " + getSelector() + " Selected: " + (context.getPlayer() != null ? context.getPlayer().getName() : null));
                 return players;
             case NEAREST_PLAYER:
             case ALL_PLAYERS:
             case ALL_ENTITIES:
             case RANDOM_PLAYER:
-//Logger.getGlobal().info("Location rel: "+loc.toString());
                 players.addAll(Bukkit.getOnlinePlayers());
                 if(loc!=null) {
                     loc = new Location(loc.getWorld(), getAbsolute(loc.getX(), xRelative, x),
@@ -207,7 +206,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 }
                 if (hasAreaLimit() && loc != null) {
                     World world = loc.getWorld();
-//Logger.getGlobal().info("Location: "+loc.toString() + " Players: "+players.size());
                     double xMin = (dx < 0 ? Integer.MIN_VALUE : loc.getX() - dx);
                     double xMax = (dx < 0 ? Integer.MAX_VALUE : loc.getX() + dx);
                     double yMin = (dy < 0 ? Integer.MIN_VALUE : loc.getY() - dy);
@@ -223,7 +221,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
                             && player.getLocation().getZ() < zMax)
                             .collect(Collectors.toList());
                 }
-//Logger.getGlobal().info("Area selection: "+players.size());
                 if (name != null) {
                     if(name.endsWith("*")) {
                         players = players.stream().filter(player -> player.getName()
@@ -234,12 +231,10 @@ public abstract class EntitySelector<T> implements Selector<T> {
                                 .collect(Collectors.toList());
                     }
                 }
-//Logger.getGlobal().info("Name selection: "+players.size());
                 if (gameMode != null) {
                     players = players.stream().filter(player -> player.getGameMode().equals(gameMode) != excludeGameMode)
                             .collect(Collectors.toList());
                 }
-//Logger.getGlobal().info("GM selection: "+players.size());
                 if (minPitch > -90 || maxPitch < 90) {
                     players = players.stream().filter(player -> minPitch <= player.getLocation().getPitch()
                             && player.getLocation().getPitch() < maxPitch)
@@ -251,31 +246,25 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 }
                 List<EntitySelectorElement<Player>> sort = players.stream().map(EntitySelectorElement<Player>::new)
                         .collect(Collectors.toList());
-//DebugManager.log(Modules.Selector.select(this.getClass()),"Angular selection: "+sort.size());
-//DebugManager.log(Modules.Selector.select(this.getClass()),"Distance: "+minDistanceSquared+" "+maxDistanceSquared);
                 if (loc!=null && (minDistanceSquared > 0 || maxDistanceSquared < Double.MAX_VALUE)) {
-                    //double minDistanceSquared = minDistance * minDistance;
-                    //double maxDistanceSquared = maxDistance * maxDistance;
                     Location finalLoc = loc;
                     sort = sort.stream()
                             .filter(element -> {
                                 if(finalLoc.getWorld()==null
                                         || !finalLoc.getWorld().equals(element.getContent().getWorld())) return false;
                                 element.setValue(element.getContent().getLocation().distanceSquared(finalLoc));
-//DebugManager.log(Modules.Selector.select(this.getClass()),"Element distance: " + element.getValue());
                                 return minDistanceSquared <= element.getValue()
                                         && element.getValue() <= maxDistanceSquared;
                             }).collect(Collectors.toList());
                 }
-//DebugManager.log(Modules.Selector.select(this.getClass()),"Distance selection: "+sort.size());
                 List<Player> result = Collections.emptyList();
                 switch (selectorType) {
                     case NEAREST_PLAYER:
                         result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(1)
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                        DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                                "Selector: "+getSelector()
-                                        +" Selected: "+(result.size()>0?result.get(0).getName():null));
+                        //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                        //        "Selector: "+getSelector()
+                        //                +" Selected: "+(result.size()>0?result.get(0).getName():null));
                         return result;
                     case RANDOM_PLAYER:
                         result = Collections.singletonList(sort.get(new Random().nextInt(sort.size())).getContent());
@@ -286,20 +275,18 @@ public abstract class EntitySelector<T> implements Selector<T> {
                                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
                         break;
                 }
-//DebugManager.log(Modules.Selector.select(this.getClass()),"Result: "+result.size());
-                DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                        "Selector!: "+getSelector()
-                                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and total of "+result.size());
+                //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                //        "Selector!: "+getSelector()
+                //                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and total of "+result.size());
                 return result;
         }
         DebugManager.warn(Modules.Selector.select(this.getClass()),
                 "Selector: "+getSelector()
-                        +" Invalid selector type!");
+                        +" Invalid player selector type!");
         return Collections.emptyList();
     }
 
     public List<VirtualEntity> selectVirtualEntities(TriggerContext context) {
-//Logger.getGlobal().info("Select: "+getSelector());
         Location loc = context.getLocation();
         if(loc!=null) {
             loc = new Location(loc.getWorld(),getAbsolute(loc.getX(),xRelative,x),
@@ -317,7 +304,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 break;
             case VIRTUAL_ENTITIES:
             case ALL_ENTITIES:
-//Logger.getGlobal().info("Location: "+loc);
                 if(hasAreaLimit() && loc != null) {
                     World world = loc.getWorld();
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntitiesAt(loc,
@@ -330,27 +316,27 @@ public abstract class EntitySelector<T> implements Selector<T> {
                 } else {
                     entities.addAll(EntitiesPlugin.getEntityServer().getEntities(VirtualEntity.class)
                             .stream().map(entity -> {
-//Logger.getGlobal().info("Entity: "+entity);
                                 return (VirtualEntity)entity;
                             }).collect(Collectors.toSet()));
                 }
+            default:
+                DebugManager.warn(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()
+                                +" Invalid virtual entity selector type!");
+
         }
         entities = entities.stream().filter(entity -> !(entity instanceof SpeechBalloonEntity)
                                                     && (entityType == null || entity.getType().equals(entityType) != excludeType))
                 .collect(Collectors.toList());
-//Logger.getGlobal().info("Name: "+name);
         if(name!=null) {
             if(name.endsWith("*")) {
                 entities = entities.stream().filter(entity -> {
-//Logger.getGlobal().info("Name: "+entity.getName()+" search: "+name.substring(0,name.length()-1));
                     return entity.getName()
                             .startsWith(name.substring(0,name.length()-1)) != excludeName;
                 })
                         .collect(Collectors.toList());
             } else {
                 entities = entities.stream().filter(entity -> {
-//Logger.getGlobal().info("Entity: "+entity);
-//Logger.getGlobal().info("name: "+entity.getName());
                     return entity.getName() != null && entity.getName().equals(name) != excludeName;
                 })
                         .collect(Collectors.toList());
@@ -377,9 +363,6 @@ public abstract class EntitySelector<T> implements Selector<T> {
         List<EntitySelectorElement<VirtualEntity>> sort = entities.stream().map(EntitySelectorElement<VirtualEntity>::new)
                 .collect(Collectors.toList());
         if(loc != null && (minDistanceSquared>0 || maxDistanceSquared < Double.MAX_VALUE)) {
-            //double minDistanceSquared = minDistance*minDistance;
-            //double maxDistanceSquared = maxDistance*maxDistance;
-            //if(loc == null) return Collections.emptyList();
             Location finalLoc = loc;
             sort = sort.stream()
                     .filter(element -> {
@@ -391,14 +374,10 @@ public abstract class EntitySelector<T> implements Selector<T> {
         }
         List<VirtualEntity> result = sort.stream().sorted((one,two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                 .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-        DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                "Selector: "+getSelector()
-                        +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and toal of "+result.size());
+        //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+        //        "Selector: "+getSelector()
+        //                +" Selected: "+(result.size()>0?result.get(0).getName():null)+" and toal of "+result.size());
         return result;
-        /*DebugManager.warn(Modules.Selector.select(this.getClass()),
-                "Selector: "+getSelector()
-                        +" Invalid selector type!");
-        return Collections.emptyList();*/
     }
 
     public boolean hasAreaLimit() {

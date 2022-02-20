@@ -36,7 +36,19 @@ public class SpawnAction extends Action  {
         this.factories = factories;
         this.lifespan = lifespan;
         this.serverSide = serverSide;
-        DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ this.factories.size());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Entities: "+ this.factories.size());
+        getDescriptor().indent()
+                .addLine("Lifespan: "+lifespan)
+                .addLine("Server side: "+serverSide)
+                .addLine("Entities: ").indent();
+        if(!factories.isEmpty()) {
+            factories.forEach(factory -> {
+                getDescriptor().addLine("Name: "+factory.getName()).indent()
+                        .addLine("Type: "+factory.getType().name())
+                        .addLine("Location: "+factory.getLocation()).outdent();
+            });
+        }
+        getDescriptor().outdent().outdent();
     }
 
     @Override
@@ -48,7 +60,7 @@ public class SpawnAction extends Action  {
         Set<McmeEntity> entities = new HashSet<>();
         factories.forEach(factory -> {
             try {
-                DebugManager.verbose(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
+                //DebugManager.verbose(Modules.Action.execute(SpawnAction.class),"Spawn entity: "+ factory.getName());
                 String name = context.getName();
                 if(name!=null) factory.withDisplayName(name);
                 if(serverSide) {

@@ -159,10 +159,10 @@ public abstract class DecisionTreeTrigger extends Trigger {
             this.conditionFailTrigger = conditionFailTrigger;
         }
 
-        public String toString() {
+        /*public String toString() {
             return "Actions: "+(actions==null?"null":actions.size()+"\n"+collectionToString(actions))
                  +" Conditions: "+(conditions==null?"null":conditions.size()+"\n"+collectionToString(conditions))+" metAll: "+metAllConditions;
-        }
+        }*/
 
         public Descriptor getDescriptor() {
             Descriptor descriptor = new Descriptor();
@@ -191,18 +191,18 @@ public abstract class DecisionTreeTrigger extends Trigger {
             return descriptor;
         }
 
-        @SuppressWarnings({"rawtypes","unchecked"})
+        /*@SuppressWarnings({"rawtypes","unchecked"})
         private String collectionToString(Collection collection) {
             StringBuilder builder = new StringBuilder();
             collection.forEach(element -> builder.append(element.toString()).append("\n"));
             return builder.toString();
-        }
+        }*/
     }
 
-    @Override
+    /*@Override
     public String toString() {
         return " CallOnce: "+isCallOnce()+"\nDecision node: \n"+decisionNode.toString();
-    }
+    }*/
 
     /*@Override
     public String print(String indent) {

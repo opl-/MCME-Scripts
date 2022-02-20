@@ -24,14 +24,14 @@ public abstract class Trigger {
     public void register(Script script) {
         script.addTrigger(this);
         this.script = script;
-        DebugManager.info(Modules.Trigger.register(this.getClass()),
-                "Scrip: "+script.getName()+" Call once: "+callOnce);
+        //DebugManager.info(Modules.Trigger.register(this.getClass()),
+        //        "Scrip: "+script.getName()+" Call once: "+callOnce);
     }
 
     public void unregister() {
         script.removeTrigger(this);
-        DebugManager.info(Modules.Trigger.unregister(this.getClass()),
-                "Scrip: "+script.getName());
+        //DebugManager.info(Modules.Trigger.unregister(this.getClass()),
+        //        "Scrip: "+script.getName());
     }
 
     public Script getScript() {

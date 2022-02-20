@@ -12,6 +12,10 @@ public class TitleAction extends SelectingAction<Player> {
             DebugManager.verbose(Modules.Action.execute(TitleAction.class),"Title for player: "+player.getName() +" "+title);
             player.sendTitle(title,subtitle,fadeIn,stay,fadeOut);
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()+" Title: "+title);
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()+" Title: "+title);
+        getDescriptor().indent()
+                .addLine("Title: "+title)
+                .addLine("Subtitle: "+subtitle)
+                .addLine("Times: "+fadeIn+" "+stay+" "+fadeOut);
     }
 }

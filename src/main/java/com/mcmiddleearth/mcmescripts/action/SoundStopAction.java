@@ -10,7 +10,7 @@ public class SoundStopAction  extends SelectingAction<Player> {
 
     public SoundStopAction(Selector<Player> selector, String musicId) {
         super(selector, (player, context) -> {
-            DebugManager.verbose(Modules.Action.execute(SoundStopAction.class),"musicId: "+musicId);
+            //DebugManager.verbose(Modules.Action.execute(SoundStopAction.class),"musicId: "+musicId);
             if(SoundStartAction.hasOpenAudio()) {
                 AudioApi audioApi = AudioApi.getInstance();
                 if (musicId == null || musicId.equalsIgnoreCase("")) {
@@ -18,8 +18,12 @@ public class SoundStopAction  extends SelectingAction<Player> {
                 } else {
                     audioApi.getMediaApi().stopMedia(audioApi.getClient(player.getUniqueId()), musicId);
                 }
+            } else {
+                DebugManager.warn(Modules.Action.execute(SoundStartAction.class),"OpenAudioMc plugin not found!");
             }
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"MusicId: "+musicId);
+        //DebugManager.info(Modules.Action.create(this.getClass()),"MusicId: "+musicId);
+        getDescriptor().indent()
+                .addLine("Music id: "+musicId).outdent();
     }
 }

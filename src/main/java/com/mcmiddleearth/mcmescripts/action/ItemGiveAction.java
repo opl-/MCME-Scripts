@@ -53,6 +53,8 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
                 getDescriptor().outdent();
             });
             getDescriptor().outdent();
+        } else {
+            getDescriptor().addLine("Item choices: --none--");
         }
         getDescriptor().outdent();
     }

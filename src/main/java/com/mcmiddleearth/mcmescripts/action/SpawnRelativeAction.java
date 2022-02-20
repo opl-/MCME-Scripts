@@ -16,10 +16,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
 
+    //@SuppressWarnings("All")
     public SpawnRelativeAction(Selector<McmeEntity> selector, List<VirtualEntityFactory> factories, int lifespan, boolean onGround,
                                McmeEntitySelector goalTargetSelector, VirtualEntityGoalFactory goalFactory,
                                Location location, Location[] waypoints, boolean serverSide, int quantity, int xEdge, int spread) {
@@ -34,10 +34,11 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
             for(int j = 0; j< quantity; j++) {
                 Location finalLocation;
                 if(location!=null) {
-                    finalLocation =location.clone().add((j % xEdge)*spread,0, (j/xEdge)*spread);
+                    finalLocation =location.clone().add((j % xEdge)*spread,0, (j / xEdge) *spread);
                 } else {
                     finalLocation = null;
                 }
+                context.getDescriptor().addLine("Spawning: ").indent();
                 factories.forEach(factory -> {
                     if (finalLocation != null) {
                         Location loc = entity.getLocation().clone().add(rotate(finalLocation.toVector(), entity));
@@ -58,10 +59,15 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                         }
                         tempGoalFactory.withCheckpoints(checkpoints);
                     }
+                    context.getDescriptor().addLine("Type: "+factory.getType().name())
+                            .addLine("Location: "+factory.getLocation())
+                            .addLine("Goal : "+(tempGoalFactory!=null && tempGoalFactory.getGoalType()!=null?
+                                    tempGoalFactory.getGoalType().name():"--none--"));
                     factory.withGoalFactory(tempGoalFactory);
                 });
+                context.getDescriptor().outdent();
                 Set<McmeEntity> entities = SpawnAction.spawnEntity(context, factories, lifespan, serverSide);
-                new HashSet<McmeEntity>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
+                new HashSet<>(entities).stream().filter(jockey->jockey.getGoal() !=null && jockey.getGoal() instanceof GoalJockey)
                         .forEach(jockey -> {
                             GoalJockey goal = (GoalJockey)jockey.getGoal();
                             McmeEntity placeholder = goal.getSteed();
@@ -70,12 +76,38 @@ public class SpawnRelativeAction extends SelectingAction<McmeEntity> {
                                 entities.stream().filter(steed -> steed.getUniqueId().equals(uuid)).findFirst()
                                         .ifPresent(steed -> {
                                             goal.setSteed(steed);
+                                            context.getDescriptor().addLine("Mounting "+jockey.getName()+" on "+steed.getName());
                                         });
                             }
                         });
             }
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        getDescriptor().indent()
+                .addLine("Lifespan: "+lifespan)
+                .addLine("On ground: "+onGround)
+                .addLine("Location: "+location)
+                .addLine("Server side: "+serverSide)
+                .addLine("Quantity: "+quantity)
+                .addLine("Edge length: "+xEdge)
+                .addLine("Spread: "+spread)
+                .addLine("Goal: "+(goalFactory!=null && goalFactory.getGoalType()!=null?goalFactory.getGoalType().name():"--none--"))
+                .addLine("Goal target selector: "+(goalTargetSelector!=null?goalTargetSelector.getSelector():"--none--"));
+        if(waypoints!=null && waypoints.length>0) {
+            getDescriptor().addLine("Waypoints: ").indent();
+            Arrays.stream(waypoints).forEach(waypoint -> getDescriptor().addLine(""+waypoint));
+            getDescriptor().outdent();
+        } else {
+            getDescriptor().addLine("Waypoints: --none--");
+        }
+        if(!factories.isEmpty()) {
+            getDescriptor().addLine("Enitities: ").indent();
+            factories.forEach(factory -> getDescriptor().addLine(factory.getType().name()).indent()
+                    .addLine("Relative position: "+factory.getLocation()).outdent());
+            getDescriptor().outdent();
+        }
+        getDescriptor().outdent();
+
     }
 
     private static Location findSafe(Location location, boolean onGround) {

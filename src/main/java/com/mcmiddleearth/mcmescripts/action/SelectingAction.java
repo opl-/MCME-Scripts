@@ -26,7 +26,7 @@ public class SelectingAction<T> extends Action {
     @Override
     protected void handler(TriggerContext context) {
         List<T> selected = selector.select(context);
-        DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
+        //DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
         context.getDescriptor().indent();
         selected.forEach(element -> {
             if(element instanceof Player) {

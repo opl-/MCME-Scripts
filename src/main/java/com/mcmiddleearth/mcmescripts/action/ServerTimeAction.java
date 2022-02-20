@@ -11,11 +11,12 @@ public class ServerTimeAction extends Action{
 
     public ServerTimeAction(long serverTimeTicks) {
         this.serverTimeTicks = serverTimeTicks;
+        getDescriptor().indent().addLine("Server time ticks: "+serverTimeTicks).outdent();
     }
 
     @Override
     protected void handler(TriggerContext context) {
-        DebugManager.verbose(Modules.Action.execute(ServerTimeAction.class),"Time: "+serverTimeTicks);
+        //DebugManager.verbose(Modules.Action.execute(ServerTimeAction.class),"Time: "+serverTimeTicks);
         Bukkit.getWorlds().forEach(world -> world.setFullTime(serverTimeTicks));
     }
 }

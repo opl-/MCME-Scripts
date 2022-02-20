@@ -8,6 +8,7 @@ import com.mcmiddleearth.entities.exception.InvalidDataException;
 import com.mcmiddleearth.entities.exception.InvalidLocationException;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
@@ -30,7 +31,8 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
             DebugManager.verbose(Modules.Action.execute(SpawnRandomSelectionAction.class),"Selected entity: "+entity.getName());
             data.spawn(context, entity.getLocation(), lifespan);
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        getDescriptor().indent().add(data.getDescriptor()).outdent();
     }
 
     public static class RandomSpawnData {
@@ -55,11 +57,36 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
             this.serverSide = serverSide;
         }
 
+        public Descriptor getDescriptor() {
+            Descriptor descriptor = new Descriptor()
+                    .addLine("Group: "+group)
+                    .addLine("Probability: "+probability)
+                    .addLine("Server side: "+serverSide)
+                    .addLine("Min quantity: "+minQuantity)
+                    .addLine("Max quantity: "+maxQuantity)
+                    .addLine("Min radius: "+minRadius)
+                    .addLine("Max radius: "+maxRadius)
+                    .addLine("Goal target selector: "+goalTargetSelector.getSelector());
+            if(!choices.isEmpty()) {
+                descriptor.addLine("Choices: ").indent();
+                choices.forEach(choice -> {
+                    descriptor.addLine("Weight: "+choice.weight).indent();
+                    choice.factories.forEach(factory -> descriptor.addLine("Type: "+factory.getType()));
+                    descriptor.outdent();
+                });
+                descriptor.outdent();
+            }
+            descriptor.addLine("Goal: "+(goalFactory!=null?goalFactory.getGoalType().name():null));
+            return descriptor;
+        }
+
         public void spawn(TriggerContext context, Location center, int lifespan) {
             Set<McmeEntity> entities = new HashSet<>();
             float rand = random.nextFloat();
+            context.getDescriptor().addLine("Random: "+rand+" < "+probability+"?");
             if(probability > rand) {
                 int quantity = getQuantity();
+                context.getDescriptor().addLine("Quantity: "+quantity);
                 Choice selectedChoice = getSelectedChoice();
                 if(quantity > 0 && selectedChoice.getFactories().size()>0) {
                     updateGoal(context, selectedChoice);
@@ -106,6 +133,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                         selectedChoice.getFactories().forEach(factory -> {
                             if(spawnLocations[finalI]!=null) {
                                 try {
+                                    context.getDescriptor().addLine("Spawning: "+factory.getType().name()+" at "+spawnLocations[finalI]);
                                     factory.withLocation(spawnLocations[finalI]);
                                     if(name!=null) factory.withDisplayName(name);
                                     if(serverSide) {
@@ -189,6 +217,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
 
         private void updateGoal(TriggerContext context, Choice selectedChoice) {
             McmeEntity goalTarget = goalTargetSelector.select(context).stream().findFirst().orElse(null);
+            context.getDescriptor().addLine("Goal target: "+(goalTarget!=null?goalTarget.getName():"--none--"));
             if (goalFactory != null) {
                 if (goalTarget != null) {
                     goalFactory.withTargetEntity(goalTarget);
@@ -200,6 +229,7 @@ public class SpawnRandomSelectionAction extends SelectingAction<McmeEntity> {
                 }
             }
         }
+
         public RandomSpawnData withMinQuantity(int minQuantity) {
             this.minQuantity = minQuantity;
             return this;

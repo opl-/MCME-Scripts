@@ -31,6 +31,7 @@ public class ExternalTrigger extends DecisionTreeTrigger {
 
     public void call(String[] args) {
         TriggerContext context = new TriggerContext(this);
+        context.getDescriptor().add(getDescriptor());
         for(String arg: args) {
             if(arg.contains(":") && arg.indexOf(':')<arg.length()-1) {
                 String key = arg.substring(0,arg.indexOf(':'));
@@ -38,6 +39,7 @@ public class ExternalTrigger extends DecisionTreeTrigger {
                 switch (key) {
                     case "player":
                         context.withPlayer(Bukkit.getPlayer(value));
+                        //context.getDescriptor().
                         break;
                     case "entity":
                         context.withEntity(EntitiesPlugin.getEntityServer().getEntity(value));

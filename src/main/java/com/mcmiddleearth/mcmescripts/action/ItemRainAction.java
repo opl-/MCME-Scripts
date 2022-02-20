@@ -57,5 +57,18 @@ public class ItemRainAction extends SelectingAction<McmeEntity> {
                 }.runTaskTimer(MCMEScripts.getInstance(),0,2);
             }
         }));
+        getDescriptor().indent()
+                .addLine("Size: "+size)
+                .addLine("Drop height: "+drop_height)
+                .addLine("Probability: "+probability)
+                .addLine("Duration: "+duration);
+        if(!items.isEmpty()) {
+            getDescriptor().addLine("Items: ").indent();
+            items.forEach(item -> getDescriptor().addLine(item.getType().name()));
+            getDescriptor().outdent();
+        } else {
+            getDescriptor().addLine("Items: --none--");
+        }
+        getDescriptor().outdent();
     }
 }

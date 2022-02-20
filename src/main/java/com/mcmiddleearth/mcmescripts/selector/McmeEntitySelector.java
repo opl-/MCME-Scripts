@@ -41,9 +41,9 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
                             }).collect(Collectors.toList());
                     result = sort.stream().sorted((one, two) -> (Double.compare(two.getValue(), one.getValue()))).limit(limit)
                             .map(EntitySelectorElement::getContent).collect(Collectors.toList());
-                    DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                            "Selector!!: "+getSelector()
-                                    +" Selected: "+(result.size()>0?result.get(0).getName():null));
+                    //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                    //        "Selector!!: "+getSelector()
+                    //                +" Selected: "+(result.size()>0?result.get(0).getName():null));
                 }
                 break;
             case NEAREST_PLAYER:
@@ -64,6 +64,10 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
                     }
                 }
                 break;
+            default:
+                DebugManager.warn(Modules.Selector.select(this.getClass()),
+                        "Selector: "+getSelector()
+                                +" Invalid McmeEntity selector type!");
         }
         return result;
     }
