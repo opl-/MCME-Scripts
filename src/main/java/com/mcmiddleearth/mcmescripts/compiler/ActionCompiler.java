@@ -333,7 +333,10 @@ public class ActionCompiler {
                 Set<ItemStack> items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
                 Set<ItemChoice> itemChoices = LootTableCompiler.compileItemChoices(jsonObject).orElse(new HashSet<>());
-                if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
+                if(items.isEmpty() && itemChoices.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class), "No items found for "+VALUE_GIVE_ITEM+" action.");
+                    return Optional.empty();
+                }
                 EquipmentSlot slot = null;
                 JsonElement slotJson = jsonObject.get(KEY_SLOT);
                 if(slotJson instanceof JsonPrimitive) {
@@ -361,7 +364,10 @@ public class ActionCompiler {
                 Set<WrappedEnchantment> enchantments = EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENT));
                 enchantments.addAll(EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENTS)));
                 Set<EnchantmentChoice> enchantmentChoices = LootTableCompiler.compileEnchantmentChoices(jsonObject).orElse(new HashSet<>());
-                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) return Optional.empty();
+                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_ADD_ENCHANTMENT+". Missing enchantment.");
+                    return Optional.empty();
+                }
 
                 Set<ItemFilter> itemFilters = ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTER));
                 itemFilters.addAll(ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTERS)));
@@ -376,7 +382,10 @@ public class ActionCompiler {
                 enchantments = EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENT));
                 enchantments.addAll(EnchantmentCompiler.compile(jsonObject.get(KEY_ENCHANTMENTS)));
                 enchantmentChoices = LootTableCompiler.compileEnchantmentChoices(jsonObject).orElse(new HashSet<>());
-                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) return Optional.empty();
+                if(enchantments.isEmpty() && enchantmentChoices.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_REMOVE_ENCHANTMENT+". Missing enchantment.");
+                    return Optional.empty();
+                }
 
                 itemFilters = ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTER));
                 itemFilters.addAll(ItemFilterCompiler.compile(jsonObject.get(KEY_ITEM_FILTERS)));
@@ -388,7 +397,10 @@ public class ActionCompiler {
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                if(items.isEmpty()) return Optional.empty();
+                if(items.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_REMOVE_ITEM+". Missing item.");
+                    return Optional.empty();
+                }
                 action = new ItemRemoveAction(mcmeSelector, items);
                 break;
             case VALUE_EYE_EFFECT:
@@ -444,6 +456,7 @@ public class ActionCompiler {
             case VALUE_RANDOM_SPAWN:
                 JsonElement choicesJson = jsonObject.get(KEY_CHOICES);
                 if(!(choicesJson instanceof JsonArray)) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_RANDOM_SPAWN+". Missing entity.");
                     return Optional.empty();
                 }
                 List<SpawnRandomSelectionAction.Choice> choices = new ArrayList<>();
@@ -483,6 +496,7 @@ public class ActionCompiler {
                 playerSelector = SelectorCompiler.compilePlayerSelector(jsonObject);
                 String musicFile = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_FILE),null);
                 if(musicFile == null) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_MUSIC_START+". Missing music file.");
                     return Optional.empty();
                 }
                 String musicId = PrimitiveCompiler.compileString(jsonObject.get(KEY_MUSIC_ID),null);
@@ -499,13 +513,19 @@ public class ActionCompiler {
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
                 itemChoices = LootTableCompiler.compileItemChoices(jsonObject).orElse(new HashSet<>());
-                if(items.isEmpty() && itemChoices.isEmpty()) return Optional.empty();
+                if(items.isEmpty() && itemChoices.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_GIVE_CHEST+". Missing items.");
+                    return Optional.empty();
+                }
                 action = new GiveChestAction(mcmeSelector,items, itemChoices,duration);
                 break;
             case VALUE_RAIN_ITEM:
                 items = ItemCompiler.compile(jsonObject.get(KEY_ITEM));
                 items.addAll(ItemCompiler.compile(jsonObject.get(KEY_ITEMS)));
-                if(items.isEmpty()) return Optional.empty();
+                if(items.isEmpty()) {
+                    DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Can't compile "+VALUE_RAIN_ITEM+". Missing item.");
+                    return Optional.empty();
+                }
                 mcmeSelector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                 duration = PrimitiveCompiler.compileInteger(jsonObject.get(KEY_DURATION),200);
                 probability = PrimitiveCompiler.compileDouble(jsonObject.get(KEY_PROBABILITY),0.5);
@@ -588,6 +608,7 @@ public class ActionCompiler {
                 action = new BossBarRemoveAction(playerSelector, new NamespacedKey(MCMEScripts.getInstance(),name));
                 break;
             default:
+                DebugManager.severe(Modules.Action.create(ActionCompiler.class),"Can't compile action. Unsupported action type.");
                 return Optional.empty();
         }
         JsonElement delayJson = jsonObject.get(KEY_DELAY);
@@ -595,7 +616,7 @@ public class ActionCompiler {
             try {
                 action.setDelay(delayJson.getAsInt());
             } catch(ClassCastException ex) {
-                DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Ignoring invalid delay data!");
+                DebugManager.warn(Modules.Action.create(ActionCompiler.class),"Invalid numeric data for action delay. Using delay 0!");
             }
         }
         return Optional.of(action);

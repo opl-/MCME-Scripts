@@ -90,11 +90,11 @@ public abstract class Trigger {
     }
 
     public Descriptor getDescriptor() {
-        return new Descriptor(this.getClass().getSimpleName() + ": "+name)
+        return new Descriptor(this.getClass().getSimpleName() + ": "+name).indent()
                 .addLine("Call once: "+callOnce)
                 .addLine("Trigger entity: "+(entity!=null?entity.getName()+" at "+entity.getLocation().toString():"--none--"))
                 .addLine("Trigger player: "+(entity!=null?player.getName()+" at "+player.getLocation().toString():"--none--"))
-                .addLine("Trigger location: "+(entity!=null?location.toString():"--none--"));
+                .addLine("Trigger location: "+(entity!=null?location.toString():"--none--")).outdent();
     }
 
     /*public String print(String indent) {

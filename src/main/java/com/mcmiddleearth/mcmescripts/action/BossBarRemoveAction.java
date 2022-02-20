@@ -14,12 +14,13 @@ public class BossBarRemoveAction extends SelectingAction<Player> {
         super(selector, (player, context) -> {
             BossBar bar = Bukkit.getBossBar(barKey);
             if(bar!=null) {
-                DebugManager.verbose(Modules.Action.execute(BossBarRemoveAction.class), "Removing: " + player.getName() + " from Boss bar.");
+                //DebugManager.verbose(Modules.Action.execute(BossBarRemoveAction.class), "Removing: " + player.getName() + " from Boss bar.");
                 bar.removePlayer(player);
             } else {
-                DebugManager.verbose(Modules.Action.execute(BossBarRemoveAction.class), "Expected Boss bar does not exist: "+barKey.asString());
+                DebugManager.warn(Modules.Action.execute(BossBarRemoveAction.class), "Expected Boss bar does not exist: "+barKey.asString());
             }
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        getDescriptor().indent().addLine("Bar key: "+barKey).outdent();
     }
 }

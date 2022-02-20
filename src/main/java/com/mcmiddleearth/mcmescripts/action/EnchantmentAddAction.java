@@ -1,13 +1,12 @@
 package com.mcmiddleearth.mcmescripts.action;
 
-import com.craftmend.thirdparty.reactorcore.scheduler.Schedulers;
 import com.mcmiddleearth.entities.entities.McmeEntity;
-import com.mcmiddleearth.entities.inventory.McmeInventory;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.component.EnchantmentChoice;
 import com.mcmiddleearth.mcmescripts.component.ItemFilter;
 import com.mcmiddleearth.mcmescripts.component.WrappedEnchantment;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
@@ -22,8 +21,8 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
 
     public EnchantmentAddAction(Selector<McmeEntity> selector, Set<ItemFilter> itemFilters, Set<WrappedEnchantment> enchantments, Set<EnchantmentChoice> enchantmentChoices, int quantity, int duration) {
         super(selector, (entity, context) -> {
-            DebugManager.verbose(Modules.Action.execute(EnchantmentAddAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
-                    + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity+" Duration:"+duration);
+            //DebugManager.verbose(Modules.Action.execute(EnchantmentAddAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
+            //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity+" Duration:"+duration);
 
             int calculatedQuantity = quantity;
             Set<ItemStack> applyItems = new HashSet<>();
@@ -52,6 +51,7 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
                     Set<WrappedEnchantment> applyEnchantments = new HashSet<>(enchantments);
                     applyEnchantments.addAll(lootTable.selectEnchantments());
                     applyEnchantment(applyItem, applyEnchantments, duration);
+                    context.getDescriptor().addLine("Enchanting: "+applyItem.getType().name());
                 }
             }
             else {
@@ -65,12 +65,40 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
                     Set<WrappedEnchantment> applyEnchantments = new HashSet<>(enchantments);
                     applyEnchantments.addAll(lootTable.selectEnchantments());
                     applyEnchantment(limitedItem, applyEnchantments, duration);
+                    context.getDescriptor().addLine("Enchanting: "+limitedItem.getType().name());
                     calculatedQuantity -= 1;
                 }
+                context.getDescriptor().addLine("Stopping enchanting: Max quantity reached.");
             }
         });
-        DebugManager.verbose(Modules.Action.create(EnchantmentAddAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
-                + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity+" Duration:"+duration);
+        Descriptor descriptor =  getDescriptor().indent();
+        descriptor.addLine("Max. Quantity: "+quantity);
+        descriptor.addLine("Duration: "+duration);
+        if(!itemFilters.isEmpty()) {
+            descriptor.addLine("Filters: ").indent();
+            itemFilters.forEach(itemFilter -> descriptor.add(itemFilter.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Filters: --none--");
+        }
+        if(!enchantments.isEmpty()) {
+            descriptor.addLine("Enchantments: ").indent();
+            enchantments.forEach(enchantment -> descriptor.add(enchantment.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Enchantments: --none--");
+        }
+        if(!enchantmentChoices.isEmpty()) {
+            descriptor.addLine("Enchantment choices: ").indent();
+            enchantmentChoices.forEach(choice -> descriptor.add(choice.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Enchantments choices: --none--");
+        }
+        descriptor.outdent();
+
+        //DebugManager.verbose(Modules.Action.create(EnchantmentAddAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
+        //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity+" Duration:"+duration);
     }
 
     private static void applyEnchantment(ItemStack item, Set<WrappedEnchantment> enchantments, int duration) {
@@ -93,4 +121,5 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
             }, 20L * duration);
         }
     }
+
 }

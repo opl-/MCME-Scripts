@@ -14,13 +14,14 @@ public class EntityStateAction extends SelectingAction<VirtualEntity> {
 
     public EntityStateAction(Selector<VirtualEntity> selector, String state) {
         super(selector, (entity, context) -> {
-            DebugManager.verbose(Modules.Action.execute(EntityStateAction.class),"Selector: "+selector.getSelector()
-                                                                                 + " State: "+state);
+            //DebugManager.verbose(Modules.Action.execute(EntityStateAction.class),"Selector: "+selector.getSelector()
+            //                                                                     + " State: "+state);
             if(entity instanceof BakedAnimationEntity) {
                 ((BakedAnimationEntity)entity).setState(state);
             }
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
-                                                                        + " State: "+state);
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector()
+        //                                                                + " State: "+state);
+        getDescriptor().indent().addLine("State: "+state).outdent();
     }
 }

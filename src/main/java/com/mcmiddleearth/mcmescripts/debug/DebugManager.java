@@ -2,12 +2,16 @@ package com.mcmiddleearth.mcmescripts.debug;
 
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -91,8 +95,8 @@ public class DebugManager {
             level = Level.next(debugModules.get(module));
             setDebugLevel(module, level);
         }
-        log("Debug Modules: ",null);
-        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
+        log("Debug Modules: ",null,Level.INFO);
+        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null,Level.INFO));
         return level;
     }
 
@@ -100,8 +104,8 @@ public class DebugManager {
         try {
             return setDebugLevel(module, Level.valueOf(debugLevel.toUpperCase()));
         } catch(IllegalArgumentException ignore) {}
-        log("Debug Modules: ",null);
-        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null));
+        log("Debug Modules: ",null,Level.INFO);
+        debugModules.forEach((key, value) -> log(key+" - "+value.name(),null,Level.INFO));
         return null;
     }
 
@@ -116,20 +120,20 @@ public class DebugManager {
 
     public static void list(String module) {
         String[] split = module.split("\\.");
-        log("List of registered "+split[0]+"s:",null);
+        log("List of registered "+split[0]+"s:",null, Level.INFO);
         if(split[0].equalsIgnoreCase("script")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length < 2 || entry.getKey().toLowerCase().startsWith(split[1].toLowerCase())))
                        .forEach(entry -> log(entry.getKey()+(entry.getValue().isActive()?"(active)":"")+": "
                                                                +entry.getValue().getTriggers().size()+" Triggers, "
-                                                               +entry.getValue().getEntities().size()+" Entities.",null));
+                                                               +entry.getValue().getEntities().size()+" Entities.",null,Level.INFO));
         } else if(split[0].equalsIgnoreCase("trigger")) {
             MCMEScripts.getScriptManager().getScripts().entrySet().stream()
                        .filter(entry -> (split.length<2 || entry.getKey().startsWith(split[1])))
                        .forEach(entry -> entry.getValue().getTriggers().stream()
                             .filter(trigger -> split.length < 3
                                     || trigger.getClass().getSimpleName().toLowerCase().startsWith(split[2].toLowerCase()))
-                            .forEach(trigger -> log(trigger.getClass().getSimpleName()+" "+trigger,null)));
+                            .forEach(trigger -> log(trigger.getClass().getSimpleName()+" "+trigger,null, Level.INFO)));
         }
     }
 
@@ -185,7 +189,8 @@ public class DebugManager {
             lastDot = module.lastIndexOf('.');
         } while(lastDot > 0);
         if(isActive(module,debugLevel) || isActive(module.split("\\.")[0],debugLevel)) {
-            log("["+initialModule+"] -> " + message, scriptName);
+            log("["+LocalTime.now().truncatedTo(ChronoUnit.SECONDS)
+                    .format(DateTimeFormatter.ISO_LOCAL_TIME)+" "+initialModule+"] -> " + message, scriptName, debugLevel);
         }
     }
 
@@ -193,17 +198,25 @@ public class DebugManager {
         return debugModules.get(module)!=null && debugModules.get(module).getDebugLevel()<=debugLevel.getDebugLevel();
     }
 
-    public static void log(String message, String scriptName) {
+    public static void log(String message, String scriptName, Level level) {
+        ChatColor color = ChatColor.GRAY;
+        switch (level) {
+            case INFO -> color = ChatColor.WHITE;
+            case WARNING -> color = ChatColor.YELLOW;
+            case SEVERE -> color = ChatColor.RED;
+            case CRITICAL -> color = ChatColor.DARK_RED;
+        }
         if(fileDebugScript.filter(scriptName)) {
             writer.println(message);
         }
         if(consoleDebugScript.filter(scriptName)) {
-            Logger.getLogger(MCMEScripts.class.getSimpleName()).info(message);
+            Logger.getLogger(MCMEScripts.class.getSimpleName()).log(level.getLoggerLevel(), message);
         }
+        ChatColor finalColor = color;
         Bukkit.getOnlinePlayers().stream().filter(player -> {
             ScriptFilter playerScriptFilter = playerDebugScripts.get(player.getUniqueId());
             return playerScriptFilter != null && playerScriptFilter.filter(scriptName);
-            }).forEach(player -> player.sendMessage(message));
+            }).forEach(player -> player.sendMessage(finalColor +message));
     }
 
 }

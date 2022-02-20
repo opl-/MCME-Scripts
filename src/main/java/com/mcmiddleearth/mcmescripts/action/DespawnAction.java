@@ -12,8 +12,8 @@ public class DespawnAction extends SelectingAction<VirtualEntity> {
         super(selector, (entity,context) -> {
             EntitiesPlugin.getEntityServer().removeEntity(entity);
             context.getScript().removeEntity(entity);
-            DebugManager.verbose(Modules.Action.execute(DespawnAction.class),"Despawn entity: "+entity.getName());
+            //DebugManager.verbose(Modules.Action.execute(DespawnAction.class),"Despawn entity: "+entity.getName());
         });
-        DebugManager.info(Modules.Action.create(this.getClass()), "Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()), "Selector: "+selector.getSelector());
     }
 }

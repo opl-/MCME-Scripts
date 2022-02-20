@@ -25,7 +25,7 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
     public GiveChestAction(Selector<McmeEntity> selector, Set<ItemStack> items, Set<ItemChoice> weightChoices, int duration) {
         super(selector, (entity, context) -> {
             Location loc = entity.getLocation().clone();
-            BlockFace face = null;
+            BlockFace face;
             if(loc.getYaw()<-135 || loc.getYaw()>135) face = BlockFace.NORTH;
             else if(loc.getYaw()<-45) face = BlockFace.EAST;
             else if(loc.getYaw()<45) face = BlockFace.SOUTH;
@@ -44,6 +44,8 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
             ((Chest)data).setFacing(face.getOppositeFace());
             BlockState restore = block.getState();
             block.setBlockData(data,false);
+            context.getDescriptor().addLine("Chest location: "+block.getLocation())
+                                   .addLine("Replaced block: "+restore.getBlockData());
             ChestListener.addChest(block.getLocation());
             Block finalBlock = block;
             new BukkitRunnable() {
@@ -53,7 +55,7 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
                     int size = chest.getInventory().getContents().length;
                     chest.getInventory().setContents(Arrays.copyOfRange(items.toArray(new ItemStack[0]),0,size));
                     LootTable lootTable = new LootTable(weightChoices);
-                    lootTable.selectItems().forEach(item->chest.getInventory().addItem((ItemStack) item));
+                    lootTable.selectItems().forEach(item->chest.getInventory().addItem(item));
                 }
             }.runTaskLater(MCMEScripts.getInstance(),1);
             new BukkitRunnable() {
@@ -65,5 +67,24 @@ public class GiveChestAction extends SelectingAction<McmeEntity> {
                 }
             }.runTaskLater(MCMEScripts.getInstance(),duration+1);
         });
+        getDescriptor().indent();
+        getDescriptor().addLine("Duration: "+duration);
+        if(!items.isEmpty()) {
+            getDescriptor().addLine("Items: ").indent();
+            items.forEach(item -> getDescriptor().addLine(item.getType().name()));
+            getDescriptor().outdent();
+        } else {
+            getDescriptor().addLine("Items: --none--");
+        }
+        if(!weightChoices.isEmpty()) {
+            getDescriptor().addLine("Item choices: ").indent();
+            weightChoices.forEach(choice -> {
+                getDescriptor().addLine("Weight: "+choice.getWeight()).indent();
+                choice.getItems().forEach(item -> getDescriptor().addLine(item.getType().name()));
+                getDescriptor().outdent();
+            });
+            getDescriptor().outdent();
+        }
+        getDescriptor().outdent();
     }
 }

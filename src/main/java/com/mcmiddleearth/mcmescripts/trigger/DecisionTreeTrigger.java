@@ -54,7 +54,8 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
     @Override
     public Descriptor getDescriptor() {
-        return super.getDescriptor().add(decisionNode.getDescriptor());
+        return super.getDescriptor().indent()
+                    .add(decisionNode.getDescriptor()).outdent();
     }
 
     public static class DecisionNode {
@@ -86,7 +87,7 @@ public abstract class DecisionTreeTrigger extends Trigger {
             //        "Conditions: "+conditions.size()+" actions: "+actions.size()+" met all: "+metAllConditions);
             context.getDescriptor().addLine("Checking conditions ...").indent();
             if(checkConditions(context)) {
-                context.getDescriptor().outdent().addLine("Condition check success! Executing actions: ").indent();
+                context.getDescriptor().outdent().addLine("Condition check success! Accessing actions: ").indent();
                 if(actions!=null) {
                     actions.forEach(action -> action.execute(context));
                 }

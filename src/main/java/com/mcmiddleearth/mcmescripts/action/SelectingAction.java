@@ -20,27 +20,24 @@ public class SelectingAction<T> extends Action {
     public SelectingAction(Selector<T> selector, BiConsumer<T,TriggerContext> executor) {
         this.selector = selector;
         this.executor = executor;
+        getDescriptor().indent().addLine("Selector: "+selector.getSelector()).outdent();
     }
 
     @Override
     protected void handler(TriggerContext context) {
         List<T> selected = selector.select(context);
         DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
-        context.getDescriptor().add(getDescriptor()).indent();
+        context.getDescriptor().indent();
         selected.forEach(element -> {
             if(element instanceof Player) {
                 context.getDescriptor().addLine("Targeting: " + ((Player) element).getName());
             } else if(element instanceof McmeEntity) {
                 context.getDescriptor().addLine("Targeting: " + ((McmeEntity) element).getName());
             }
+            context.getDescriptor().indent();
             executor.accept(element,context);
+            context.getDescriptor().outdent();
         });
         context.getDescriptor().outdent();
-    }
-
-    @Override
-    public Descriptor getDescriptor() {
-        return super.getDescriptor().indent()
-                .addLine("Selector: "+selector.getSelector()).outdent();
     }
 }

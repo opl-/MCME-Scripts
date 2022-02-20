@@ -23,8 +23,8 @@ public class EyeEffectAction extends SelectingAction<Player> {
 
     public EyeEffectAction(Selector<Player> selector, int duration) {
         super(selector, (player, context) -> {
-            DebugManager.verbose(Modules.Action.execute(EyeEffectAction.class),"Selector: "+selector.getSelector()
-                                                        + " Player: "+player.getName());
+            //DebugManager.verbose(Modules.Action.execute(EyeEffectAction.class),"Selector: "+selector.getSelector()
+            //                                            + " Player: "+player.getName());
             player.teleport(player.getLocation().toBlockLocation().add(new Vector(0.5,0,0.5)));
             Block block = player.getLocation().getWorld().getBlockAt(player.getLocation()).getRelative(BlockFace.UP);
             Block[] adjacent = new Block[4];
@@ -64,6 +64,7 @@ public class EyeEffectAction extends SelectingAction<Player> {
                 }
             }.runTaskLater(MCMEScripts.getInstance(),duration);
         });
-        DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        //DebugManager.info(Modules.Action.create(this.getClass()),"Selector: "+selector.getSelector());
+        getDescriptor().indent().addLine("Duration: "+duration).outdent();
     }
 }

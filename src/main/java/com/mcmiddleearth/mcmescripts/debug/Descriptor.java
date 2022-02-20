@@ -9,7 +9,7 @@ public class Descriptor {
 
     private List<String> lines = new ArrayList<>();
 
-    private int indentLevel = 1;
+    private int indentLevel = 0;
 
     public Descriptor(String title) {
         lines.add(title);

@@ -1,6 +1,8 @@
 package com.mcmiddleearth.mcmescripts.component;
 
+import com.google.common.base.Joiner;
 import com.mcmiddleearth.entities.inventory.McmeInventory;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import net.kyori.adventure.text.Component;
 import net.kyori.examination.Examinable;
 import org.bukkit.Material;
@@ -73,8 +75,7 @@ public class ItemFilter {
 
         if (damage != null) {
             if (damage.getKey() == ItemPropertyState.PRESENT) {
-                if(itemMeta instanceof Damageable) {
-                    Damageable itemDamageMeta = (Damageable) itemMeta;
+                if(itemMeta instanceof Damageable itemDamageMeta) {
                     if (damage.getValue() != itemDamageMeta.getDamage()) {
                         return false;
                     }
@@ -84,8 +85,7 @@ public class ItemFilter {
                 }
             }
             else if (damage.getKey() == ItemPropertyState.NOT_PRESENT) {
-                if(itemMeta instanceof Damageable) {
-                    Damageable itemDamageMeta = (Damageable) itemMeta;
+                if(itemMeta instanceof Damageable itemDamageMeta) {
                     if (damage.getValue() == itemDamageMeta.getDamage()) {
                         return false;
                     }
@@ -119,7 +119,7 @@ public class ItemFilter {
                 if (lore == null) {
                     return false;
                 }
-                List<String> actualLore = lore.stream().map(Examinable::examinableName).collect(Collectors.toList());
+                List<String> actualLore = lore.stream().map(Examinable::examinableName).toList();
                 if (!this.lore.getValue().equals(actualLore)) {
                     return false;
                 }
@@ -161,5 +161,18 @@ public class ItemFilter {
         }
 
         return true;
+    }
+
+    public Descriptor getDescriptor() {
+        Descriptor descriptor = new Descriptor("Material: "+this.material.getKey().name()+" - "+this.material.getValue().name())
+                .addLine("Quantity: "+(this.quantity == null? null:this.quantity.getKey().name()+" - "+this.quantity.getValue()))
+                .addLine("Damage: "+(this.damage == null? null:this.damage.getKey().name()+" - "+this.damage.getValue()))
+                .addLine("Name: "+(this.name == null? null:this.name.getKey().name()+" - "+this.name.getValue()))
+                .addLine("CMD: "+(this.customModelData == null? null:this.customModelData.getKey().name()+" - "+ this.customModelData.getValue()))
+                .addLine("Equipment slot: "+(this.equipmentSlot == null? null:this.equipmentSlot.getKey().name()+" - "+ this.equipmentSlot.getValue().name()))
+                .addLine("Lore: "+(this.lore == null? null:this.lore.getKey().name()+" - "+ Joiner.on(" ").join(this.lore.getValue())))
+                .addLine("Attribute modifiers: "+(this.attributeModifiers == null? null:this.attributeModifiers.getKey().name()+" - "+Joiner.on(" ").join(this.attributeModifiers.getValue())))
+                .addLine("Attribute modifiers: "+(this.enchantments == null? null:this.enchantments.getKey().name()+" - "+Joiner.on(" ").join(this.enchantments.getValue())));
+        return descriptor;
     }
 }

@@ -1,17 +1,14 @@
 package com.mcmiddleearth.mcmescripts.action;
 
 import com.mcmiddleearth.entities.entities.McmeEntity;
-import com.mcmiddleearth.entities.inventory.McmeInventory;
-import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.component.EnchantmentChoice;
 import com.mcmiddleearth.mcmescripts.component.ItemFilter;
 import com.mcmiddleearth.mcmescripts.component.WrappedEnchantment;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
-import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,8 +19,8 @@ public class EnchantmentRemoveAction extends SelectingAction<McmeEntity> {
 
     public EnchantmentRemoveAction(Selector<McmeEntity> selector, Set<ItemFilter> itemFilters, Set<WrappedEnchantment> enchantments, Set<EnchantmentChoice> enchantmentChoices, int quantity) {
         super(selector, (entity, context) -> {
-            DebugManager.verbose(Modules.Action.execute(EnchantmentRemoveAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
-                    + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity);
+            //DebugManager.verbose(Modules.Action.execute(EnchantmentRemoveAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
+            //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity);
 
             int calculatedQuantity = quantity;
             Set<ItemStack> applyItems = new HashSet<>();
@@ -52,6 +49,7 @@ public class EnchantmentRemoveAction extends SelectingAction<McmeEntity> {
                     Set<WrappedEnchantment> removeEnchantments = new HashSet<>(enchantments);
                     removeEnchantments.addAll(lootTable.selectEnchantments());
                     removeEnchantment(applyItem, removeEnchantments);
+                    context.getDescriptor().addLine("Removing enchantment: "+applyItem.getType().name());
                 }
             }
             else {
@@ -65,12 +63,39 @@ public class EnchantmentRemoveAction extends SelectingAction<McmeEntity> {
                     Set<WrappedEnchantment> removeEnchantments = new HashSet<>(enchantments);
                     removeEnchantments.addAll(lootTable.selectEnchantments());
                     removeEnchantment(limitedItem, removeEnchantments);
+                    context.getDescriptor().addLine("Removing enchantment: "+limitedItem.getType().name());
                     calculatedQuantity -= 1;
                 }
+                context.getDescriptor().addLine("Stopping de-enchanting: Max quantity reached.");
             }
         });
-        DebugManager.verbose(Modules.Action.create(EnchantmentRemoveAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
-                + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity);
+
+        Descriptor descriptor = getDescriptor().indent();
+        descriptor.addLine("Max. Quantity: "+quantity);
+        if(!itemFilters.isEmpty()) {
+            descriptor.addLine("Filters: ").indent();
+            itemFilters.forEach(itemFilter -> descriptor.add(itemFilter.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Filters: --none--");
+        }
+        if(!enchantments.isEmpty()) {
+            descriptor.addLine("Enchantments: ").indent();
+            enchantments.forEach(enchantment -> descriptor.add(enchantment.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Enchantments: --none--");
+        }
+        if(!enchantmentChoices.isEmpty()) {
+            descriptor.addLine("Enchantment choices: ").indent();
+            enchantmentChoices.forEach(choice -> descriptor.add(choice.getDescriptor()));
+            descriptor.outdent();
+        } else {
+            descriptor.addLine("Enchantments choices: --none--");
+        }
+        descriptor.outdent();
+        //DebugManager.verbose(Modules.Action.create(EnchantmentRemoveAction.class),"Selector: "+selector.getSelector()+" Filters:"+itemFilters.size()
+        //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity);
     }
 
     private static void removeEnchantment(ItemStack item, Set<WrappedEnchantment> enchantments) {
@@ -82,4 +107,5 @@ public class EnchantmentRemoveAction extends SelectingAction<McmeEntity> {
 
         item.setItemMeta(meta);
     }
+
 }

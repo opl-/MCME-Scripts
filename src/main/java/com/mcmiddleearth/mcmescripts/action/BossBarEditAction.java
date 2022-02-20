@@ -31,13 +31,23 @@ public class BossBarEditAction extends Action {
         this.music = music;
         this.progress = progress;
         this.visible = visible;
+        getDescriptor().indent().addLine("Bar key: "+barKey)
+                .addLine("Title: "+title)
+                .addLine("Color: "+color)
+                .addLine("Style: "+style)
+                .addLine("Fog: "+fog)
+                .addLine("Darken: "+dark)
+                .addLine("Music: "+music)
+                .addLine("Visible: "+visible)
+                .addLine("Progress: "+progress).outdent();
     }
 
     @Override
     protected void handler(TriggerContext context) {
         BossBar bar = Bukkit.getBossBar(barKey);
         if (bar == null) {
-            bar = Bukkit.createBossBar(barKey, "", BarColor.RED, BarStyle.SOLID);
+            context.getDescriptor().addLine("Creating new boss bar!");
+            bar = Bukkit.createBossBar(barKey, title, color, style);
         }
         editBar(bar, title, style, color, fog, dark, music, progress, visible);
     }

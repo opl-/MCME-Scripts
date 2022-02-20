@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcmescripts.component;
 
+import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import org.bukkit.enchantments.Enchantment;
 
 public class WrappedEnchantment {
@@ -26,5 +27,9 @@ public class WrappedEnchantment {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public Descriptor getDescriptor() {
+        return new Descriptor("Enchantment: "+enchantment.getKey()+" Level: "+level);
     }
 }
