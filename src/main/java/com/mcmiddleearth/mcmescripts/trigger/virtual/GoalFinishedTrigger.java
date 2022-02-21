@@ -13,8 +13,8 @@ public class GoalFinishedTrigger extends EntitiesEventTrigger {
 
     public GoalFinishedTrigger(Action action) {
         super(action);
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @SuppressWarnings("unused")
@@ -27,7 +27,7 @@ public class GoalFinishedTrigger extends EntitiesEventTrigger {
         context.withGoal(event.getGoal());
         context.withEntityEvent(event);
         call(context);
-        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                "Entity: "+context.getEntity() + " Goal: " + event.getGoal());
+        //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+        //        "Entity: "+context.getEntity() + " Goal: " + event.getGoal());
     }
 }

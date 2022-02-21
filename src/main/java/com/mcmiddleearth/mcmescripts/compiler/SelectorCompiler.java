@@ -15,8 +15,18 @@ public class SelectorCompiler {
         return new PlayerSelector(selectorData);
     }
 
+    public static PlayerSelector compilePlayerSelector(JsonObject jsonObject, String key) {
+        String selectorData = getSelectorData(jsonObject, key);
+        return new PlayerSelector(selectorData);
+    }
+
     public static VirtualEntitySelector compileVirtualEntitySelector(JsonObject jsonObject) {
         String selectorData = getSelectorData(jsonObject, KEY_SELECTOR);
+        return new VirtualEntitySelector(selectorData);
+    }
+
+    public static VirtualEntitySelector compileVirtualEntitySelector(JsonObject jsonObject, String key) {
+        String selectorData = getSelectorData(jsonObject, key);
         return new VirtualEntitySelector(selectorData);
     }
 

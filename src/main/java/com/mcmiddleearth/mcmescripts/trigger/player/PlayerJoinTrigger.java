@@ -12,16 +12,17 @@ public class PlayerJoinTrigger extends BukkitEventTrigger {
 
     public PlayerJoinTrigger(Action action) {
         super(action);
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        TriggerContext context = new TriggerContext(this).withPlayer(event.getPlayer())
+        TriggerContext context = new TriggerContext(this)
+                .withPlayer(event.getPlayer())
                 .withFirstJoin(event.getPlayer().getLastLogin() == 0);
         call(context);
-        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                "Player: " + event.getPlayer().getName() + " First join: " + context.isFirstJoin());
+        //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+        //        "Player: " + event.getPlayer().getName() + " First join: " + context.isFirstJoin());
     }
 }

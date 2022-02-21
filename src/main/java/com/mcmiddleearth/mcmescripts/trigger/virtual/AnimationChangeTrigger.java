@@ -20,22 +20,28 @@ public class AnimationChangeTrigger extends EntitiesEventTrigger {
         super(action);
         this.current = current;
         this.next = next;
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @SuppressWarnings("unused")
     @EntityEventHandler
     public void onAnimationChange(BakedAnimationEntityAnimationChangeEvent event) {
+        TriggerContext context = new TriggerContext(this);
+        context.getDescriptor().addLine("Context current: "+event.getCurrentAnimation())
+                .addLine("Context next: "+event.getNextAnimation());
         if((current == null || current.equalsIgnoreCase(event.getCurrentAnimation()))
                 && (next == null || next.equalsIgnoreCase(event.getNextAnimation()))) {
-            TriggerContext context = new TriggerContext(this);
+            context.getDescriptor().addLine("Animations match!");
             context.withEntity(event.getEntity());
             context.withEntityEvent(event);
             call(context);
-            DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                    "Entity: " + context.getEntity() + " Current: " + event.getCurrentAnimation()
-                            + " Next: " + event.getNextAnimation());
+            //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+            //        "Entity: " + context.getEntity() + " Current: " + event.getCurrentAnimation()
+            //                + " Next: " + event.getNextAnimation());
+        } else {
+            context.getDescriptor().addLine("No Animations match. Event cancelled!");
+            DebugManager.info(Modules.Trigger.call(this.getClass()),context.getDescriptor().print(""));
         }
     }
 

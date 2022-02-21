@@ -31,7 +31,14 @@ public class TriggerContext {
 
     public TriggerContext(Trigger trigger) {
         this.trigger = trigger;
-        descriptor = new Descriptor("Event Log:").indent();
+        this.location = trigger.getLocation();
+        this.player = trigger.getPlayer().selectPlayer(this).stream().findFirst().orElse(null);
+        this.entity = trigger.getEntity().select(this).stream().findFirst().orElse(null);
+        descriptor = new Descriptor("Event Log:").indent()
+                .addLine(trigger.getClass().getSimpleName()+": "+trigger.getScript().getName()+"."+trigger.getName())
+                .addLine("Event location: "+(location!=null?location:"--none--"))
+                .addLine("Event player: "+(player!=null?player.getName():"--none--"))
+                .addLine("Event entity: "+(entity!=null?entity.getName():"--none--"));
     }
 
     public TriggerContext(TriggerContext context) {
@@ -61,6 +68,7 @@ public class TriggerContext {
 
     public TriggerContext withPlayer(Player player) {
         this.player = player;
+        getDescriptor().addLine("Override event player: " + player.getName());
         return this;
     }
 
@@ -70,6 +78,7 @@ public class TriggerContext {
 
     public TriggerContext withMessage(String message) {
         this.message = message;
+        getDescriptor().addLine("Message: "+message);
         return this;
     }
 
@@ -79,6 +88,7 @@ public class TriggerContext {
 
     public TriggerContext withName(String name) {
         this.name = name;
+        getDescriptor().addLine("Context name: "+name);
         return this;
     }
 
@@ -88,6 +98,7 @@ public class TriggerContext {
 
     public TriggerContext withEntityEvent(McmeEntityEvent entityEvent) {
         this.entityEvent = entityEvent;
+        getDescriptor().addLine("Entity event: "+entityEvent.getClass().getSimpleName());
         return this;
     }
 
@@ -97,6 +108,7 @@ public class TriggerContext {
 
     public TriggerContext withFirstJoin(boolean firstJoin) {
         this.firstJoin = firstJoin;
+        getDescriptor().addLine("First join: "+firstJoin);
         return this;
     }
 
@@ -106,11 +118,12 @@ public class TriggerContext {
 
     public TriggerContext withEntity(McmeEntity entity) {
         this.entity = entity;
+        getDescriptor().addLine("Override event entity: " + entity.getName());
         return this;
     }
 
     public Location getLocation() {
-        if(location!=null) {
+        /*if(location!=null) {
             return location;
         } else if(trigger.getLocation()!=null) {
             return trigger.getLocation();
@@ -124,11 +137,13 @@ public class TriggerContext {
             return entity.getLocation();
         } else {
             return null;
-        }
+        }*/
+        return location;
     }
 
     public TriggerContext withLocation(Location location) {
         this.location = location;
+        getDescriptor().addLine("Override event location: "+location);
         return this;
     }
 
@@ -138,6 +153,7 @@ public class TriggerContext {
 
     public TriggerContext withGoal(Goal goal) {
         this.goal = goal;
+        getDescriptor().addLine("Context goal: "+(goal!=null?goal.getType().name():"--none--"));
         return this;
     }
 

@@ -42,6 +42,8 @@ public class TriggerCompiler {
                                 KEY_ELSE            = "else",
                                 KEY_CALL_ONCE       = "call_once",
                                 KEY_LOCATION        = "location",
+                                KEY_PLAYER          = "player",
+                                KEY_ENTITY          = "entity",
                                 KEY_CENTER          = "center",
                                 KEY_MET_ALL_CONDITIONS  = "met_all_conditions",
                                 KEY_NAME                = "name",
@@ -204,6 +206,8 @@ public class TriggerCompiler {
         DecisionTreeTrigger.DecisionNode decisionNode = compileDecisionNode(jsonObject);
         trigger.setDecisionNode(decisionNode);
         trigger.setLocation(LocationCompiler.compile(jsonObject.get(KEY_LOCATION)).orElse(null));
+        trigger.setPlayer(SelectorCompiler.compilePlayerSelector(jsonObject,KEY_PLAYER));
+        trigger.setEntity(SelectorCompiler.compileVirtualEntitySelector(jsonObject,KEY_PLAYER));
         DecisionTreeTrigger finalTrigger = trigger;
         LocationCompiler.compile(jsonObject.get(KEY_CENTER)).ifPresent(finalTrigger::setLocation);
 

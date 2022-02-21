@@ -23,8 +23,8 @@ public class SelectionTrigger extends PeriodicServerTimeTrigger {
         super(action, timeMillis);
         this.selector = selector;
         this.process = process;
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Selector: "+selector+" periode: "+timeMillis+" process: "+process.name());
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Selector: "+selector+" periode: "+timeMillis+" process: "+process.name());
     }
 
     @Override
@@ -38,8 +38,8 @@ public class SelectionTrigger extends PeriodicServerTimeTrigger {
                             if(entity instanceof RealPlayer) {
                                 cont.withPlayer(((RealPlayer)entity).getBukkitPlayer());
                             }
-                            DebugManager.info(Modules.Trigger.call(this.getClass()),
-                                    "Entity: " + entity.getName());
+                            //DebugManager.info(Modules.Trigger.call(this.getClass()),
+                            //        "Entity: " + entity.getName());
                             ignorePeriodCheck = true;
                             super.call(cont);
                             ignorePeriodCheck = false;
@@ -76,7 +76,7 @@ public class SelectionTrigger extends PeriodicServerTimeTrigger {
 
     @Override
     public Descriptor getDescriptor() {
-        return super.getDescriptor().addLine("Process: "+process)
+        return super.getDescriptor().addLine("Process: "+process.name())
                                     .addLine("Selector: "+selector.getSelector());
     }
 }

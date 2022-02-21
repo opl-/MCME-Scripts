@@ -298,8 +298,8 @@ public abstract class EntitySelector<T> implements Selector<T> {
             case TRIGGER_ENTITY:
                 if(context.getEntity()!=null && (context.getEntity() instanceof VirtualEntity))
                     entities.add((VirtualEntity) context.getEntity());
-                DebugManager.verbose(Modules.Selector.select(this.getClass()),
-                        "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
+                //DebugManager.verbose(Modules.Selector.select(this.getClass()),
+                //        "Selector: "+getSelector()+" Selected: "+(context.getEntity()!=null?context.getEntity().getName():null));
                 //return entities;
                 break;
             case VIRTUAL_ENTITIES:

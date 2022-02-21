@@ -13,8 +13,8 @@ public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
 
     public VirtualEntityTalkTrigger(Action action) {
         super(action);
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @SuppressWarnings("unused")
@@ -24,7 +24,7 @@ public class VirtualEntityTalkTrigger extends EntitiesEventTrigger {
                 .withEntity(event.getVirtualEntity())
                 .withMessage(Joiner.on("\n").join(event.getLayout().getLines()));
         call(context);
-        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                "Entity: "+context.getEntity());
+        //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+        //        "Entity: "+context.getEntity());
     }
 }

@@ -8,8 +8,8 @@ public class PeriodicRealTimeTrigger extends PeriodicTrigger {
 
     public PeriodicRealTimeTrigger(Action action, long timeMillis) {
         super(action, timeMillis);
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Time: "+timeMillis+" Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Time: "+timeMillis+" Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     public long getCurrentTime() {

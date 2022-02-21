@@ -12,8 +12,8 @@ public class PlayerQuitTrigger extends BukkitEventTrigger {
 
     public PlayerQuitTrigger(Action action) {
         super(action);
-        DebugManager.info(Modules.Trigger.create(this.getClass()),
-                "Action: " + (action!=null?action.getClass().getSimpleName():null));
+        //DebugManager.info(Modules.Trigger.create(this.getClass()),
+        //        "Action: " + (action!=null?action.getClass().getSimpleName():null));
     }
 
     @EventHandler
@@ -21,7 +21,7 @@ public class PlayerQuitTrigger extends BukkitEventTrigger {
         TriggerContext context = new TriggerContext(this);
         context.withPlayer(event.getPlayer());
         call(context);
-        DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                "Player: " + event.getPlayer().getName());
+        //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+        //        "Player: " + event.getPlayer().getName());
     }
 }

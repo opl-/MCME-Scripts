@@ -21,8 +21,8 @@ public abstract class OnceTrigger extends TimedTrigger {
         long current = getCurrentTime();
         if(current >= timeMillis && timeLastCheck < timeMillis) {
             super.call(context);
-            DebugManager.verbose(Modules.Trigger.call(this.getClass()),
-                    "Current: " + current + " trigger time: " + timeMillis);
+            //DebugManager.verbose(Modules.Trigger.call(this.getClass()),
+            //        "Current: " + current + " trigger time: " + timeMillis);
         }
         timeLastCheck = current;
     }

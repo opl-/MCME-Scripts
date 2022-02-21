@@ -46,9 +46,9 @@ public abstract class DecisionTreeTrigger extends Trigger {
     @Override
     public void call(TriggerContext context) {
         //context.getDescriptor().add(getDescriptor()).indent();
-        context.getDescriptor().add(super.getDescriptor()).indent();
+        //context.getDescriptor().add(super.getDescriptor()).indent();
         decisionNode.call(context);
-        context.getDescriptor().outdent();
+        //context.getDescriptor().outdent();
         super.call(context);
     }
 

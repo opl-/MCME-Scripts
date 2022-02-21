@@ -2,11 +2,16 @@ package com.mcmiddleearth.mcmescripts.trigger;
 
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.EntitiesPlugin;
+import com.mcmiddleearth.entities.entities.McmeEntity;
+import com.mcmiddleearth.entities.entities.VirtualEntity;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.action.Action;
 import com.mcmiddleearth.mcmescripts.compiler.LocationCompiler;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.Script;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.logging.Logger;
 
@@ -38,11 +43,20 @@ public class ExternalTrigger extends DecisionTreeTrigger {
                 String value = arg.substring(arg.indexOf(':')+1);
                 switch (key) {
                     case "player":
-                        context.withPlayer(Bukkit.getPlayer(value));
-                        //context.getDescriptor().
+                        Player player = Bukkit.getPlayer(value);
+                        if(player!=null) {
+                            context.withPlayer(player);
+                        } else {
+                            DebugManager.warn(Modules.Trigger.call(this.getClass()),"Player not found.");
+                        }
                         break;
                     case "entity":
-                        context.withEntity(EntitiesPlugin.getEntityServer().getEntity(value));
+                        McmeEntity entity = EntitiesPlugin.getEntityServer().getEntity(value);
+                        if(entity instanceof VirtualEntity) {
+                            context.withEntity(entity);
+                        } else {
+                            DebugManager.warn(Modules.Trigger.call(this.getClass()),"Entity not found.");
+                        }
                         break;
                     case "location":
                         LocationCompiler.compile(new JsonPrimitive(value)).ifPresent(context::withLocation);

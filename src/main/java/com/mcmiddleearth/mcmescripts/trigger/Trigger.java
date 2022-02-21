@@ -6,6 +6,8 @@ import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.Script;
+import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
+import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -17,8 +19,8 @@ public abstract class Trigger {
 
     private boolean callOnce = false;
 
-    private VirtualEntity entity;
-    private Player player;
+    private VirtualEntitySelector entity;
+    private PlayerSelector player;
     private Location location;
 
     public void register(Script script) {
@@ -38,19 +40,19 @@ public abstract class Trigger {
         return script;
     }
 
-    public VirtualEntity getEntity() {
+    public VirtualEntitySelector getEntity() {
         return entity;
     }
 
-    public void setEntity(VirtualEntity entity) {
+    public void setEntity(VirtualEntitySelector entity) {
         this.entity = entity;
     }
 
-    public Player getPlayer() {
+    public PlayerSelector getPlayer() {
         return player;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayer(PlayerSelector player) {
         this.player = player;
     }
 
@@ -75,10 +77,11 @@ public abstract class Trigger {
     }
 
     public void call(TriggerContext context) {
-        DebugManager.info(Modules.Trigger.call(this.getClass()),context.getDescriptor().print(""));
         if(callOnce) {
             unregister();
+            context.getDescriptor().addLine("Unregistering call once event!");
         }
+        DebugManager.info(Modules.Trigger.call(this.getClass()),context.getDescriptor().print(""));
     }
 
     public String getName() {
@@ -92,9 +95,9 @@ public abstract class Trigger {
     public Descriptor getDescriptor() {
         return new Descriptor(this.getClass().getSimpleName() + ": "+name).indent()
                 .addLine("Call once: "+callOnce)
-                .addLine("Trigger entity: "+(entity!=null?entity.getName()+" at "+entity.getLocation().toString():"--none--"))
-                .addLine("Trigger player: "+(entity!=null?player.getName()+" at "+player.getLocation().toString():"--none--"))
-                .addLine("Trigger location: "+(entity!=null?location.toString():"--none--")).outdent();
+                .addLine("Trigger entity: "+(entity!=null?entity.getSelector():"--none--"))//+" at "+entity.getLocation().toString():"--none--"))
+                .addLine("Trigger player: "+(entity!=null?player.getSelector():"--none--"))//+" at "+player.getLocation().toString():"--none--"))
+                .addLine("Trigger location: "+(location!=null?location:"--none--")).outdent();
     }
 
     /*public String print(String indent) {

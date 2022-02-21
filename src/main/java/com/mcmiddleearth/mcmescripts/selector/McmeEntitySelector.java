@@ -15,8 +15,10 @@ public class McmeEntitySelector extends EntitySelector<McmeEntity> {
 
     public McmeEntitySelector(String selector) throws IndexOutOfBoundsException {
         super(selector);
-        DebugManager.info(Modules.Selector.create(this.getClass()),
-                "Selector: "+selector);
+        //DebugManager.info(Modules.Selector.create(this.getClass()),
+        //        "Selector: "+selector);
+        //Throwable throwable = new Throwable();
+        //throwable.printStackTrace();
     }
 
     @Override
