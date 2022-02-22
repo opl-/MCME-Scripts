@@ -1,6 +1,5 @@
 package com.mcmiddleearth.mcmescripts.condition.proximity;
 
-import com.mcmiddleearth.mcmescripts.condition.Condition;
 import com.mcmiddleearth.mcmescripts.condition.Criterion;
 import com.mcmiddleearth.mcmescripts.condition.CriterionCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
@@ -9,10 +8,6 @@ import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.Location;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.logging.Logger;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class LocationProximityCondition extends CriterionCondition {
@@ -28,14 +23,14 @@ public class LocationProximityCondition extends CriterionCondition {
 
     @Override
     public boolean test(TriggerContext context) {
+        context.getDescriptor().addLine(this.getClass().getSimpleName()).indent();
         TriggerContext locationContext = new TriggerContext(context).withLocation(location);
         /*DebugManager.verbose(Modules.Condition.test(this.getClass()),
                 "Selector: "+selector.getSelector()+" Location: "+(location!=null?location.toString():"null"));
         List selectorResult = selector.select(context);
         return test.apply(selectorResult.size());*/
-        boolean result = super.test(locationContext);
-        context.setDescriptor(locationContext.getDescriptor());
-        return result;
+        //context.setDescriptor(locationContext.getDescriptor());
+        return super.test(locationContext);
     }
 
     /*@Override

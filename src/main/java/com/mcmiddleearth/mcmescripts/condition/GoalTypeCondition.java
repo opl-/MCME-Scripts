@@ -18,8 +18,8 @@ public class GoalTypeCondition extends SelectingCondition<VirtualEntity> {
                                                               (goalType == null) != exclude));
         this.goalType = goalType;
         this.exclude = exclude;
-        DebugManager.info(Modules.Condition.create(this.getClass()),
-                "Selector: "+selector.getSelector()+" Test goalType: "+goalType.name()+" exclude: "+exclude);
+        //DebugManager.info(Modules.Condition.create(this.getClass()),
+        //        "Selector: "+selector.getSelector()+" Test goalType: "+goalType.name()+" exclude: "+exclude);
     }
 
     public Descriptor getDescriptor() {

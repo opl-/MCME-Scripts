@@ -27,7 +27,6 @@ public class SelectingAction<T> extends Action {
     protected void handler(TriggerContext context) {
         List<T> selected = selector.select(context);
         //DebugManager.verbose(Modules.Action.execute(this.getClass()),"Selector: "+selector.getSelector()+" Selected: "+selected.size());
-        context.getDescriptor().indent();
         selected.forEach(element -> {
             if(element instanceof Player) {
                 context.getDescriptor().addLine("Targeting: " + ((Player) element).getName());
@@ -38,6 +37,5 @@ public class SelectingAction<T> extends Action {
             executor.accept(element,context);
             context.getDescriptor().outdent();
         });
-        context.getDescriptor().outdent();
     }
 }

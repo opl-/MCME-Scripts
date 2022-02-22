@@ -17,7 +17,8 @@ public enum Modules {
     SELECTOR_SELECT     ("selector.select"),
     SELECTOR_CREATE     ("selector.create"),
     LOCATION_CREATE     ("location.create"),
-    ITEM_CREATE         ("item.create");
+    ITEM_CREATE         ("item.create"),
+    COMMAND_EXECUTE     ("command.execute");
 
     private final String module;
 
@@ -27,6 +28,12 @@ public enum Modules {
 
     public String getModule() {
         return module;
+    }
+
+    public static class Command {
+        public static String execute(Class clazz) {
+            return COMMAND_EXECUTE.module+"."+clazz.getSimpleName();
+        }
     }
 
     public static class Action {

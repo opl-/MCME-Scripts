@@ -29,21 +29,21 @@ public class VirtualEntityProximityCondition extends CriterionCondition {
 
     @Override
     public boolean test(TriggerContext context) {
+        context.getDescriptor().addLine(this.getClass().getSimpleName()).indent();
         McmeEntity entity = EntitiesPlugin.getEntityServer().getEntity(entityName);
+        if(entity instanceof VirtualEntity) {
+            context.getDescriptor()
+                    .addLine("Found center entity: "+entity.getName());
+        } else {
+            context.getDescriptor()
+                    .addLine("Found center entity: --none--");
+        }
         TriggerContext virtualEntityContext = new TriggerContext(context);
         if(entity instanceof VirtualEntity) {
             virtualEntityContext.withEntity(entity);
         }
-        boolean result = super.test(virtualEntityContext);
-        context.setDescriptor(virtualEntityContext.getDescriptor());
-        if(entity instanceof VirtualEntity) {
-            context.getDescriptor().indent()
-                    .addLine("Found center entity: "+entity.getName()).outdent();
-        } else {
-            context.getDescriptor().indent()
-                    .addLine("Found center entity: --none--").outdent();
-        }
-        return result;
+        //context.setDescriptor(virtualEntityContext.getDescriptor());
+        return super.test(virtualEntityContext);
         //DebugManager.verbose(Modules.Condition.test(this.getClass()),
         //        "Selector: "+selector.getSelector()+" Entity: "+(entity!=null?entity.getName():"null"));
         /*int size = selector.select(context).size();

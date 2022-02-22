@@ -61,6 +61,7 @@ public class ItemGiveAction extends SelectingAction<McmeEntity> {
 
     private static void giveItem(McmeEntity entity, TriggerContext context, ItemStack item, EquipmentSlot slot, int slotId, int duration) {
         ItemMeta meta = item.getItemMeta();
+        context.getDescriptor().addLine("Give item: "+item.getType().name());
         if(duration>0) {
             NamespacedKey key = EntitiesPlugin.getInstance().getPersistentDataKey(PersistentDataKey.ITEM_REMOVAL_TIME);
             meta.getPersistentDataContainer().set(key, PersistentDataType.PrimitivePersistentDataType.LONG,

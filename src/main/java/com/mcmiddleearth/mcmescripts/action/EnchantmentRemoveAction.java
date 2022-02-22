@@ -4,9 +4,7 @@ import com.mcmiddleearth.entities.entities.McmeEntity;
 import com.mcmiddleearth.mcmescripts.component.EnchantmentChoice;
 import com.mcmiddleearth.mcmescripts.component.ItemFilter;
 import com.mcmiddleearth.mcmescripts.component.WrappedEnchantment;
-import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
-import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.inventory.Inventory;
@@ -23,7 +21,7 @@ public class EnchantmentRemoveAction extends SelectingAction<McmeEntity> {
             //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity);
 
             int calculatedQuantity = quantity;
-            Set<ItemStack> applyItems = new HashSet<>();
+            List<ItemStack> applyItems = new ArrayList<>();
             LootTable lootTable = new LootTable(enchantmentChoices);
 
             Inventory entityInventory = entity.getInventory();

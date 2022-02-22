@@ -15,6 +15,7 @@ import com.mcmiddleearth.mcmescripts.command.arguments.ScriptArgument;
 import com.mcmiddleearth.mcmescripts.command.arguments.TriggerArgument;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Level;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.drive.DriveUtil;
 import com.mcmiddleearth.mcmescripts.listener.WandItemListener;
 import com.mojang.brigadier.context.CommandContext;
@@ -88,25 +89,30 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
             .then(HelpfulLiteralBuilder.literal("reload")
                 .executes(context -> {
                     context.getSource().sendMessage("Reloading scripts ....");
+                    DebugManager.info(Modules.Command.execute(this.getClass()),"Reloading scripts ....");
                     MCMEScripts.getInstance().disableScripts();
                     MCMEScripts.getInstance().reloadConfig();
                     MCMEScripts.getInstance().enableScripts();
                     Bukkit.getScheduler().runTaskLater(MCMEScripts.getInstance(), () -> context.getSource().sendMessage("... scripts reloaded!"),
                             MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,95));
+                            DebugManager.info(Modules.Command.execute(this.getClass()),"... scripts reloaded!");
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("disable")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .executes(context -> {
                     MCMEScripts.getInstance().disableScripts();
                     context.getSource().sendMessage("All scripts disabled!");
+                    DebugManager.info(Modules.Command.execute(this.getClass()),"All scripts disabled!");
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("enable")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender().hasPermission(Permission.ADMIN.getNode()))
                 .executes(context -> {
                     context.getSource().sendMessage("Enabling scripts ....");
+                    DebugManager.info(Modules.Command.execute(this.getClass()),"Enabling scripts ....");
                     MCMEScripts.getInstance().enableScripts();
                     Bukkit.getScheduler().runTaskLater(MCMEScripts.getInstance(), () -> context.getSource().sendMessage("... scripts enabled!"),
                             MCMEScripts.getConfigInt(ConfigKeys.START_UP_DELAY,95));
+                            DebugManager.info(Modules.Command.execute(this.getClass()),"... scripts enabled!");
                     return 0; }))
             .then(HelpfulLiteralBuilder.literal("wand")
                 .requires(sender -> ((ScriptsCommandSender)sender).getCommandSender() instanceof Player)
@@ -189,6 +195,7 @@ public class ScriptsCommandHandler extends AbstractCommandHandler implements Tab
     }
 
     private void setFilter(String playerName, String script) {
+        DebugManager.info(Modules.Command.execute(this.getClass()),"Setting script filter for "+playerName +" to "+script);
         if("console".equalsIgnoreCase(playerName)) {
             DebugManager.setConsoleDebugScript(script);
         } else if("file".equalsIgnoreCase(playerName)) {

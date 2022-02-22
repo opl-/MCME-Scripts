@@ -36,7 +36,7 @@ public class ExternalTrigger extends DecisionTreeTrigger {
 
     public void call(String[] args) {
         TriggerContext context = new TriggerContext(this);
-        context.getDescriptor().add(getDescriptor());
+        //context.getDescriptor().add(getDescriptor());
         for(String arg: args) {
             if(arg.contains(":") && arg.indexOf(':')<arg.length()-1) {
                 String key = arg.substring(0,arg.indexOf(':'));

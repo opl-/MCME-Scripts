@@ -27,7 +27,7 @@ public class SelectingCondition<T> extends Condition {
     @Override
     public boolean test(TriggerContext context) {
         boolean result = matchAllSelected;
-        context.getDescriptor().add(getDescriptor()).indent();
+        context.getDescriptor().add(super.getDescriptor()).indent();
         for(T element :selector.select(context)) {
             if(element instanceof Player) {
                 context.getDescriptor().addLine("Testing player: "+((Player)element).getName());
@@ -42,9 +42,9 @@ public class SelectingCondition<T> extends Condition {
                 break;
             }
         }
-        context.getDescriptor().outdent();
-        DebugManager.verbose(Modules.Condition.test(this.getClass()),
-                "Selector: "+selector.getSelector()+" Result: "+result);
+        context.getDescriptor().addLine("Test result: "+result).outdent();
+        //DebugManager.verbose(Modules.Condition.test(this.getClass()),
+        //        "Selector: "+selector.getSelector()+" Result: "+result);
         return result;
     }
 

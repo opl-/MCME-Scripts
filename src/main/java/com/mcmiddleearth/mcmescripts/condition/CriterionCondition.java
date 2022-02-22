@@ -17,9 +17,11 @@ public class CriterionCondition<T> extends Condition {
     @Override
     public boolean test(TriggerContext context) {
         int size = selector.select(context).size();
-        context.getDescriptor().add(getDescriptor()).indent()
-                .addLine("Selected quantity: "+size).outdent();
-        return test.apply(size);
+        context.getDescriptor() //.add(super.getDescriptor()).indent()
+                .addLine("Selected quantity: "+size);
+        boolean result = test.apply(size);
+        context.getDescriptor().addLine("Test result: "+result).outdent();
+        return result;
     }
 
     @Override

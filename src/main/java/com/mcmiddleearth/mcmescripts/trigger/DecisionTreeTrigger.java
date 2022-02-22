@@ -109,7 +109,7 @@ public abstract class DecisionTreeTrigger extends Trigger {
 
         private boolean checkConditions(TriggerContext context) {
             if(conditions == null || conditions.isEmpty()) {
-                context.getDescriptor().addLine("Conditions: --none--");
+                context.getDescriptor().addLine("No Conditions");
                 return true;
             }
             for(Condition condition: conditions) {

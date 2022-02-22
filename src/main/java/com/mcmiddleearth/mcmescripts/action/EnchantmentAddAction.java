@@ -5,9 +5,7 @@ import com.mcmiddleearth.mcmescripts.MCMEScripts;
 import com.mcmiddleearth.mcmescripts.component.EnchantmentChoice;
 import com.mcmiddleearth.mcmescripts.component.ItemFilter;
 import com.mcmiddleearth.mcmescripts.component.WrappedEnchantment;
-import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
-import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.looting.LootTable;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import org.bukkit.Bukkit;
@@ -16,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
 
@@ -25,7 +24,7 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
             //        + " Enchantments: "+enchantments.size()+ " Choices: "+ enchantmentChoices.size()+" Quantity: "+quantity+" Duration:"+duration);
 
             int calculatedQuantity = quantity;
-            Set<ItemStack> applyItems = new HashSet<>();
+            List<ItemStack> applyItems = new ArrayList<>();
             LootTable lootTable = new LootTable(enchantmentChoices);
 
             Inventory entityInventory = entity.getInventory();
@@ -40,12 +39,13 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
                         if (filter.match(entityItem, entityInventory)) {
                             applyItems.add(entityItem);
                             calculatedQuantity -= 1;
+//Logger.getGlobal().info("Add items: "+applyItems.size()+" calculated quantity: "+calculatedQuantity);
                             break;
                         }
                     }
                 }
             }
-
+//Logger.getGlobal().info("quantity: "+quantity+" calculated: "+calculatedQuantity);
             if (calculatedQuantity >= 0) {
                 for (ItemStack applyItem : applyItems) {
                     Set<WrappedEnchantment> applyEnchantments = new HashSet<>(enchantments);
@@ -58,8 +58,9 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
                 List<ItemStack> limitedItems = new ArrayList<>(applyItems);
                 Collections.shuffle(limitedItems);
                 calculatedQuantity = quantity;
+//Logger.getGlobal().info("limted Items: "+limitedItems.size());
                 for (ItemStack limitedItem : limitedItems) {
-                    if (calculatedQuantity >= 0) {
+                    if (calculatedQuantity == 0) {
                         break;
                     }
                     Set<WrappedEnchantment> applyEnchantments = new HashSet<>(enchantments);
@@ -67,6 +68,7 @@ public class EnchantmentAddAction extends SelectingAction<McmeEntity> {
                     applyEnchantment(limitedItem, applyEnchantments, duration);
                     context.getDescriptor().addLine("Enchanting: "+limitedItem.getType().name());
                     calculatedQuantity -= 1;
+//Logger.getGlobal().info("Quantity: "+quantity+" calculated: "+calculatedQuantity);
                 }
                 context.getDescriptor().addLine("Stopping enchanting: Max quantity reached.");
             }

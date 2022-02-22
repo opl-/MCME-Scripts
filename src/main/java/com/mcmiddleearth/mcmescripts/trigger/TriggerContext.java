@@ -32,8 +32,8 @@ public class TriggerContext {
     public TriggerContext(Trigger trigger) {
         this.trigger = trigger;
         this.location = trigger.getLocation();
-        this.player = trigger.getPlayer().selectPlayer(this).stream().findFirst().orElse(null);
-        this.entity = trigger.getEntity().select(this).stream().findFirst().orElse(null);
+        this.player = (trigger.getPlayer()!=null?trigger.getPlayer().selectPlayer(this).stream().findFirst().orElse(null):null);
+        this.entity = (trigger.getEntity()!=null?trigger.getEntity().select(this).stream().findFirst().orElse(null):null);
         descriptor = new Descriptor("Event Log:").indent()
                 .addLine(trigger.getClass().getSimpleName()+": "+trigger.getScript().getName()+"."+trigger.getName())
                 .addLine("Event location: "+(location!=null?location:"--none--"))

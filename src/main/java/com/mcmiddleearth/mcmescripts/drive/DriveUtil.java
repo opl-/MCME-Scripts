@@ -26,6 +26,8 @@ import com.mcmiddleearth.command.McmeCommandSender;
 import com.mcmiddleearth.entities.EntitiesPlugin;
 import com.mcmiddleearth.mcmescripts.ConfigKeys;
 import com.mcmiddleearth.mcmescripts.MCMEScripts;
+import com.mcmiddleearth.mcmescripts.debug.DebugManager;
+import com.mcmiddleearth.mcmescripts.debug.Modules;
 import com.mcmiddleearth.mcmescripts.script.ScriptManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -113,7 +115,7 @@ public class DriveUtil {
     }
 
     public static void refreshToken() {
-        URL url = null;
+        URL url;
         try {
             url = new URL("https://oauth2.googleapis.com/token");
             URLConnection con = url.openConnection();
@@ -138,8 +140,8 @@ public class DriveUtil {
                 os.write(out);
                 os.flush();
             }
-            JsonParser parser = new JsonParser();
-            JsonElement response = parser.parse(new JsonReader(new InputStreamReader(http.getInputStream())));
+            //JsonParser parser = new JsonParser();
+            JsonElement response = JsonParser.parseReader(new JsonReader(new InputStreamReader(http.getInputStream())));
             JsonElement tokenJson = response.getAsJsonObject().get("access_token");
             if(tokenJson instanceof JsonPrimitive) {
                 String token = tokenJson.getAsString();
@@ -150,7 +152,7 @@ public class DriveUtil {
         }
     }
 
-    public static void readFiles() throws IOException, GeneralSecurityException {
+    public static void readFiles() {
         // Build a new authorized API client service.
         new BukkitRunnable() {
             public void run() {
@@ -198,6 +200,7 @@ public class DriveUtil {
         java.io.File localFile = getLocalFile(parent, filename);
         if(parentId == null || localFile == null) {
             sender.sendMessage(new ComponentBuilder().append("Export Failed.").color(ChatColor.RED).create());
+            DebugManager.info(Modules.Command.execute(DriveUtil.class),"Export failed: parent or file not found.");
             return;
         }
         // Build a new authorized API client service.
@@ -206,13 +209,16 @@ public class DriveUtil {
                 try {
                     export();
                     sender.sendMessage(new ComponentBuilder().append("Export done.").color(ChatColor.GREEN).create());
+                    DebugManager.info(Modules.Command.execute(DriveUtil.class),"Exported: "+parent+"/"+filename);
                 } catch (GeneralSecurityException | IOException e) {
                     refreshToken();
                     try {
                         export();
                         sender.sendMessage(new ComponentBuilder().append("Export done.").color(ChatColor.GREEN).create());
+                        DebugManager.info(Modules.Command.execute(DriveUtil.class),"Exported: "+parent+"/"+filename);
                     } catch (GeneralSecurityException | IOException ex) {
                         sender.sendMessage(new ComponentBuilder().append("Export Failed.").color(ChatColor.RED).create());
+                        DebugManager.info(Modules.Command.execute(DriveUtil.class),"Export failed: access denied.");
                         ex.printStackTrace();
                     }
                 }
@@ -262,6 +268,7 @@ public class DriveUtil {
         java.io.File localFile = getLocalFile(parent, filename);
         if(parentId == null || localFile == null) {
             sender.sendMessage(new ComponentBuilder().append("Import Failed.").color(ChatColor.RED).create());
+            DebugManager.info(Modules.Command.execute(DriveUtil.class),"Import failed: parent or file not found.");
             return;
         }
         // Build a new authorized API client service.
@@ -270,13 +277,16 @@ public class DriveUtil {
                 try {
                     importer();
                     sender.sendMessage(new ComponentBuilder().append("Import done.").color(ChatColor.GREEN).create());
+                    DebugManager.info(Modules.Command.execute(DriveUtil.class),"Imported: "+parent+"/"+filename);
                 } catch (GeneralSecurityException | IOException e) {
                     refreshToken();
                     try {
                         importer();
                         sender.sendMessage(new ComponentBuilder().append("Import done.").color(ChatColor.GREEN).create());
+                        DebugManager.info(Modules.Command.execute(DriveUtil.class),"Imported: "+parent+"/"+filename);
                     } catch (GeneralSecurityException | IOException ex) {
                         sender.sendMessage(new ComponentBuilder().append("Import Failed.").color(ChatColor.RED).create());
+                        DebugManager.info(Modules.Command.execute(DriveUtil.class),"Import failed: access denied.");
                         ex.printStackTrace();
                     }
                 }
@@ -305,7 +315,7 @@ public class DriveUtil {
 
     }
 
-    private static List<String> getFileIds(Drive service, String parent, String filename) throws IOException, GeneralSecurityException {
+    private static List<String> getFileIds(Drive service, String parent, String filename) throws IOException {
         FileList result = service.files().list()
                 .setQ("'"+parent+"'"+" in parents and name = '"+filename+".json'")
                 .setPageSize(1000)
@@ -317,15 +327,12 @@ public class DriveUtil {
     }
 
     private static String getParentId(String parent) {
-        switch(parent) {
-            case "animations":
-                return MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_ANIMATIONS,"");
-            case "entities":
-                return MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_ENTITIES,"");
-            case "scripts":
-                return MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_SCRIPTS,"");
-        }
-        return null;
+        return switch (parent) {
+            case "animations" -> MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_ANIMATIONS, "");
+            case "entities" -> MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_ENTITIES, "");
+            case "scripts" -> MCMEScripts.getConfigString(ConfigKeys.DRIVE_FOLDER_SCRIPTS, "");
+            default -> null;
+        };
     }
 
     private static java.io.File getLocalFile(String parent, String filename) {
