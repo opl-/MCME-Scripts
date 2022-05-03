@@ -1,28 +1,26 @@
 package com.mcmiddleearth.mcmescripts.condition;
 
 import com.mcmiddleearth.entities.entities.McmeEntity;
-import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
-import com.mcmiddleearth.mcmescripts.debug.Modules;
-import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.trigger.TriggerContext;
 import org.bukkit.entity.Player;
 
-import java.util.function.Function;
-
-public class SelectingCondition<T> extends Condition {
+public abstract class SelectingCondition<T> extends Condition {
 
     private boolean matchAllSelected = false;
 
     private final Selector<T> selector;
 
-    private final Function<T,Boolean> test;
-
-    public SelectingCondition(Selector<T> selector, Function<T, Boolean> test) {
-        this.test = test;
+    public SelectingCondition(Selector<T> selector) {
         this.selector = selector;
     }
+
+    /**
+     * Called for each selected entity to check if it matches some condition.
+     * @return <code>true</code> if the entity should match.
+     */
+    protected abstract boolean test(T entity);
 
     @Override
     public boolean test(TriggerContext context) {
@@ -34,10 +32,10 @@ public class SelectingCondition<T> extends Condition {
             } else if(element instanceof McmeEntity) {
                 context.getDescriptor().addLine("Testing McmeEntity: "+(((McmeEntity) element).getName()));
             }
-            if(matchAllSelected && !test.apply(element)) {
+            if(matchAllSelected && !test(element)) {
                 result = false;
                 break;
-            } else if(!matchAllSelected && test.apply(element)) {
+            } else if(!matchAllSelected && test(element)) {
                 result = true;
                 break;
             }

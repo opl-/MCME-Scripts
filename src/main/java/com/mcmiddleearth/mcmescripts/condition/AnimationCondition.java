@@ -5,8 +5,6 @@ import com.mcmiddleearth.entities.entities.composite.BakedAnimationEntity;
 import com.mcmiddleearth.mcmescripts.debug.Descriptor;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 
-import java.util.function.Function;
-
 public class AnimationCondition extends SelectingCondition<VirtualEntity> {
 
     private final String currentAnimation;
@@ -17,20 +15,23 @@ public class AnimationCondition extends SelectingCondition<VirtualEntity> {
     public AnimationCondition(Selector<VirtualEntity> selector, String currentAnimation,
                               Boolean manualAnimationControl,
                               Boolean instantAnimationSwitching, Boolean manualOverride) {
-        super(selector, entity -> {
-            if(entity instanceof BakedAnimationEntity) {
-                return (currentAnimation == null || currentAnimation.equalsIgnoreCase(((BakedAnimationEntity)entity).getCurrentAnimation().getName()))
-                    && (manualAnimationControl == null || manualAnimationControl == ((BakedAnimationEntity) entity).isManualAnimationControl())
-                    && (instantAnimationSwitching == null || instantAnimationSwitching == ((BakedAnimationEntity) entity).isInstantAnimationSwitching())
-                    && (manualOverride == null || manualOverride == ((BakedAnimationEntity)entity).isManualOverride());
-            } else {
-                return false;
-            }
-        });
+        super(selector);
         this.currentAnimation = currentAnimation;
         this.manualAnimationControl = manualAnimationControl;
         this.instantAnimationSwitching = instantAnimationSwitching;
         this.manualOverride = manualOverride;
+    }
+
+    @Override
+    protected boolean test(VirtualEntity entity) {
+        if(entity instanceof BakedAnimationEntity) {
+            return (currentAnimation == null || currentAnimation.equalsIgnoreCase(((BakedAnimationEntity)entity).getCurrentAnimation().getName()))
+                    && (manualAnimationControl == null || manualAnimationControl == ((BakedAnimationEntity) entity).isManualAnimationControl())
+                    && (instantAnimationSwitching == null || instantAnimationSwitching == ((BakedAnimationEntity) entity).isInstantAnimationSwitching())
+                    && (manualOverride == null || manualOverride == ((BakedAnimationEntity)entity).isManualOverride());
+        } else {
+            return false;
+        }
     }
 
     public Descriptor getDescriptor() {
