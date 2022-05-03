@@ -4,12 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mcmiddleearth.entities.ai.goal.GoalType;
+import com.mcmiddleearth.mcmescripts.component.InventoryFilter;
 import com.mcmiddleearth.mcmescripts.condition.*;
 import com.mcmiddleearth.mcmescripts.condition.proximity.LocationProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.PlayerProximityCondition;
 import com.mcmiddleearth.mcmescripts.condition.proximity.VirtualEntityProximityCondition;
 import com.mcmiddleearth.mcmescripts.debug.DebugManager;
 import com.mcmiddleearth.mcmescripts.debug.Modules;
+import com.mcmiddleearth.mcmescripts.selector.McmeEntitySelector;
 import com.mcmiddleearth.mcmescripts.selector.PlayerSelector;
 import com.mcmiddleearth.mcmescripts.selector.Selector;
 import com.mcmiddleearth.mcmescripts.selector.VirtualEntitySelector;
@@ -43,6 +45,7 @@ public class ConditionCompiler {
                                 VALUE_TALK                  = "talk",
                                 VALUE_NO_TALK               = "no_talk",
                                 VALUE_GOAL_TYPE             = "goal_type",
+                                VALUE_HAS_ITEM              = "has_item",
                                 VALUE_PROXIMITY_LOCATION    = "location_proximity",
                                 VALUE_PROXIMITY_PLAYER      = "player_proximity",
                                 VALUE_PROXIMITY_ENTITY      = "entity_proximity",
@@ -104,6 +107,10 @@ public class ConditionCompiler {
                         DebugManager.warn(Modules.Condition.create(ConditionCompiler.class),"Can't compile "+VALUE_GOAL_TYPE+" condition. Missing goal type.");
                     }
                     return Optional.empty();
+                case VALUE_HAS_ITEM:
+                    selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
+                    InventoryFilter inventoryFilter = InventoryFilterCompiler.compile(jsonObject);
+                    return Optional.of(new HasItemCondition(inventoryFilter, (McmeEntitySelector) selector, compileFunction(jsonObject)));
                 case VALUE_PROXIMITY_LOCATION:
                     selector = SelectorCompiler.compileMcmeEntitySelector(jsonObject);
                     Location location = LocationCompiler.compile(jsonObject.get(KEY_CENTER)).orElse(null);
