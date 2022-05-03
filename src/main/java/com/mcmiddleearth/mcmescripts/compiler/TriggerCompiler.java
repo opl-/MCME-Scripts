@@ -239,7 +239,7 @@ public class TriggerCompiler {
             node.setConditionSuccessTrigger(compileDecisionNode(thenData.getAsJsonObject()));
         }
         JsonElement elseData = jsonObject.get(KEY_ELSE);
-        if(thenData!=null) {
+        if(elseData!=null) {
             node.setConditionFailTrigger(compileDecisionNode(elseData.getAsJsonObject()));
         }
         return node;
